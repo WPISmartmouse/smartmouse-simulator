@@ -1,0 +1,5 @@
+if (${REAL})
+    add_subdirectory(arduino)
+elseif ()
+    add_subdirectory(sim)
+endif ()

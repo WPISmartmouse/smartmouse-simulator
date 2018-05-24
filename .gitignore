@@ -1,0 +1,4 @@
+workspace.xml
+cmake-build-debug
+.*build
+*.swp

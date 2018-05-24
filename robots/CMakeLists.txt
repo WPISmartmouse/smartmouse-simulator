@@ -1,0 +1,1 @@
+add_subdirectory(smartmouse_2018)
