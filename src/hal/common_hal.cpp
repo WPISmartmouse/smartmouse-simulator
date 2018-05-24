@@ -1,3 +1,7 @@
+#include <cstring>
+
+#include "mouse.h"
+
 #include "hal.h"
 
 namespace ssim {
@@ -11,31 +15,31 @@ int _kill(int pid, int sig) { return -1; }
 void _write_r() {}
 }
 
-void print_maze_mouse(const AbstractMouse &mouse) {
+void print_maze_mouse(const Mouse &mouse) {
   char buff[smartmouse::maze::BUFF_SIZE];
   mouse.maze_mouse_string(buff);
   print(buff);
 }
 
-void print_maze_str(char *buff) {
+void print_maze_str(const AbstractMaze &maze, char *buff) {
   char *b = buff;
   unsigned int i, j;
   for (i = 0; i < smartmouse::maze::SIZE; i++) {
     for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      Node *n = nodes[i][j];
+      Node *n = maze.nodes[i][j];
       if (n->neighbor(Direction::W) == nullptr) {
-        strcpy(b++, "|");
+        strncpy(b++, "|", 1);
         if (n->neighbor(Direction::S) == nullptr) {
-          strcpy(b++, "_");
+          strncpy(b++, "_", 1);
         } else {
-          strcpy(b++, " ");
+          strncpy(b++, " ", 1);
         }
       } else {
         strcpy(b++, "_");
         if (n->neighbor(Direction::S) == nullptr) {
-          strcpy(b++, "_");
+          strncpy(b++, "_", 1);
         } else {
-          strcpy(b++, " ");
+          strncpy(b++, " ", 1);
         }
       }
     }
@@ -52,12 +56,12 @@ void print_maze() {
   print(buff);
 }
 
-void print_neighbor_maze() {
+void print_neighbor_maze(const AbstractMaze &maze) {
   unsigned int i, j;
   for (i = 0; i < smartmouse::maze::SIZE; i++) {
     for (j = 0; j < smartmouse::maze::SIZE; j++) {
       for (Direction d = Direction::First; d < Direction::Last; d++) {
-        bool wall = (nodes[i][j]->neighbor(d) == nullptr);
+        bool wall = (maze.nodes[i][j]->neighbor(d) == nullptr);
         print("%i", wall);
       }
       print(" ");
@@ -66,22 +70,22 @@ void print_neighbor_maze() {
   }
 }
 
-void print_weight_maze() {
+void print_weight_maze(const AbstractMaze &maze) {
   unsigned int i, j;
   for (i = 0; i < smartmouse::maze::SIZE; i++) {
     for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      int w = nodes[i][j]->weight;
+      int w = maze.nodes[i][j]->weight;
       print("%03u ", w);
     }
     print("\r\n");
   }
 }
 
-void print_dist_maze() {
+void print_dist_maze(const AbstractMaze &maze) {
   unsigned int i, j;
   for (i = 0; i < smartmouse::maze::SIZE; i++) {
     for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      Node *n = nodes[i][j];
+      Node *n = maze.nodes[i][j];
       int d = n->distance;
       if (d < 10) {
         print("  %d ", d);
@@ -95,11 +99,11 @@ void print_dist_maze() {
   }
 }
 
-void print_pointer_maze() {
+void print_pointer_maze(const AbstractMaze &maze) {
   unsigned int i, j;
   for (i = 0; i < smartmouse::maze::SIZE; i++) {
     for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      print("%p ", nodes[i][j]);
+      print("%p ", maze.nodes[i][j]);
     }
     print("\r\n");
   }

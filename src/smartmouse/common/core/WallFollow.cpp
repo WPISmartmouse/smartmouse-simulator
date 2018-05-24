@@ -1,8 +1,6 @@
 #include "WallFollow.h"
 
-#ifndef EMBED
-
-#endif
+namespace ssim {
 
 WallFollow::WallFollow(Mouse *mouse) : Solver(mouse) {}
 
@@ -73,3 +71,5 @@ motion_primitive_t WallFollow::planNextStep() {
 
   return {1, nextDir};
 }
+
+} // namespace ssim

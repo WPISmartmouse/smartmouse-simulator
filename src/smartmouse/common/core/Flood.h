@@ -8,7 +8,9 @@
 #pragma once
 
 #include "Solver.h"
-#include "Mouse.h"
+#include "mouse.h"
+
+namespace ssim {
 
 class Flood : public Solver {
 
@@ -44,3 +46,5 @@ private:
 
   bool solved;
 };
+
+} // namespace ssim

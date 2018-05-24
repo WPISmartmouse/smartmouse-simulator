@@ -1,5 +1,5 @@
 #include "Direction.h"
-#include <math.h>
+#include <math_util.h>
 
 #if !defined M_PI
 #define M_PI 3.14159265358979

@@ -1,16 +1,18 @@
 #include <cstring>
-#include "util.h"
-#include "Mouse.h"
+
+#include "mouse.h"
+
+namespace ssim {
 
 Mouse::Mouse() : maze(new AbstractMaze()), row(0), col(0), dir(Direction::E) {}
 
 Mouse::Mouse(unsigned int starting_row, unsigned int starting_col) : maze(new AbstractMaze()), row(starting_row), col(starting_col),
-                                                   dir(Direction::E) {}
+                                                                     dir(Direction::E) {}
 
 Mouse::Mouse(AbstractMaze *maze) : maze(maze), row(0), col(0), dir(Direction::E) {}
 
 Mouse::Mouse(AbstractMaze *maze, unsigned int starting_row, unsigned int starting_col) : maze(maze), row(starting_row), col(starting_col),
-                                                                       dir(Direction::E) {}
+                                                                                         dir(Direction::E) {}
 
 void Mouse::reset() {
   row = 0;
@@ -77,13 +79,7 @@ void Mouse::mark_mouse_position_visited() {
   maze->nodes[row][col]->visited = true;
 }
 
-void Mouse::print_maze_mouse() {
-  char buff[smartmouse::maze::BUFF_SIZE];
-  maze_mouse_string(buff);
-  print(buff);
-}
-
-void Mouse::maze_mouse_string(char *buff) {
+void Mouse::maze_mouse_string(char *buff) const {
   char *b = buff;
   unsigned int i, j;
   for (i = 0; i < smartmouse::maze::SIZE; i++) {
@@ -125,4 +121,6 @@ void Mouse::maze_mouse_string(char *buff) {
   b++;
   *b = '\0';
 }
+
+} // namespace ssim
 

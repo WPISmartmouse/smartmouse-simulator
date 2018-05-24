@@ -5,7 +5,9 @@
 #pragma once
 
 #include "Solver.h"
-#include "Mouse.h"
+#include "mouse.h"
+
+namespace ssim {
 
 class WallFollow : public Solver {
 
@@ -28,3 +30,5 @@ public:
 private:
   Solver::Goal goal;
 };
+
+} // namespace ssim

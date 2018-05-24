@@ -1,5 +1,6 @@
 #include "Flood.h"
 
+namespace ssim {
 Flood::Flood(Mouse *mouse) : Solver(mouse), done(false), solved(false) {}
 
 //starts at 0, 0 and explores the whole maze
@@ -104,3 +105,5 @@ void Flood::teardown() {
     mouse->maze->fastest_route = all_wall_maze->fastest_route;
   }
 }
+
+} // namespace ssim

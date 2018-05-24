@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Mouse.h"
+#include "mouse.h"
 
+namespace ssim {
 
 class Solver {
 public:
@@ -29,3 +30,5 @@ public:
   bool solvable;
   Mouse *mouse;
 };
+
+} // namespace ssim

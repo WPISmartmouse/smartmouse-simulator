@@ -7,6 +7,8 @@
 #include "AbstractMaze.h"
 #include "Pose.h"
 
+namespace ssim {
+
 template<typename T>
 struct RangeData {
   T gerald_left;
@@ -38,7 +40,7 @@ struct RangeData {
  */
 class Mouse {
 
- public:
+public:
 
   Mouse();
 
@@ -79,11 +81,8 @@ class Mouse {
 
   void internalForward();
 
-  /** prints a maze with a mouse in it */
-  void print_maze_mouse();
-
   /** creates one long string of the mouse in the maze in ascii */
-  void maze_mouse_string(char *);
+  void maze_mouse_string(char *) const;
 
   virtual SensorReading checkWalls() = 0;
 
@@ -96,7 +95,9 @@ class Mouse {
 
   virtual LocalPose getLocalPose() = 0;
 
- protected:
+protected:
   unsigned int row, col;
   Direction dir;
 };
+
+} // namespace ssim

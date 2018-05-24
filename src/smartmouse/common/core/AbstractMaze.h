@@ -15,6 +15,8 @@
 #include "Node.h"
 #include "Direction.h"
 
+namespace ssim {
+
 /**
  * \brief the maze is graph of nodes, stored internally as an matrix.
  * don't forget to call free_maze(maze) after a maze is done being used
@@ -30,6 +32,7 @@ struct motion_primitive_t {
     return ss.str();
   }
 };
+
 typedef std::vector<motion_primitive_t> route_t;
 
 std::string route_to_string(route_t &route);
@@ -68,7 +71,7 @@ constexpr double SIZE_CU = toCellUnits(SIZE_M);
 class AbstractMaze {
   friend class Mouse;
 
- public:
+public:
 
   bool solved;
   route_t fastest_route;
@@ -148,34 +151,6 @@ class AbstractMaze {
    */
   route_t truncate(unsigned int row, unsigned int col, Direction dir, route_t route);
 
-  /** prints a maze
-  * @param maze the maze
-  */
-  void print_maze();
-
-  void print_maze_str(char *buff);
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-
-  /** duh*/
-  void print_pointer_maze();
-
-  /** prints each node as a list of booleans
-  EX)  0010 would mean on wall South
-       1011 would mean walls to the North, South, and West
-
-  */
-  void print_neighbor_maze();
-
-  /** duh*/
-  void print_weight_maze();
-
-  /** duh*/
-  void print_dist_maze();
-
-#pragma clang diagnostic pop
-
   static AbstractMaze gen_random_legal_maze();
 
   static void _make_connections(AbstractMaze *maze, Node *node);
@@ -186,3 +161,5 @@ class AbstractMaze {
 
   Node *nodes[smartmouse::maze::SIZE][smartmouse::maze::SIZE]; // array of node pointers
 };
+
+}

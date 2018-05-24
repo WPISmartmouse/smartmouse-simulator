@@ -6,13 +6,16 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <iostream>
 
 #include "AbstractMaze.h"
-#include "util.h"
 
+// FIXME: what the is this for?
 #ifdef EMBED
 #include <Arduino.h>
 #endif
+
+namespace ssim {
 
 AbstractMaze::AbstractMaze() : solved(false) {
   unsigned int i, j;
@@ -32,7 +35,7 @@ AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
     std::getline(fs, line);
 
     if (!fs.good()) {
-      print("getline failed");
+      std::cerr << "getline failed\n";
       return;
     }
 
@@ -108,7 +111,8 @@ void AbstractMaze::update(SensorReading sr) {
   }
 }
 
-bool AbstractMaze::flood_fill_from_point(route_t *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1) {
+bool
+AbstractMaze::flood_fill_from_point(route_t *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1) {
   return flood_fill(path, r0, c0, r1, c1);
 }
 
@@ -225,93 +229,6 @@ void AbstractMaze::mark_origin_known() {
   nodes[0][0]->known = true;
 }
 
-void AbstractMaze::print_maze_str(char *buff) {
-  char *b = buff;
-  unsigned int i, j;
-  for (i = 0; i < smartmouse::maze::SIZE; i++) {
-    for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      Node *n = nodes[i][j];
-      if (n->neighbor(Direction::W) == nullptr) {
-        strcpy(b++, "|");
-        if (n->neighbor(Direction::S) == nullptr) {
-          strcpy(b++, "_");
-        } else {
-          strcpy(b++, " ");
-        }
-      } else {
-        strcpy(b++, "_");
-        if (n->neighbor(Direction::S) == nullptr) {
-          strcpy(b++, "_");
-        } else {
-          strcpy(b++, " ");
-        }
-      }
-    }
-    *(b++) = '|';
-    *(b++) = '\n';
-  }
-  b++;
-  *b = '\0';
-}
-
-void AbstractMaze::print_maze() {
-  char buff[smartmouse::maze::BUFF_SIZE];
-  print_maze_str(buff);
-  print(buff);
-}
-
-void AbstractMaze::print_neighbor_maze() {
-  unsigned int i, j;
-  for (i = 0; i < smartmouse::maze::SIZE; i++) {
-    for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      for (Direction d = Direction::First; d < Direction::Last; d++) {
-        bool wall = (nodes[i][j]->neighbor(d) == nullptr);
-        print("%i", wall);
-      }
-      print(" ");
-    }
-    print("\r\n");
-  }
-}
-
-void AbstractMaze::print_weight_maze() {
-  unsigned int i, j;
-  for (i = 0; i < smartmouse::maze::SIZE; i++) {
-    for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      int w = nodes[i][j]->weight;
-      print("%03u ", w);
-    }
-    print("\r\n");
-  }
-}
-
-void AbstractMaze::print_dist_maze() {
-  unsigned int i, j;
-  for (i = 0; i < smartmouse::maze::SIZE; i++) {
-    for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      Node *n = nodes[i][j];
-      int d = n->distance;
-      if (d < 10) {
-        print("  %d ", d);
-      } else if (d < 100) {
-        print(" %d ", d);
-      } else {
-        print("%d ", d);
-      }
-    }
-    print("\r\n");
-  }
-}
-
-void AbstractMaze::print_pointer_maze() {
-  unsigned int i, j;
-  for (i = 0; i < smartmouse::maze::SIZE; i++) {
-    for (j = 0; j < smartmouse::maze::SIZE; j++) {
-      print("%p ", nodes[i][j]);
-    }
-    print("\r\n");
-  }
-}
 
 AbstractMaze AbstractMaze::gen_random_legal_maze() {
   AbstractMaze maze;
@@ -382,7 +299,7 @@ AbstractMaze AbstractMaze::gen_random_legal_maze() {
         break;
       case Direction::W: {
         Node *below = nullptr;
-        Node*left = nullptr;
+        Node *left = nullptr;
         Node *above = nullptr;
         maze.get_node(&below, row + 1, col);
         maze.get_node(&left, row, col - 1);
@@ -394,7 +311,7 @@ AbstractMaze AbstractMaze::gen_random_legal_maze() {
       }
         break;
       default:
-          break;
+        break;
     }
 
     if (can_delete) {
@@ -443,7 +360,7 @@ std::string route_to_string(route_t &route) {
   }
 
   for (motion_primitive_t prim : route) {
-    ss << (int)prim.n << dir_to_char(prim.d);
+    ss << (int) prim.n << dir_to_char(prim.d);
   }
 
   return ss.str();
@@ -452,16 +369,15 @@ std::string route_to_string(route_t &route) {
 void insert_motion_primitive_back(route_t *route, motion_primitive_t prim) {
   if (!route->empty() && prim.d == route->back().d) {
     route->back().n += prim.n;
-  }
-  else {
+  } else {
     route->insert(route->cend(), prim);
   }
 }
+
 void insert_motion_primitive_front(route_t *route, motion_primitive_t prim) {
   if (!route->empty() && prim.d == route->front().d) {
     route->front().n += prim.n;
-  }
-  else {
+  } else {
     route->insert(route->cbegin(), prim);
   }
 }
@@ -504,3 +420,5 @@ bool AbstractMaze::operator==(const AbstractMaze &other) const {
   }
   return true;
 }
+
+} // namespace ssim

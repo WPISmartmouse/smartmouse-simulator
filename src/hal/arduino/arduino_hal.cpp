@@ -4,7 +4,7 @@
 
 #include <Arduino.h>
 
-#include "util.h"
+#include "hal.h"
 
 namespace ssim {
 
