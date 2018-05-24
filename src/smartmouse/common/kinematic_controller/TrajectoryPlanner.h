@@ -3,10 +3,11 @@
 #include <cmath>
 #include <vector>
 
-#include <eigen3/Eigen.h>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
-#include <smartmouse/common/core/Pose.h>
+#include "Pose.h"
+
+namespace ssim {
 
 struct Waypoint {
   double time;
@@ -17,7 +18,7 @@ typedef std::vector<Waypoint> Waypoints;
 
 class TrajectoryPlanner {
 
- public:
+public:
   static Eigen::Matrix<double, 1, 10> x_constraint(double t);
 
   static Eigen::Matrix<double, 1, 10> y_constraint(double t);
@@ -34,7 +35,7 @@ class TrajectoryPlanner {
 
   const Eigen::Matrix<double, 10, 1> plan();
 
- private:
+private:
   Waypoints waypoints;
 
   // 6 constraints per row, x, y, xdot, ydot, trig, nonholonomic
@@ -43,3 +44,4 @@ class TrajectoryPlanner {
   Eigen::Matrix<double, 10, 1> b;
 };
 
+} // namespace ssim

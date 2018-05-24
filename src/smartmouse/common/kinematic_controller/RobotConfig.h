@@ -2,11 +2,10 @@
 
 #include <cmath>
 
-#include <smartmouse/common/core/AbstractMaze.h>
-#include <smartmouse/common/IRSensorModeling/Model.h>
+#include "AbstractMaze.h"
+#include "IRModel.h"
 
-namespace smartmouse {
-namespace kc {
+namespace ssim {
 
 struct SensorPose {
   double x;
@@ -45,11 +44,11 @@ extern double MAX_SPEED_MPS;
 extern bool WALL_SMASH;
 extern double MAX_SPEED_CUPS;
 
-constexpr double TRACK_WIDTH_CU = smartmouse::maze::toCellUnits(TRACK_WIDTH_M);
-constexpr double MAX_HARDWARE_SPEED_CUPS = smartmouse::maze::toCellUnits(MAX_HARDWARE_SPEED_MPS);
-constexpr double MIN_SPEED_CUPS = smartmouse::maze::toCellUnits(MIN_SPEED_MPS);
-constexpr double ANALOG_MAX_DIST_CU = smartmouse::maze::toCellUnits(ANALOG_MAX_DIST_M);
-constexpr double ANALOG_MIN_DIST_CU = smartmouse::maze::toCellUnits(ANALOG_MIN_DIST_M);
+constexpr double TRACK_WIDTH_CU = ssim::toCellUnits(TRACK_WIDTH_M);
+constexpr double MAX_HARDWARE_SPEED_CUPS = toCellUnits(MAX_HARDWARE_SPEED_MPS);
+constexpr double MIN_SPEED_CUPS = toCellUnits(MIN_SPEED_MPS);
+constexpr double ANALOG_MAX_DIST_CU = toCellUnits(ANALOG_MAX_DIST_M);
+constexpr double ANALOG_MIN_DIST_CU = toCellUnits(ANALOG_MIN_DIST_M);
 
 constexpr SensorPose BACK_LEFT{BACK_SIDE_ANALOG_X, -BACK_SIDE_ANALOG_Y, -BACK_ANALOG_ANGLE};
 constexpr SensorPose FRONT_LEFT{FRONT_SIDE_ANALOG_X, -FRONT_SIDE_ANALOG_Y, -FRONT_ANALOG_ANGLE};
@@ -59,7 +58,7 @@ constexpr SensorPose FRONT_RIGHT{FRONT_SIDE_ANALOG_X, FRONT_SIDE_ANALOG_Y, FRONT
 constexpr SensorPose GERALD_RIGHT{GERALD_X, GERALD_Y, GERALD_ANGLE};
 
 constexpr double cellsToRad(double x) {
-  return x * smartmouse::maze::UNIT_DIST_M / WHEEL_RAD;
+  return x * UNIT_DIST_M / WHEEL_RAD;
 }
 
 constexpr double meterToRad(double x) {
@@ -71,8 +70,7 @@ constexpr double radToMeters(double x) {
 }
 
 constexpr double radToCU(double x) {
-  return x * WHEEL_RAD / smartmouse::maze::UNIT_DIST_M;
+  return x * WHEEL_RAD / UNIT_DIST_M;
 }
 
-}
-}
+} // namespace ssim

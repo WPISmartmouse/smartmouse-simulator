@@ -1,7 +1,6 @@
 #pragma once
 
-namespace smartmouse {
-namespace kc {
+namespace ssim {
 
 class VelocityProfileTiming {
 
@@ -41,6 +40,4 @@ class VelocityProfileTiming {
   double two_phase_start_profile_d(double v_end) const;
 };
 
-
-}
-}
+} // namespace ssim

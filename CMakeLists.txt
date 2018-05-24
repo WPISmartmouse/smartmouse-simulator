@@ -7,5 +7,7 @@ option(REAL "target teensy" OFF)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
 add_subdirectory(src)
 add_subdirectory(robots)

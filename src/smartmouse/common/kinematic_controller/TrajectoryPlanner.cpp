@@ -1,4 +1,6 @@
-#include <common/KinematicController/TrajectoryPlanner.h>
+#include "TrajectoryPlanner.h"
+
+namespace ssim {
 
 TrajectoryPlanner::TrajectoryPlanner(Waypoints waypoints) : waypoints(waypoints) {
   for (Waypoint pt : waypoints) {
@@ -40,7 +42,7 @@ Eigen::Matrix<double, 1, 10> TrajectoryPlanner::non_holonomic_constraint(double 
   double t_4 = std::pow(t, 4);
   Eigen::Matrix<double, 1, 10> vec;
   vec << 0, s_t, 2 * s_t * t, 3 * s_t * t_2, 4 * s_t * t_3, 5 * s_t * t_4, 0, c_t, 2 * c_t * t, 3 * c_t * t_2, 4 * c_t
-      * t_3, 5 * c_t * t_4;
+                                                                                                               * t_3, 5 * c_t * t_4;
   return vec;
 }
 
@@ -52,7 +54,7 @@ Eigen::Matrix<double, 1, 10> TrajectoryPlanner::trig_constraint(double theta_t, 
   double t_4 = std::pow(t, 4);
   Eigen::Matrix<double, 1, 10> vec;
   vec << 0, s_t, 2 * s_t * t, 3 * s_t * t_2, 4 * s_t * t_3, 5 * s_t * t_4, 0, -c_t, -2 * c_t * t, -3 * c_t * t_2, -4
-      * c_t * t_3, -5 * c_t * t_4;
+                                                                                                                  * c_t * t_3, -5 * c_t * t_4;
   return vec;
 }
 
@@ -67,3 +69,5 @@ Eigen::Matrix<double, 1, 10> TrajectoryPlanner::y_dot_constraint(double t) {
   vec << 0, 0, 0, 0, 0, 0, 0, 1, 2 * t, 3 * std::pow(t, 2), 4 * std::pow(t, 3), 5 * std::pow(t, 4);
   return vec;
 }
+
+} // namespace ssim

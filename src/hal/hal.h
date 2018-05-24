@@ -30,10 +30,4 @@ void print_dist_maze();
 // FIXME: this 25 should be a parameter
 #define print_slow(fmt, ...) {static unsigned long __idx=0;__idx++; if (__idx%25==0) {print(fmt, __VA_ARGS__);}}
 
-// FIXME: this is dumb
-extern struct global_program_settings_t {
-  bool quiet;
-  bool dead_reckoning;
-} GlobalProgramSettings;
-
 }

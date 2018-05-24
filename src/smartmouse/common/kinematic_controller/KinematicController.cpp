@@ -2,10 +2,13 @@
 #include <algorithm>
 #include <iostream>
 #include <tuple>
-#include <common/math/math.h>
 
-#include <common/core/Mouse.h>
-#include <common/KinematicController/KinematicController.h>
+#include "math_util.h"
+#include "mouse.h"
+
+#include "KinematicController.h"
+
+namespace ssim {
 
 const double KinematicController::kDropSafety = 0.8;
 
@@ -53,15 +56,16 @@ LocalPose KinematicController::getLocalPose() {
       local_pose_estimate.to_left = ceil(current_pose_estimate_cu.row) - current_pose_estimate_cu.row;
       break;
     }
-    default: exit(-1);
+    default:
+      exit(-1);
   }
   return local_pose_estimate;
 }
 
 std::pair<double, double> KinematicController::getWheelVelocitiesCPS() {
   std::pair<double, double> vels;
-  vels.first = smartmouse::kc::radToCU(left_motor.velocity_rps);
-  vels.second = smartmouse::kc::radToCU(right_motor.velocity_rps);
+  vels.first = radToCU(left_motor.velocity_rps);
+  vels.second = radToCU(right_motor.velocity_rps);
   return vels;
 };
 
@@ -121,8 +125,8 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
   if (enabled) {
     if (kinematics_enabled) {
       // equations based on docs/dynamics_model.pdf
-      double vl_cu = smartmouse::kc::radToCU(left_motor.velocity_rps);
-      double vr_cu = smartmouse::kc::radToCU(right_motor.velocity_rps);
+      double vl_cu = radToCU(left_motor.velocity_rps);
+      double vr_cu = radToCU(right_motor.velocity_rps);
 
       GlobalPose d_pose_cu;
       d_pose_cu = forwardKinematics(vl_cu, vr_cu, current_pose_estimate_cu.yaw, dt_s);
@@ -139,9 +143,9 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
       double est_yaw, offset_m;
       bool no_walls;
       std::tie(est_yaw, offset_m, no_walls) = estimate_pose(range_data, *mouse);
-      double offset_cu = smartmouse::maze::toCellUnits(offset_m);
+      double offset_cu = toCellUnits(offset_m);
 
-      if (enable_sensor_pose_estimate and not no_walls and not GlobalProgramSettings.dead_reckoning) {
+      if (enable_sensor_pose_estimate and not no_walls) {
         // if there is a wall in front of us and too close, the front side sensors will reflect off of it and ruin
         // out angle estimate
         if (range_data.front > 0.080) {
@@ -151,10 +155,10 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
         double d_wall_front_cu = 0;
         bool wall_in_front = false;
         // FIXME:
-        if (range_data.front < smartmouse::kc::USE_FRONT_WALL_FOR_POSE) {
+        if (range_data.front < USE_FRONT_WALL_FOR_POSE) {
           double yaw_error = smartmouse::math::yaw_diff(current_pose_estimate_cu.yaw, dir_to_yaw(mouse->getDir()));
-          double d_wall_front_m = cos(yaw_error) * range_data.front + smartmouse::kc::FRONT_ANALOG_X;
-          d_wall_front_cu = smartmouse::maze::toCellUnits(d_wall_front_m);
+          double d_wall_front_m = cos(yaw_error) * range_data.front + FRONT_ANALOG_X;
+          d_wall_front_cu = toCellUnits(d_wall_front_m);
           wall_in_front = true;
         }
 
@@ -162,32 +166,33 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
           case Direction::N: {
             current_pose_estimate_cu.col = col + offset_cu;
             if (wall_in_front) {
-              current_pose_estimate_cu.row = row + d_wall_front_cu + smartmouse::maze::HALF_WALL_THICKNESS_CU;
+              current_pose_estimate_cu.row = row + d_wall_front_cu + HALF_WALL_THICKNESS_CU;
             }
             break;
           }
           case Direction::S: {
             current_pose_estimate_cu.col = col + 1 - offset_cu;
             if (wall_in_front) {
-              current_pose_estimate_cu.row = row + 1 - d_wall_front_cu - smartmouse::maze::HALF_WALL_THICKNESS_CU;
+              current_pose_estimate_cu.row = row + 1 - d_wall_front_cu - HALF_WALL_THICKNESS_CU;
             }
             break;
           }
           case Direction::E: {
             current_pose_estimate_cu.row = row + offset_cu;
             if (wall_in_front) {
-              current_pose_estimate_cu.col = col + 1 - d_wall_front_cu - smartmouse::maze::HALF_WALL_THICKNESS_CU;
+              current_pose_estimate_cu.col = col + 1 - d_wall_front_cu - HALF_WALL_THICKNESS_CU;
             }
             break;
           }
           case Direction::W: {
             current_pose_estimate_cu.row = row + 1 - offset_cu;
             if (wall_in_front) {
-              current_pose_estimate_cu.col = col + d_wall_front_cu + smartmouse::maze::HALF_WALL_THICKNESS_CU;
+              current_pose_estimate_cu.col = col + d_wall_front_cu + HALF_WALL_THICKNESS_CU;
             }
             break;
           }
-          default: break;
+          default:
+            break;
         }
       }
     }
@@ -205,8 +210,8 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
 
 GlobalPose KinematicController::forwardKinematics(double vl_cups, double vr_cups, double yaw_rad, double dt) {
   double dcol_cu, drow_cu, dtheta_rad;
-  double dyawdt = (vl_cups - vr_cups) / smartmouse::kc::TRACK_WIDTH_CU;
-  double R = smartmouse::kc::TRACK_WIDTH_CU * (vr_cups + vl_cups) / (2 * (vl_cups - vr_cups));
+  double dyawdt = (vl_cups - vr_cups) / TRACK_WIDTH_CU;
+  double R = TRACK_WIDTH_CU * (vr_cups + vl_cups) / (2 * (vl_cups - vr_cups));
 
   if (fabs(vl_cups) < 1e-5 && fabs(vr_cups) < 1e-5) {
     // this means we're stopped, so ignore it
@@ -236,27 +241,27 @@ std::tuple<double, double, bool> KinematicController::estimate_pose(RangeData<do
 
   double d_to_wall_left, yaw_left;
   double d_to_wall_right, yaw_right;
-  std::tie(d_to_wall_left, yaw_left) = smartmouse::kc::from_sensors_to_left_wall(smartmouse::kc::BACK_LEFT,
-                                                                                 smartmouse::kc::FRONT_LEFT,
-                                                                                 range_data.back_left,
-                                                                                 range_data.front_left);
-  std::tie(d_to_wall_right, yaw_right) = smartmouse::kc::from_sensors_to_right_wall(smartmouse::kc::BACK_RIGHT,
-                                                                                    smartmouse::kc::FRONT_RIGHT,
-                                                                                    range_data.back_right,
-                                                                                    range_data.front_right);
+  std::tie(d_to_wall_left, yaw_left) = from_sensors_to_left_wall(BACK_LEFT,
+                                                                 FRONT_LEFT,
+                                                                 range_data.back_left,
+                                                                 range_data.front_left);
+  std::tie(d_to_wall_right, yaw_right) = from_sensors_to_right_wall(BACK_RIGHT,
+                                                                    FRONT_RIGHT,
+                                                                    range_data.back_right,
+                                                                    range_data.front_right);
 
-  sense_left_wall = range_data.front_left < smartmouse::kc::SIDE_WALL_THRESHOLD &&
-      range_data.back_left < smartmouse::kc::SIDE_WALL_THRESHOLD;
-  sense_right_wall = range_data.front_right < smartmouse::kc::SIDE_WALL_THRESHOLD &&
-      range_data.back_right < smartmouse::kc::SIDE_WALL_THRESHOLD;
+  sense_left_wall = range_data.front_left < SIDE_WALL_THRESHOLD &&
+                    range_data.back_left < SIDE_WALL_THRESHOLD;
+  sense_right_wall = range_data.front_right < SIDE_WALL_THRESHOLD &&
+                     range_data.back_right < SIDE_WALL_THRESHOLD;
 
 
   // check for walls that will fall off in the near future (geralds!)
-  if (range_data.gerald_left > smartmouse::kc::GERALD_WALL_THRESHOLD) {
+  if (range_data.gerald_left > GERALD_WALL_THRESHOLD) {
     sense_left_wall = false;
   }
 
-  if (range_data.gerald_right > smartmouse::kc::GERALD_WALL_THRESHOLD) {
+  if (range_data.gerald_right > GERALD_WALL_THRESHOLD) {
     sense_right_wall = false;
   }
 
@@ -268,12 +273,12 @@ std::tuple<double, double, bool> KinematicController::estimate_pose(RangeData<do
   double offset = 0;
   bool ignore_walls = true;
   if (sense_left_wall && left_wall_logical) { // wall is on left
-    offset = d_to_wall_left + smartmouse::maze::HALF_WALL_THICKNESS_M;
+    offset = d_to_wall_left + HALF_WALL_THICKNESS_M;
     yaw = dir_to_yaw(mouse.getDir()) + yaw_left;
     ignore_walls = false;
   } else if (sense_right_wall && right_wall_logical) { // wall is on right
     // d_to_wall_right should be positive here for this to be correct
-    offset = smartmouse::maze::UNIT_DIST_M - d_to_wall_right - smartmouse::maze::HALF_WALL_THICKNESS_M;
+    offset = UNIT_DIST_M - d_to_wall_right - HALF_WALL_THICKNESS_M;
     yaw = dir_to_yaw(mouse.getDir()) + yaw_right;
     ignore_walls = false;
   } else { // we're too far from any walls, use our pose estimation
@@ -307,11 +312,16 @@ void KinematicController::planTraj(Waypoints waypoints) {
 
 double KinematicController::fwdDisp(Direction dir, GlobalPose current_pose, GlobalPose start_pose) {
   switch (dir) {
-    case Direction::N: return start_pose.row - current_pose.row;
-    case Direction::E: return current_pose.col - start_pose.col;
-    case Direction::S: return current_pose.row - start_pose.row;
-    case Direction::W: return start_pose.col - current_pose.col;
-    default: return std::numeric_limits<double>::quiet_NaN();
+    case Direction::N:
+      return start_pose.row - current_pose.row;
+    case Direction::E:
+      return current_pose.col - start_pose.col;
+    case Direction::S:
+      return current_pose.row - start_pose.row;
+    case Direction::W:
+      return start_pose.col - current_pose.col;
+    default:
+      return std::numeric_limits<double>::quiet_NaN();
   }
 }
 
@@ -332,7 +342,8 @@ double KinematicController::dispToNextEdge(Mouse &mouse) {
     case Direction::W: {
       return current_pose.col - mouse.getCol();
     }
-    default: return std::numeric_limits<double>::quiet_NaN();
+    default:
+      return std::numeric_limits<double>::quiet_NaN();
   }
 }
 
@@ -370,7 +381,8 @@ double KinematicController::fwdDispToCenter(Mouse &mouse) {
     case Direction::W: {
       return mouse.getGlobalPose().col - (mouse.getCol() + 0.5);
     }
-    default: exit(-1);
+    default:
+      exit(-1);
   }
 }
 
@@ -380,14 +392,12 @@ void KinematicController::setParams(double kP, double kI, double kD, double ff_s
 }
 
 double KinematicController::getCurrentForwardSpeedCUPS() {
-  return smartmouse::kc::radToCU((left_motor.velocity_rps + right_motor.velocity_rps) / 2);
+  return radToCU((left_motor.velocity_rps + right_motor.velocity_rps) / 2);
 }
 
-namespace smartmouse {
-namespace kc {
 
-const std::pair<double, double> from_sensors_to_left_wall(smartmouse::kc::SensorPose s1,
-                                                          smartmouse::kc::SensorPose s2,
+const std::pair<double, double> from_sensors_to_left_wall(SensorPose s1,
+                                                          SensorPose s2,
                                                           double s1_dist_m,
                                                           double s2_dist_m) {
   double dist;
@@ -396,8 +406,8 @@ const std::pair<double, double> from_sensors_to_left_wall(smartmouse::kc::Sensor
   return {dist, yaw};
 };
 
-const std::pair<double, double> from_sensors_to_right_wall(smartmouse::kc::SensorPose s1,
-                                                           smartmouse::kc::SensorPose s2,
+const std::pair<double, double> from_sensors_to_right_wall(SensorPose s1,
+                                                           SensorPose s2,
                                                            double s1_dist_m,
                                                            double s2_dist_m) {
   double dist;
@@ -406,5 +416,4 @@ const std::pair<double, double> from_sensors_to_right_wall(smartmouse::kc::Senso
   return {dist, yaw};
 };
 
-}
-}
+} // namespace ssim

@@ -1,8 +1,12 @@
 #include <algorithm>
-#include <common/core/Mouse.h>
-#include <common/KinematicController/RobotConfig.h>
-#include <common/KinematicController/RegulatedMotor.h>
-#include <common/math/math.h>
+
+#include "mouse.h"
+#include "RobotConfig.h"
+#include "math_util.h"
+
+#include "RegulatedMotor.h"
+
+namespace ssim {
 
 RegulatedMotor::RegulatedMotor()
     : kP(10.0),
@@ -25,8 +29,8 @@ RegulatedMotor::RegulatedMotor()
 
 bool RegulatedMotor::isStopped() {
   bool stopped =
-      fabs(smartmouse::kc::radToMeters(velocity_rps)) <= 0.001
-          && fabs(abstract_force) <= smartmouse::kc::MIN_ABSTRACT_FORCE;
+      fabs(radToMeters(velocity_rps)) <= 0.001
+      && fabs(abstract_force) <= MIN_ABSTRACT_FORCE;
   return stopped;
 }
 
@@ -63,19 +67,17 @@ double RegulatedMotor::runPid(double dt_s, double angle_rad) {
 }
 
 void RegulatedMotor::setAccelerationCpss(double acceleration_cellpss) {
-  this->acceleration_rpss = smartmouse::kc::cellsToRad(acceleration_cellpss);
+  this->acceleration_rpss = cellsToRad(acceleration_cellpss);
 }
-
-#include <iostream>
 
 void RegulatedMotor::setSetpointCps(double setpoint_cups) {
   double s = 0.0;
   if (setpoint_cups > 0.0) {
-    s = std::max(std::min(setpoint_cups, smartmouse::kc::MAX_SPEED_CUPS), smartmouse::kc::MIN_SPEED_CUPS);
+    s = std::max(std::min(setpoint_cups, MAX_SPEED_CUPS), MIN_SPEED_CUPS);
   } else if (setpoint_cups < 0.0) {
-    s = std::min(std::max(setpoint_cups, -smartmouse::kc::MAX_SPEED_CUPS), -smartmouse::kc::MIN_SPEED_CUPS);
+    s = std::min(std::max(setpoint_cups, -MAX_SPEED_CUPS), -MIN_SPEED_CUPS);
   }
-  this->setpoint_rps = smartmouse::kc::cellsToRad(s);
+  this->setpoint_rps = cellsToRad(s);
 }
 
 void RegulatedMotor::setParams(double kP, double kI, double kD, double ff_scale, double ff_offset) {
@@ -85,3 +87,5 @@ void RegulatedMotor::setParams(double kP, double kI, double kD, double ff_scale,
   this->ff_scale = ff_scale;
   this->ff_offset = ff_offset;
 }
+
+} // namespace ssim

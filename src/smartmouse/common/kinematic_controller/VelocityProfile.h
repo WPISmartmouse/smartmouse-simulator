@@ -1,12 +1,12 @@
 #pragma once
 
-#include <common/core/Pose.h>
-#include <common/core/Mouse.h>
-#include <common/KinematicController/RobotConfig.h>
-#include <common/KinematicController/VelocityProfileTiming.h>
+#include "mouse.h"
+#include "Pose.h"
 
-namespace smartmouse {
-namespace kc {
+#include "RobotConfig.h"
+#include "VelocityProfileTiming.h"
+
+namespace ssim {
 
 constexpr double kVf_cps = 0.5;
 
@@ -32,7 +32,5 @@ class VelocityProfile {
 
 };
 
-}
-}
-
+} // namespace ssim
 

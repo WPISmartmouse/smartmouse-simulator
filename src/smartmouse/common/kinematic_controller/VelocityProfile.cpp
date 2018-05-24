@@ -1,11 +1,10 @@
-#include <common/KinematicController/KinematicController.h>
-#include <common/KinematicController/VelocityProfile.h>
-#include <common/math/math.h>
+#include "math_util.h"
+
+#include "KinematicController.h"
+#include "VelocityProfile.h"
 #include "VelocityProfileTiming.h"
 
-namespace smartmouse {
-namespace kc {
-
+namespace ssim {
 
 VelocityProfile::VelocityProfile(GlobalPose start_pose, const VelocityProfileTiming timing)
     : timing(timing),
@@ -48,5 +47,4 @@ double VelocityProfile::compute_forward_velocity(double t /* seconds */ ) {
   return timing.compute_forward_velocity(t);
 }
 
-}
-}
+} // namespace ssim

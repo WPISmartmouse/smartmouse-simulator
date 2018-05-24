@@ -1,10 +1,9 @@
 #include <algorithm>
 
-#include <common/KinematicController/VelocityProfileTiming.h>
+#include "VelocityProfileTiming.h"
 #include "RobotConfig.h"
 
-namespace smartmouse {
-namespace kc {
+namespace ssim {
 
 double VelocityProfileTiming::profile_distance(double v_0, double v_f, double a_m, double j_m, double v_m) const {
   return (std::pow(a_m, 2) * (v_0 + v_f + 2 * v_m) - j_m * (std::pow(v_0, 2) + std::pow(v_f, 2) - 2 * std::pow(v_m, 2)))
@@ -135,6 +134,5 @@ double VelocityProfileTiming::compute_forward_velocity(double t) const {
   return v_t;
 }
 
-}
-}
+} // namespace ssim
 

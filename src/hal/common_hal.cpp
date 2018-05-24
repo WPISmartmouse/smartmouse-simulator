@@ -6,8 +6,6 @@
 
 namespace ssim {
 
-global_program_settings_t GlobalProgramSettings;
-
 // FIXME: I forget what this was for
 extern "C" {
 int _getpid() { return -1; }

@@ -1,9 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace smartmouse {
-
-namespace ir {
+namespace ssim {
 
 /**
  * We model our sensors as follows:
@@ -12,8 +10,8 @@ namespace ir {
  *
  * The 180 value was determined experimentally. It could be another variable but it is not necessary
  */
-struct Model {
-  Model(double a, double b, double c, double d);
+struct IRModel {
+  IRModel(double a, double b, double c, double d);
 
   /** scales based on ADC value **/
   double a;
@@ -36,5 +34,4 @@ struct Model {
   void calibrate(int adc_reading);
 };
 
-}
-}
+} // namespace ssim

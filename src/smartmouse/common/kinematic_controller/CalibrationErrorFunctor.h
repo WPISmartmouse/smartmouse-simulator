@@ -1,7 +1,8 @@
 #pragma once
 
-#include <common/math/Functor.h>
-#include <common/Eigen/Eigen.h>
+#include <Eigen/Eigen>
+
+#include "Functor.h"
 #include "KinematicController.h"
 
 namespace smartmouse {

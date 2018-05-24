@@ -1,5 +1,5 @@
 add_library(server Server.cpp Server.h)
-target_link_libraries(server common)
+target_link_libraries(server core)
 
 ## Instruct CMake to run moc automatically when needed.
 ##set(CMAKE_AUTOMOC ON)

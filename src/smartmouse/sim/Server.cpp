@@ -1,7 +1,7 @@
 #include <limits>
 
 // this should be specific to each robot and somehow pluginable or loadable
-//#include <common/KinematicController/RobotConfig.h>
+//#include <common/kinematic_controller/RobotConfig.h>
 #include <common/math/math.h>
 #include <common/KinematicController/KinematicController.h>
 #include <smartmouse/common/RayTracing.h>

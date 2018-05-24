@@ -33,13 +33,13 @@ Direction Mouse::getDir() {
 }
 
 bool Mouse::atCenter() {
-  return row == smartmouse::maze::CENTER && col == smartmouse::maze::CENTER;
+  return row == CENTER && col == CENTER;
 }
 
 bool Mouse::inBounds() {
   return row >= 0 && col >= 0
-         && row < smartmouse::maze::SIZE
-         && col < smartmouse::maze::SIZE;
+         && row < SIZE
+         && col < SIZE;
 }
 
 void Mouse::internalTurnToFace(Direction dir) {
@@ -82,8 +82,8 @@ void Mouse::mark_mouse_position_visited() {
 void Mouse::maze_mouse_string(char *buff) const {
   char *b = buff;
   unsigned int i, j;
-  for (i = 0; i < smartmouse::maze::SIZE; i++) {
-    for (j = 0; j < smartmouse::maze::SIZE; j++) {
+  for (i = 0; i < SIZE; i++) {
+    for (j = 0; j < SIZE; j++) {
       Node *n = maze->nodes[i][j];
       if (n->neighbor(Direction::W) == NULL) {
         strcpy(b++, "|");

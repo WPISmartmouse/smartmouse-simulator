@@ -1,6 +1,6 @@
 #pragma once
 
-#include <common/KinematicController/RobotConfig.h>
+namespace ssim {
 
 class RegulatedMotor {
 public:
@@ -38,3 +38,5 @@ public:
   double second_derivative;
   double last_derivative;
 };
+
+} // namespace ssim

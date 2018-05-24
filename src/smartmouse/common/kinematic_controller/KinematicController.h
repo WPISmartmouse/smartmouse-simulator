@@ -3,18 +3,17 @@
 #include <tuple>
 #include <utility>
 
-#include <smartmouse/common/core/util.h>
-#include <smartmouse/common/core/Pose.h>
-#include <smartmouse/common/KinematicController/RobotConfig.h>
-#include <smartmouse/common/KinematicController/TrajectoryPlanner.h>
-#include <smartmouse/common/core/Mouse.h>
-#include <smartmouse/common/KinematicController/RegulatedMotor.h>
+#include "mouse.h"
+#include "RobotConfig.h"
+#include "Pose.h"
 
-namespace smartmouse {
-namespace kc {
+#include "TrajectoryPlanner.h"
+#include "RegulatedMotor.h"
 
-constexpr std::pair<double, double> from_sensors_to_wall(smartmouse::kc::SensorPose s1,
-                                                         smartmouse::kc::SensorPose s2,
+namespace ssim {
+
+constexpr std::pair<double, double> from_sensors_to_wall(SensorPose s1,
+                                                         SensorPose s2,
                                                          double s1_dist_m,
                                                          double s2_dist_m) {
   const double d1x = cos(s1.angle) * s1_dist_m + s1.x;
@@ -30,18 +29,15 @@ constexpr std::pair<double, double> from_sensors_to_wall(smartmouse::kc::SensorP
   return {dist, yaw};
 };
 
-const std::pair<double, double> from_sensors_to_left_wall(smartmouse::kc::SensorPose s1,
-                                                          smartmouse::kc::SensorPose s2,
+const std::pair<double, double> from_sensors_to_left_wall(SensorPose s1,
+                                                          SensorPose s2,
                                                           double s1_dist_m,
                                                           double s2_dist_m);
 
-const std::pair<double, double> from_sensors_to_right_wall(smartmouse::kc::SensorPose s1,
-                                                           smartmouse::kc::SensorPose s2,
+const std::pair<double, double> from_sensors_to_right_wall(SensorPose s1,
+                                                           SensorPose s2,
                                                            double s1_dist_m,
                                                            double s2_dist_m);
-
-}
-}
 
 class KinematicController {
  public:
@@ -117,3 +113,5 @@ class KinematicController {
   double acceleration_cellpss;
   double dt_s;
 };
+
+} // namespace ssim

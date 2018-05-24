@@ -41,9 +41,6 @@ void insert_motion_primitive_front(route_t *route, motion_primitive_t prim);
 
 void insert_motion_primitive_back(route_t *route, motion_primitive_t prim);
 
-namespace smartmouse {
-namespace maze {
-
 constexpr static unsigned int SIZE = 16;
 const unsigned long BUFF_SIZE = (SIZE * 2 + 3) * SIZE;
 constexpr static unsigned int CENTER = SIZE / 2;
@@ -64,9 +61,6 @@ constexpr double toCellUnits(double meters) {
 constexpr double WALL_THICKNESS_CU = toCellUnits(WALL_THICKNESS_M);
 constexpr double HALF_WALL_THICKNESS_CU = toCellUnits(HALF_WALL_THICKNESS_M);
 constexpr double SIZE_CU = toCellUnits(SIZE_M);
-
-}
-}
 
 class AbstractMaze {
   friend class Mouse;
@@ -159,7 +153,7 @@ public:
 
   bool operator==(const AbstractMaze &other) const;
 
-  Node *nodes[smartmouse::maze::SIZE][smartmouse::maze::SIZE]; // array of node pointers
+  Node *nodes[SIZE][SIZE]; // array of node pointers
 };
 
 }
