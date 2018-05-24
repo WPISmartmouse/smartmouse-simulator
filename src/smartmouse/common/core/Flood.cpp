@@ -71,7 +71,7 @@ motion_primitive_t Flood::planNextStep() {
   // This will results in the longest path where we know there are no walls
   route_t nextPath = all_wall_maze->truncate(mouse->getRow(), mouse->getCol(), mouse->getDir(), no_wall_path);
   if (nextPath.empty()) {
-    motion_primitive_t{0, Direction::INVALID};
+    return motion_primitive_t{0, Direction::INVALID};
   } else {
     return nextPath.at(0);
   }

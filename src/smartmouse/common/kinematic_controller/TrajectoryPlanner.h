@@ -1,9 +1,9 @@
 #pragma  once
 
+#include <Eigen/Dense>
+
 #include <cmath>
 #include <vector>
-
-#include <Eigen/Dense>
 
 #include "Pose.h"
 

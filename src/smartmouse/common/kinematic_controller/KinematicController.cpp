@@ -234,11 +234,6 @@ GlobalPose KinematicController::forwardKinematics(double vl_cups, double vr_cups
 }
 
 std::tuple<double, double, bool> KinematicController::estimate_pose(RangeData<double> range_data, Mouse &mouse) {
-  static double last_front_left_analog_dist;
-  static double last_front_right_analog_dist;
-  static double last_back_left_analog_dist;
-  static double last_back_right_analog_dist;
-
   double d_to_wall_left, yaw_left;
   double d_to_wall_right, yaw_right;
   std::tie(d_to_wall_left, yaw_left) = from_sensors_to_left_wall(BACK_LEFT,
@@ -285,11 +280,6 @@ std::tuple<double, double, bool> KinematicController::estimate_pose(RangeData<do
     ignore_walls = true;
   }
 
-  last_front_left_analog_dist = range_data.front_left;
-  last_front_right_analog_dist = range_data.front_right;
-  last_back_left_analog_dist = range_data.back_left;
-  last_back_right_analog_dist = range_data.back_right;
-
   return std::tuple<double, double, bool>(yaw, offset, ignore_walls);
 };
 
@@ -307,7 +297,10 @@ void KinematicController::setSpeedCps(double left_setpoint_cps,
 
 void KinematicController::planTraj(Waypoints waypoints) {
   TrajectoryPlanner planner(waypoints);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
   Eigen::Matrix<double, 10, 1> plan = planner.plan();
+#pragma GCC diagnostic pop
 }
 
 double KinematicController::fwdDisp(Direction dir, GlobalPose current_pose, GlobalPose start_pose) {
