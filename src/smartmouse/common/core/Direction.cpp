@@ -1,9 +1,11 @@
 #include "Direction.h"
-#include <math_util.h>
+#include "math_util.h"
 
 #if !defined M_PI
 #define M_PI 3.14159265358979
 #endif
+
+namespace ssim {
 
 char opposite_direction(char c) {
   switch (c) {
@@ -54,7 +56,7 @@ Direction int_to_dir(int i) {
   if (i < 0 || i > 3) {
     return Direction::INVALID;
   }
-  switch(i) {
+  switch (i) {
     case 0:
       return Direction::N;
     case 1:
@@ -113,14 +115,11 @@ Direction operator++(Direction &dir, int) {
 char yaw_to_char(double yaw) {
   if (-M_PI_4 < yaw && yaw < M_PI_4) {
     return 'E';
-  }
-  else if (M_PI_4 < yaw && yaw < 3 * M_PI_4) {
+  } else if (M_PI_4 < yaw && yaw < 3 * M_PI_4) {
     return 'S';
-  }
-  else if (-3 * M_PI_4 < yaw && yaw < -M_PI_4) {
+  } else if (-3 * M_PI_4 < yaw && yaw < -M_PI_4) {
     return 'N';
-  }
-  else {
+  } else {
     return 'W';
   }
 }
@@ -128,14 +127,11 @@ char yaw_to_char(double yaw) {
 Direction yaw_to_dir(double yaw) {
   if (-M_PI_4 < yaw && yaw < M_PI_4) {
     return Direction::E;
-  }
-  else if (M_PI_4 < yaw && yaw < 3 * M_PI_4) {
+  } else if (M_PI_4 < yaw && yaw < 3 * M_PI_4) {
     return Direction::S;
-  }
-  else if (-3 * M_PI_4 < yaw && yaw < -M_PI_4) {
-      return Direction::N;
-  }
-  else {
+  } else if (-3 * M_PI_4 < yaw && yaw < -M_PI_4) {
+    return Direction::N;
+  } else {
     return Direction::W;
   }
 }
@@ -200,3 +196,4 @@ Direction char_to_dir(char c) {
   }
 }
 
+} // namespace ssim

@@ -4,6 +4,8 @@
 
 #include "Direction.h"
 
+namespace ssim {
+
 class SensorReading {
 public:
   SensorReading(int row, int col);
@@ -16,3 +18,5 @@ public:
 
   const unsigned int row, col;
 };
+
+} // namespace ssim

@@ -12,16 +12,16 @@ VelocityProfile::VelocityProfile(GlobalPose start_pose, const VelocityProfileTim
       start_pose(start_pose) {
 }
 
-std::pair<double, double> VelocityProfile::drive_straight_wheel_velocities(Mouse &mouse, double t_s) {
-  GlobalPose current_pose = mouse.getGlobalPose();
-  disp = KinematicController::fwdDisp(mouse.getDir(), current_pose, start_pose);
+std::pair<double, double> VelocityProfile::drive_straight_wheel_velocities(Robot &robot, double t_s) {
+  GlobalPose current_pose = robot.getGlobalPose();
+  disp = Robot::fwdDisp(robot.getDir(), current_pose, start_pose);
 
-  const double error_to_center_cu = KinematicController::sidewaysDispToCenter(mouse);
-  const double goal_yaw = dir_to_yaw(mouse.getDir()) + error_to_center_cu * kPYaw;
+  const double error_to_center_cu = Robot::sidewaysDispToCenter(robot);
+  const double goal_yaw = dir_to_yaw(robot.getDir()) + error_to_center_cu * kPYaw;
 
   // The goal is to be facing straight when you wall distance is correct.
   // To achieve this, we control our yaw as a function of our error in wall distance
-  const double yaw_error = smartmouse::math::yaw_diff(goal_yaw, current_pose.yaw);
+  const double yaw_error = yaw_diff(goal_yaw, current_pose.yaw);
 
   // given starting velocity, max velocity, acceleration, and jerk, and final velocity...
   // generate the velocity profile for achieving this as fast as possible

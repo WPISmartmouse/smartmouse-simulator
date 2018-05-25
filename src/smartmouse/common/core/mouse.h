@@ -33,10 +33,9 @@ struct RangeData {
 };
 
 /** \brief depresents a mouse
- * don't ever change the row/col of a mouse directly. This prevents it from
- * working on the real robot
- * use forward and turnToFace to move the mouse around. Once those functions
- * work on the real robot it will port over fluidly
+ * don't ever change the row/col of a mouse directly. This prevents it from working on the real robot
+ * use forward and turnToFace to move the mouse around.
+ * Once those functions work on the real robot it will port over fluidly
  */
 class Mouse {
 
@@ -69,12 +68,6 @@ public:
    */
   Direction getDir();
 
-  /** check if we're in bounds */
-  bool inBounds();
-
-  /** \brief is the mouse at the center of the maze? */
-  bool atCenter();
-
   void mark_mouse_position_visited();
 
   void internalTurnToFace(Direction dir);
@@ -90,10 +83,6 @@ public:
   bool isWallInDirection(Direction d);
 
   AbstractMaze *maze;
-
-  virtual GlobalPose getGlobalPose() = 0;
-
-  virtual LocalPose getLocalPose() = 0;
 
 protected:
   unsigned int row, col;

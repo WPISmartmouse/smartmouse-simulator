@@ -8,7 +8,9 @@
 #include <vector>
 
 #ifndef ARDUINO
+
 #include <fstream>
+
 #endif
 
 #include "SensorReading.h"
@@ -63,7 +65,6 @@ constexpr double HALF_WALL_THICKNESS_CU = toCellUnits(HALF_WALL_THICKNESS_M);
 constexpr double SIZE_CU = toCellUnits(SIZE_M);
 
 class AbstractMaze {
-  friend class Mouse;
 
 public:
 

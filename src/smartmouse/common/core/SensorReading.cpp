@@ -1,5 +1,7 @@
 #include "SensorReading.h"
 
+namespace ssim {
+
 SensorReading::SensorReading(int row, int col) :
         walls({false, false, false, false}),
         row(row),
@@ -13,3 +15,5 @@ SensorReading::SensorReading(int row, int col, bool *walls) :
 bool SensorReading::isWall(Direction dir) {
   return walls[static_cast<int>(dir)];
 }
+
+} // namespace ssim

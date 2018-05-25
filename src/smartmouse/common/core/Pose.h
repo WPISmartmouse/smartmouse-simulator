@@ -1,5 +1,7 @@
 #pragma once
 
+namespace ssim {
+
 class LocalPose {
 public:
   LocalPose();
@@ -33,3 +35,5 @@ class GlobalState {
   GlobalPose pose;
   double velocity;
 };
+
+} // namespace ssim

@@ -41,7 +41,7 @@ double RegulatedMotor::runPid(double dt_s, double angle_rad) {
     return 0;
   }
 
-  auto d_rad = smartmouse::math::yaw_diff(last_angle_rad, angle_rad);
+  auto d_rad = yaw_diff(last_angle_rad, angle_rad);
   velocity_rps = d_rad / dt_s;
   error = setpoint_rps - velocity_rps;
   derivative = (last_velocity_rps - velocity_rps) / dt_s;

@@ -1,5 +1,7 @@
 #include "Pose.h"
 
+namespace ssim {
+
 LocalPose::LocalPose() {}
 
 LocalPose::LocalPose(double to_left, double to_back) : to_left(to_left), to_back(to_back) {}
@@ -16,3 +18,5 @@ GlobalPose::GlobalPose(double col, double row, double yaw) : col(col), row(row),
 GlobalState::GlobalState() {}
 
 GlobalState::GlobalState(GlobalPose pose, double velocity) : pose(pose), velocity(velocity) {}
+
+} // namespace ssim

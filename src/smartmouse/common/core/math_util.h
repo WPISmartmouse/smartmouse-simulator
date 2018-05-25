@@ -1,8 +1,8 @@
 #include <cmath>
 #include <limits>
 
-namespace smartmouse {
-namespace math {
+namespace ssim {
+
 /** \brief Computes the signed shorted angle between y2 and y1. Check CommonTest.cpp to see examples
  *
  * @param y1 the second angle in the subtraction
@@ -77,5 +77,4 @@ constexpr double rad_to_deg(double rad) {
   return rad * 180 / (2 * M_PI);
 }
 
-} // math
-} // smartmouse
+} // namespace ssim

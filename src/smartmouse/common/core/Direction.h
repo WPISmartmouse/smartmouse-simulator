@@ -1,5 +1,7 @@
 #pragma once
 
+namespace ssim {
+
 enum class Direction {
   N, //0
   E, //1
@@ -45,3 +47,5 @@ char dir_to_char(Direction dir);
 
 /** translate a char into the direction representation*/
 Direction char_to_dir(char c);
+
+}

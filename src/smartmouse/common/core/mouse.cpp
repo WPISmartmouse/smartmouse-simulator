@@ -32,16 +32,6 @@ Direction Mouse::getDir() {
   return dir;
 }
 
-bool Mouse::atCenter() {
-  return row == CENTER && col == CENTER;
-}
-
-bool Mouse::inBounds() {
-  return row >= 0 && col >= 0
-         && row < SIZE
-         && col < SIZE;
-}
-
 void Mouse::internalTurnToFace(Direction dir) {
   this->dir = dir;
 }
@@ -73,7 +63,6 @@ bool Mouse::isWallInDirection(Direction d) {
   bool is_wall = mouse_node->neighbor(d) == nullptr;
   return is_wall;
 }
-
 
 void Mouse::mark_mouse_position_visited() {
   maze->nodes[row][col]->visited = true;

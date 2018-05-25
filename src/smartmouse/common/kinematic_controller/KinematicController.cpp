@@ -34,7 +34,7 @@ GlobalPose KinematicController::getGlobalPose() {
 LocalPose KinematicController::getLocalPose() {
   LocalPose local_pose_estimate;
   local_pose_estimate.yaw_from_straight =
-      smartmouse::math::yaw_diff(dir_to_yaw(mouse->getDir()), current_pose_estimate_cu.yaw);
+      yaw_diff(dir_to_yaw(mouse->getDir()), current_pose_estimate_cu.yaw);
   switch (mouse->getDir()) {
     case Direction::N: {
       local_pose_estimate.to_back = ceil(current_pose_estimate_cu.row) - current_pose_estimate_cu.row;
@@ -133,7 +133,7 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
       current_pose_estimate_cu.col += d_pose_cu.col;
       current_pose_estimate_cu.row += d_pose_cu.row;
       current_pose_estimate_cu.yaw += d_pose_cu.yaw;
-      smartmouse::math::wrapAngleRadInPlace(&current_pose_estimate_cu.yaw);
+      wrapAngleRadInPlace(&current_pose_estimate_cu.yaw);
 
       row = (unsigned int) (current_pose_estimate_cu.row);
       col = (unsigned int) (current_pose_estimate_cu.col);
@@ -156,7 +156,7 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
         bool wall_in_front = false;
         // FIXME:
         if (range_data.front < USE_FRONT_WALL_FOR_POSE) {
-          double yaw_error = smartmouse::math::yaw_diff(current_pose_estimate_cu.yaw, dir_to_yaw(mouse->getDir()));
+          double yaw_error = yaw_diff(current_pose_estimate_cu.yaw, dir_to_yaw(mouse->getDir()));
           double d_wall_front_m = cos(yaw_error) * range_data.front + FRONT_ANALOG_X;
           d_wall_front_cu = toCellUnits(d_wall_front_m);
           wall_in_front = true;
@@ -301,82 +301,6 @@ void KinematicController::planTraj(Waypoints waypoints) {
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
   Eigen::Matrix<double, 10, 1> plan = planner.plan();
 #pragma GCC diagnostic pop
-}
-
-double KinematicController::fwdDisp(Direction dir, GlobalPose current_pose, GlobalPose start_pose) {
-  switch (dir) {
-    case Direction::N:
-      return start_pose.row - current_pose.row;
-    case Direction::E:
-      return current_pose.col - start_pose.col;
-    case Direction::S:
-      return current_pose.row - start_pose.row;
-    case Direction::W:
-      return start_pose.col - current_pose.col;
-    default:
-      return std::numeric_limits<double>::quiet_NaN();
-  }
-}
-
-double KinematicController::dispToNextEdge(Mouse &mouse) {
-  GlobalPose current_pose = mouse.getGlobalPose();
-  Direction dir = mouse.getDir();
-
-  switch (dir) {
-    case Direction::N: {
-      return current_pose.row - mouse.getRow();
-    }
-    case Direction::S: {
-      return mouse.getRow() + 1 - current_pose.row;
-    }
-    case Direction::E: {
-      return mouse.getCol() + 1 - current_pose.col;
-    }
-    case Direction::W: {
-      return current_pose.col - mouse.getCol();
-    }
-    default:
-      return std::numeric_limits<double>::quiet_NaN();
-  }
-}
-
-double KinematicController::dispToNthEdge(Mouse &mouse, unsigned int n) {
-  // give the displacement to the nth edge like above...
-  return dispToNextEdge(mouse) + (n - 1);
-}
-
-GlobalPose KinematicController::poseOfToNthEdge(Mouse &mouse, unsigned int n) {
-  // give the displacement to the nth edge like above...
-  double disp = dispToNthEdge(mouse, n);
-  GlobalPose pose = mouse.getGlobalPose();
-  pose.col += cos(pose.yaw) * disp;
-  pose.row += sin(pose.yaw) * disp;
-
-  return pose;
-}
-
-double KinematicController::sidewaysDispToCenter(Mouse &mouse) {
-  // local y is sideways, increasing from left to right
-  return mouse.getLocalPose().to_left - 0.5;
-}
-
-double KinematicController::fwdDispToCenter(Mouse &mouse) {
-  switch (mouse.getDir()) {
-    case Direction::N: {
-      return mouse.getGlobalPose().row - mouse.getRow() + 0.5;
-    }
-    case Direction::S: {
-      return (mouse.getRow() + 0.5) - mouse.getGlobalPose().row;
-    }
-    case Direction::E: {
-      return mouse.getCol() + 0.5 - mouse.getGlobalPose().col;
-    }
-    case Direction::W: {
-      return mouse.getGlobalPose().col - (mouse.getCol() + 0.5);
-    }
-    default:
-      exit(-1);
-  }
 }
 
 void KinematicController::setParams(double kP, double kI, double kD, double ff_scale, double ff_offset) {

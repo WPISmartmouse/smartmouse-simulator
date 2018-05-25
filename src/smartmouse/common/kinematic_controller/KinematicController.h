@@ -40,24 +40,12 @@ const std::pair<double, double> from_sensors_to_right_wall(SensorPose s1,
                                                            double s2_dist_m);
 
 class KinematicController {
- public:
+public:
   KinematicController(Mouse *mouse);
-
-  static double dispToNextEdge(Mouse &mouse);
-
-  static double dispToNthEdge(Mouse &mouse, unsigned int n);
-
-  static GlobalPose poseOfToNthEdge(Mouse &mouse, unsigned int n);
-
-  static double fwdDispToCenter(Mouse &mouse);
-
-  static double fwdDisp(Direction dir, GlobalPose current_pose, GlobalPose start_pose);
 
   static GlobalPose forwardKinematics(double vl, double vr, double yaw, double dt);
 
   void planTraj(Waypoints waypoints);
-
-  static double sidewaysDispToCenter(Mouse &mouse);
 
   std::tuple<double, double, bool> estimate_pose(RangeData<double> range_data, Mouse &mouse);
 
@@ -77,7 +65,8 @@ class KinematicController {
 
   void reset_yaw_to(double new_yaw);
 
-  std::pair<double, double> run(double dt_s, double left_angle_rad, double right_angle_rad, RangeData<double> range_data);
+  std::pair<double, double>
+  run(double dt_s, double left_angle_rad, double right_angle_rad, RangeData<double> range_data);
 
   void setAccelerationCpss(double acceleration_mpss);
 
@@ -102,7 +91,7 @@ class KinematicController {
 
   double getCurrentForwardSpeedCUPS();
 
- private:
+private:
   bool initialized;
   bool ignoring_left;
   bool ignoring_right;

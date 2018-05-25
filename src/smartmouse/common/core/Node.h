@@ -4,6 +4,8 @@
 
 #include "Direction.h"
 
+namespace ssim {
+
 /**
  * \brief holds its location & neighbors, as well as a bool for indicating if it has been discovered
  * you don't need to free nodes in a maze, just use free_maze however, be sure to free nodes allocated not in mazes
@@ -43,3 +45,5 @@ private:
   unsigned int r;
   unsigned int c;
 };
+
+} // namespace ssim

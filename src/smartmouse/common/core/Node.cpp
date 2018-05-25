@@ -1,5 +1,7 @@
 #include "Node.h"
 
+namespace ssim {
+
 const int Node::OUT_OF_BOUNDS = -2;
 
 Node *Node::neighbor(const Direction dir) {
@@ -61,3 +63,5 @@ void Node::assign_weights_to_neighbors(Node *goal, int weight, bool *success) {
 bool Node::wall(const Direction dir) {
   return neighbor(dir) == nullptr;
 }
+
+} // namespace ssim

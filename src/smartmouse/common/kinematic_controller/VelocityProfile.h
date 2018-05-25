@@ -1,8 +1,7 @@
 #pragma once
 
-#include "mouse.h"
+#include "robot.h"
 #include "Pose.h"
-
 #include "RobotConfig.h"
 #include "VelocityProfileTiming.h"
 
@@ -15,7 +14,7 @@ class VelocityProfile {
 
   VelocityProfile(GlobalPose start_pose, const VelocityProfileTiming timing);
 
-  std::pair<double, double> drive_straight_wheel_velocities(Mouse &mouse, double t_s);
+  std::pair<double, double> drive_straight_wheel_velocities(Robot &robot, double t_s);
 
   constexpr static double kPWall = 3;
   constexpr static double kPYaw = -1.2;
