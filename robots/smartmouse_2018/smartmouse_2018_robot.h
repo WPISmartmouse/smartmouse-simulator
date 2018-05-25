@@ -44,5 +44,7 @@ public:
 
   static const uint8_t BUTTON_PIN = 23;
 
+  AS5048A left_encoder, right_encoder;
+
   void resetToStartPose();
 };

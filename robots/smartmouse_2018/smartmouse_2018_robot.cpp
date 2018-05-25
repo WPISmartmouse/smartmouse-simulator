@@ -1,4 +1,4 @@
-#include "hal.h"
+#include "common/hal.h"
 
 #include "smartmouse_2018_robot.h"
 

@@ -1,10 +1,6 @@
 #pragma once
 
-#include <vector>
-
 namespace ssim {
-
-void digitalWrite(unsigned int pin, bool high);
 
 void print(const char *fmt, ...);
 

@@ -1,0 +1,16 @@
+if (${REAL})
+    file(GLOB_RECURSE TEENSY_C_CORE_FILES ${TEENSY_ROOT}/*.c)
+    file(GLOB_RECURSE TEENSY_CXX_CORE_FILES ${TEENSY_ROOT}/*.cpp)
+    set(TARGET_FLAGS "-DUSB_SERIAL -DF_CPU=${TEENSY_FREQUENCY}000000 ${TEENSY_FLAGS}")
+
+    add_library(teensyduino arduino/arduino_hal.cpp ${TEENSY_C_CORE_FILES} ${TEENSY_CXX_CORE_FILES})
+    target_include_directories(teensyduino PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} arduino)
+    target_compile_definitions(teensyduino PUBLIC ${TARGET_FLAGS})
+else ()
+    add_library(teensyduino sim/sim_hal.cpp)
+    target_include_directories(teensyduino PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} sim)
+    target_link_libraries(teensyduino core)
+endif ()
+
+add_library(hal common/common_hal.cpp common/common_hal.h)
+target_link_libraries(hal PUBLIC core teensyduino)

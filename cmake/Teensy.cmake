@@ -23,19 +23,6 @@
 
 find_program(TY_EXECUTABLE NAMES "teensy_loader_cli" DOC "Path to the executable that can upload programs to the Teensy")
 
-file(GLOB_RECURSE TEENSY_C_CORE_FILES ${TEENSY_ROOT}/*.c)
-
-file(GLOB_RECURSE TEENSY_CXX_CORE_FILES ${TEENSY_ROOT}/*.cpp)
-
-macro(add_teensy_core)
-    # Build the Teensy 'core' library.
-    set(TARGET_FLAGS "-DUSB_SERIAL -DF_CPU=${TEENSY_FREQUENCY}000000 ${TEENSY_FLAGS}")
-    set(TARGET_C_FLAGS "${TARGET_FLAGS} ${TEENSY_C_FLAGS}")
-    set(TARGET_CXX_FLAGS "${TARGET_FLAGS} ${TEENSY_CXX_FLAGS}")
-    add_library(teensy_core ${TEENSY_C_CORE_FILES} ${TEENSY_CXX_CORE_FILES})
-    target_compile_definitions(teensy_core PUBLIC ${TARGET_FLAGS} ${TARGET_CXX_FLAGS})
-endmacro()
-
 macro(add_teensy_executable TARGET_NAME)
     # Build the ELF executable.
     add_executable(${TARGET_NAME} ${ARGN})
@@ -66,27 +53,3 @@ macro(add_teensy_executable TARGET_NAME)
     endif ()
 endmacro(add_teensy_executable)
 
-# TODO: this includes bad CMake practices
-macro(import_arduino_library LIB_NAME)
-    # Check if we can find the library.
-    if (NOT EXISTS ${ARDUINO_LIB_ROOT})
-        message(FATAL_ERROR "Could not find the Arduino library directory")
-    endif (NOT EXISTS ${ARDUINO_LIB_ROOT})
-    set(LIB_DIR "${ARDUINO_LIB_ROOT}/${LIB_NAME}")
-    if (NOT EXISTS "${LIB_DIR}")
-        message(FATAL_ERROR "Could not find the directory for library '${LIB_NAME}'")
-    endif (NOT EXISTS "${LIB_DIR}")
-
-    # Add it to the include path.
-    include_directories("${LIB_DIR}")
-
-    # Mark source files to be built along with the sketch code.
-    file(GLOB SOURCES_CPP ABSOLUTE "${LIB_DIR}" "${LIB_DIR}/*.cpp")
-    foreach (SOURCE_CPP ${SOURCES_CPP})
-        set(TEENSY_LIB_SOURCES ${TEENSY_LIB_SOURCES} ${SOURCE_CPP})
-    endforeach (SOURCE_CPP ${SOURCES_CPP})
-    file(GLOB SOURCES_C ABSOLUTE "${LIB_DIR}" "${LIB_DIR}/*.c")
-    foreach (SOURCE_C ${SOURCES_C})
-        set(TEENSY_LIB_SOURCES ${TEENSY_LIB_SOURCES} ${SOURCE_C})
-    endforeach (SOURCE_C ${SOURCES_C})
-endmacro(import_arduino_library)
