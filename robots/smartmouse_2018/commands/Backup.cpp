@@ -1,4 +1,4 @@
-#include "hal.h"
+#include <Arduino.h>
 
 #include "commands/Backup.h"
 #include "robot.h"
@@ -7,7 +7,7 @@ Backup::Backup(Smartmouse2018Robot &robot) : Command("Backup"), robot(robot) {}
 
 void Backup::initialize() {
   setTimeout(300);
-  ssim::digitalWrite(Smartmouse2018Robot::LED_6, 1);
+  digitalWrite(Smartmouse2018Robot::LED_6, 1);
 }
 
 void Backup::execute() {
@@ -20,6 +20,6 @@ bool Backup::isFinished() {
 
 void Backup::end() {
   robot.kinematic_controller.reset_fwd_to_center();
-  ssim::digitalWrite(Smartmouse2018Robot::LED_6, 0);
+  digitalWrite(Smartmouse2018Robot::LED_6, 0);
 }
 

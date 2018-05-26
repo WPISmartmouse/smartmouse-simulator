@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdint>
 
+
 typedef uint8_t byte;
 typedef unsigned int word;
 
@@ -21,6 +22,7 @@ typedef unsigned int word;
 #define FALLING 2
 #define RISING 3
 #define BIN 2
+#define HEX 16
 
 void digitalWrite(unsigned int pin, bool high);
 
@@ -35,6 +37,7 @@ void pinMode(unsigned int pin, unsigned int mode);
 class CoutSerial {
 public:
   void print(const std::string &);
+  void print(word, unsigned int);
 } Serial;
 
 class NopSerial {

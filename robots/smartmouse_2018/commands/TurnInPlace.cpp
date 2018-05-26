@@ -1,6 +1,6 @@
 #include <tuple>
 
-#include "hal.h"
+#include <Arduino.h>
 #include "math_util.h"
 
 #include "commands/TurnInPlace.h"
@@ -13,7 +13,7 @@ TurnInPlace::TurnInPlace(Smartmouse2018Robot &robot, ssim::Direction dir) : Comm
 
 void TurnInPlace::initialize() {
   robot.kinematic_controller.enable_sensor_pose_estimate = false;
-  ssim::digitalWrite(Smartmouse2018Robot::LED_2, 1);
+  digitalWrite(Smartmouse2018Robot::LED_2, 1);
   setTimeout(5000);
   goal_yaw = dir_to_yaw(dir);
   const auto start = robot.getGlobalPose();
@@ -64,7 +64,7 @@ bool TurnInPlace::isFinished() {
 
 void TurnInPlace::end() {
   robot.kinematic_controller.enable_sensor_pose_estimate = true;
-  ssim::digitalWrite(Smartmouse2018Robot::LED_2, 0);
+  digitalWrite(Smartmouse2018Robot::LED_2, 0);
   robot.internalTurnToFace(dir);
 }
 

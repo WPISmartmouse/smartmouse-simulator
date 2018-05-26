@@ -28,4 +28,8 @@ void CoutSerial::print(const std::string &s) {
   std::cout << s;
 }
 
+void CoutSerial::print(word w, unsigned int mode) {
+  print(std::to_string(w));
+}
+
 void NopSerial::print(const std::string &s) {}

@@ -1,8 +1,9 @@
 // TODO: finish unit conversion
-#include "math_util.h"
-#include "mouse.h"
 
 #include "commands/ArcTurn.h"
+
+#include "math_util.h"
+#include "mouse.h"
 
 
 ArcTurn::ArcTurn(Smartmouse2018Robot &robot, ssim::Direction dir) : Command("ArcTurn"), robot(robot), dir(dir) {}

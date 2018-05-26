@@ -1,4 +1,4 @@
-#include "hal.h"
+#include <Arduino.h>
 
 #include "commands/WallSmash.h"
 
@@ -6,7 +6,7 @@ WallSmash::WallSmash(Smartmouse2018Robot &robot) : Command("WallSmash"), robot(r
 
 void WallSmash::initialize() {
   setTimeout(1000);
-  ssim::digitalWrite(Smartmouse2018Robot::LED_5, 1);
+  digitalWrite(Smartmouse2018Robot::LED_5, 1);
 }
 
 void WallSmash::execute() {
@@ -18,6 +18,6 @@ bool WallSmash::isFinished() {
 }
 
 void WallSmash::end() {
-  ssim::digitalWrite(Smartmouse2018Robot::LED_5, 0);
+  digitalWrite(Smartmouse2018Robot::LED_5, 0);
 }
 

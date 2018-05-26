@@ -1,4 +1,4 @@
-#include "hal.h"
+#include <Arduino.h>
 
 #include "commands/LEDBlink.h"
 
@@ -6,13 +6,13 @@ LEDBlink::LEDBlink(const uint8_t led_pin, unsigned long blink_time) : Command("b
                                                                   blink_time(blink_time) {}
 
 void LEDBlink::initialize() {
-  ssim::digitalWrite(led_pin, 1);
+  digitalWrite(led_pin, 1);
   setTimeout(2 * blink_time);
 }
 
 void LEDBlink::execute() {
   if (!off && getTime() >= blink_time) {
-    ssim::digitalWrite(led_pin, 0);
+    digitalWrite(led_pin, 0);
     off = true;
   }
 }

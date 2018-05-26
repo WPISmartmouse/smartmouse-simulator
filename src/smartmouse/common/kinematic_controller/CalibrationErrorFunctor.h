@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Eigen/Eigen>
-
 #include "Functor.h"
 #include "KinematicController.h"
 

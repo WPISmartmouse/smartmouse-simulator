@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Eigen>
+#include <EigenArduinoWrapper.h>
 
 /** Generic functor
  * See http://eigen.tuxfamily.org/index.php?title=Functors

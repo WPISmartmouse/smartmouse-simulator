@@ -1,7 +1,8 @@
 #pragma once
 
-#include "KinematicController.h"
 #include "mouse.h"
+
+#include "KinematicController.h"
 
 namespace ssim {
 

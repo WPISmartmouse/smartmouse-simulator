@@ -1,4 +1,4 @@
-#include "hal.h"
+#include <Arduino.h>
 #include "commands/ForwardN.h"
 
 ForwardN::ForwardN(Smartmouse2018Robot &robot, unsigned int n) : Command("Forward"), robot(robot), n(n),
@@ -10,7 +10,7 @@ void ForwardN::initialize() {
   const double v0 = robot.kinematic_controller.getCurrentForwardSpeedCUPS();
   const double vf = ssim::kVf_cps;
   profile = new ssim::VelocityProfile(start, {goal_disp, v0, vf});
-  ssim::digitalWrite(Smartmouse2018Robot::LED_4, 1);
+  digitalWrite(Smartmouse2018Robot::LED_4, 1);
 }
 
 void ForwardN::execute() {
@@ -25,6 +25,6 @@ bool ForwardN::isFinished() {
 }
 
 void ForwardN::end() {
-  ssim::digitalWrite(Smartmouse2018Robot::LED_4, 0);
+  digitalWrite(Smartmouse2018Robot::LED_4, 0);
 }
 

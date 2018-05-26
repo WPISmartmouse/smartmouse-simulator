@@ -1,4 +1,4 @@
-#include "hal.h"
+#include <Arduino.h>
 #include "KinematicController.h"
 
 #include "commands/Forward.h"
@@ -12,7 +12,7 @@ void Forward::initialize() {
   const double v0 = robot.kinematic_controller.getCurrentForwardSpeedCUPS();
   const double vf = ssim::kVf_cps;
   profile = new ssim::VelocityProfile(start, {goal_disp, v0, vf});
-  ssim::digitalWrite(Smartmouse2018Robot::LED_1, 1);
+  digitalWrite(Smartmouse2018Robot::LED_1, 1);
 }
 
 void Forward::execute() {
@@ -27,6 +27,6 @@ bool Forward::isFinished() {
 }
 
 void Forward::end() {
-  ssim::digitalWrite(Smartmouse2018Robot::LED_1, 0);
+  digitalWrite(Smartmouse2018Robot::LED_1, 0);
 }
 

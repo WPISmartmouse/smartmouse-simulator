@@ -1,4 +1,4 @@
-#include "hal.h"
+#include <Arduino.h>
 #include "commands/Finish.h"
 
 Finish::Finish(Smartmouse2018Robot &robot, ssim::AbstractMaze *maze) : Command("finish"), maze(maze), robot(robot),
@@ -20,9 +20,9 @@ void Finish::execute() {
     t = getTime();
 
     if (on) {
-      ssim::digitalWrite(pin_id, 1);
+      digitalWrite(pin_id, 1);
     } else {
-      ssim::digitalWrite(pin_id, 0);
+      digitalWrite(pin_id, 0);
       pin_id++;
       if (pin_id > Smartmouse2018Robot::LED_1) {
         pin_id = Smartmouse2018Robot::LED_2;

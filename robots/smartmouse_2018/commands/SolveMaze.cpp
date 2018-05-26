@@ -1,4 +1,5 @@
-#include "hal.h"
+#include "common_hal.h"
+#include <Arduino.h>
 
 #include <commands/SolveMaze.h>
 #include <commands/ForwardN.h>

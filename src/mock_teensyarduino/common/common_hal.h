@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 namespace ssim {
 
 void print(const char *fmt, ...);

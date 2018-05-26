@@ -1,5 +1,5 @@
-add_library(server Server.cpp Server.h)
-target_link_libraries(server core)
+#add_library(server Server.cpp Server.h)
+#target_link_libraries(server core)
 
 ## Instruct CMake to run moc automatically when needed.
 ##set(CMAKE_AUTOMOC ON)
@@ -17,4 +17,4 @@ target_link_libraries(server core)
 #add_library(client Client.cpp)
 #target_include_directories(client PRIVATE ${QWT_INCLUDE_DIR})
 #target_link_libraries(client Qt5::Widgets Qt5::Charts ${QWT_LIBRARY})
-add_library(client Client.cpp Client.h)
+#add_library(client Client.cpp Client.h)

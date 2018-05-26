@@ -1,5 +1,7 @@
 #pragma once
 
+#include <AS5048A.h>
+
 #include "robot.h"
 
 class Smartmouse2018Robot : public ssim::Robot {
