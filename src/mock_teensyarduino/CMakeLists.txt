@@ -1,5 +1,3 @@
-include(Teensy)
-
 set(ARDUINO_LIBS SPI)
 
 if (${REAL})
