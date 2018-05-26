@@ -52,4 +52,3 @@ macro(add_teensy_executable TARGET_NAME)
         add_dependencies(${TARGET_NAME}_Upload ${TARGET_NAME}_Firmware)
     endif ()
 endmacro(add_teensy_executable)
-

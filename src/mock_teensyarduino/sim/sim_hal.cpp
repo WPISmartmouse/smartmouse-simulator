@@ -11,6 +11,15 @@ bool digitalRead(unsigned int pin) {
   return false;
 }
 
+void analogWrite(unsigned int pin, unsigned int value) {
+  // TODO: implement me
+}
+
+unsigned int analogRead(unsigned int pin) {
+  // TODO: implement me
+  return 0;
+}
+
 void pinMode(unsigned int pin, unsigned int mode) {
   // TODO: implement me
 }

@@ -33,7 +33,7 @@ set(TEENSY_ROOT "${TEENSY_CORES_ROOT}/teensy3")
 set(TOOLCHAIN_ROOT "${ARDUINO_ROOT}/hardware/tools/arm")
 set(ARDUINO_VERSION "108" CACHE STRING "Version of the Arduino SDK")
 set(TEENSYDUINO_VERSION "139" CACHE STRING "Version of the Teensyduino SDK")
-set(TEENSY_MODEL "MK66FX1M0") # XXX Add Teensy 3.0 support.
+set(TEENSY_MODEL "MK66FX1M0")
 string(TOLOWER ${TEENSY_MODEL} MCU)
 
 set(TEENSY_FREQUENCY "180" CACHE STRING "Frequency of the Teensy MCU (Mhz)")

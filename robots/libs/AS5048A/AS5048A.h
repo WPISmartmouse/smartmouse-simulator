@@ -2,7 +2,7 @@
 #define as5048_h
 #define LIBRARY_VERSION 1.0.1
 
-#include <SPI.h>
+#include <sim/SPI/SPI.h>
 
 class AS5048A {
 
