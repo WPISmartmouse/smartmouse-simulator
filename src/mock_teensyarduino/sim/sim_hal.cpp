@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #include "Arduino.h"
 
@@ -22,6 +23,10 @@ unsigned int analogRead(unsigned int pin) {
 
 void pinMode(unsigned int pin, unsigned int mode) {
   // TODO: implement me
+}
+
+long micros() {
+  return std::chrono::high_resolution_clock::now().time_since_epoch().count();
 }
 
 void CoutSerial::print(const std::string &s) {

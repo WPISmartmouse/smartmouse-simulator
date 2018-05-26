@@ -7,8 +7,9 @@
 #include "commands/Finish.h"
 #include "commands/SolveMaze.h"
 
-SolveCommand::SolveCommand(Smartmouse2018Robot &robot, ssim::Solver *solver) : CommandGroup("SolveGroup"), robot(robot),
-                                                                               solver(solver) {}
+SolveCommand::SolveCommand(Smartmouse2018Robot &robot, ssim::Solver *solver) : CommandGroup("SolveGroup"),
+                                                   robot(robot),
+                                                   solver(solver) {}
 
 
 void SolveCommand::initialize() {

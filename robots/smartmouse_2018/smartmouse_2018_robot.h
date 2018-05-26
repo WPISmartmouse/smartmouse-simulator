@@ -47,6 +47,17 @@ public:
   static const uint8_t BUTTON_PIN = 23;
 
   AS5048A left_encoder, right_encoder;
+  
+  Smartmouse2018Robot();
 
   void resetToStartPose();
+
+  ssim::SensorReading checkWalls() override;
+
+  void setup();
+
+  void run(double dt_s);
+
+
+  static double checkVoltage();
 };

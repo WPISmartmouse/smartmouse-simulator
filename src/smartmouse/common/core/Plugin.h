@@ -4,12 +4,9 @@ namespace ssim {
 
 class RobotPlugin {
 public:
-  void Setup();
+  virtual void Setup() = 0;
 
-  void PreStep();
-
-  void PostStep();
-
+  virtual void Loop() = 0;
 };
 
 }

@@ -2,6 +2,9 @@
 
 namespace ssim {
 
+Robot::Robot() : kinematic_controller(this) {}
+
+
 double Robot::fwdDisp(Direction dir, GlobalPose current_pose, GlobalPose start_pose) {
   switch (dir) {
     case Direction::N:

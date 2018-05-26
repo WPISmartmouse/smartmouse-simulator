@@ -10,6 +10,8 @@ class Robot : public Mouse {
 
 public:
 
+  Robot();
+
   static double dispToNextEdge(Robot &robot);
 
   static double dispToNthEdge(Robot &robot, unsigned int n);
