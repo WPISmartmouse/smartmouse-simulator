@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
-#include <core/Node.h>
-#include <core/AbstractMaze.h>
+#include <core/node.h>
+#include <core/abstract_maze.h>
 
 TEST(NodeTest, MazeSizeTest) {
   static_assert(ssim::SIZE == 16, "You must have the ssim::SIZE set to 16 to run tests.");

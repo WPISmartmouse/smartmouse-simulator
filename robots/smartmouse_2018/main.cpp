@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <commanduino/commanduino.h>
 #include <core/mouse.h>
-#include <core/Flood.h>
-#include <core/Plugin.h>
+#include <core/flood.h>
+#include <core/plugin.h>
 
 #include "commands/solve_command.h"
 #include "smartmouse_2018_robot.h"

@@ -1,4 +1,4 @@
-#include <core/WallFollow.h>
+#include <core/wall_follow.h>
 
 namespace ssim {
 

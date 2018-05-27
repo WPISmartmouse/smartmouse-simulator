@@ -1,4 +1,4 @@
-#include <core/AbstractMaze.h>
+#include <core/abstract_maze.h>
 
 #include <kinematic_controller/RobotConfig.h>
 

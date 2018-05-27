@@ -13,9 +13,9 @@
 
 #endif
 
-#include <core/SensorReading.h>
-#include <core/Node.h>
-#include <core/Direction.h>
+#include "sensor_reading.h"
+#include "node.h"
+#include "direction.h"
 
 namespace ssim {
 

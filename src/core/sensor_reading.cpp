@@ -1,4 +1,4 @@
-#include <core/SensorReading.h>
+#include <core/sensor_reading.h>
 
 namespace ssim {
 

@@ -3,9 +3,9 @@
 #include <sstream>
 #include <cmath>
 
-#include <core/Direction.h>
-#include <core/AbstractMaze.h>
-#include <core/Pose.h>
+#include <core/direction.h>
+#include <core/abstract_maze.h>
+#include <core/pose.h>
 
 namespace ssim {
 

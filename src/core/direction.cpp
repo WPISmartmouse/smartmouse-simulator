@@ -1,4 +1,4 @@
-#include <core/Direction.h>
+#include <core/direction.h>
 #include <core/math_util.h>
 
 #if !defined M_PI

@@ -3,8 +3,8 @@
 #pragma once
 
 #include <commanduino/commanduino.h>
-#include <core/Direction.h>
-#include <core/AbstractMaze.h>
+#include "../../../src/core/include/core/direction.h"
+#include <core/abstract_maze.h>
 #include <kinematic_controller/RobotConfig.h>
 
 #include "smartmouse_2018_robot.h"

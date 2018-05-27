@@ -1,4 +1,4 @@
-#include <core/Flood.h>
+#include <core/flood.h>
 
 namespace ssim {
 

@@ -1,4 +1,4 @@
-#include <core/Node.h>
+#include <core/node.h>
 
 namespace ssim {
 

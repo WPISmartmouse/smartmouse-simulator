@@ -1,4 +1,4 @@
-#include <core/Pose.h>
+#include <core/pose.h>
 
 namespace ssim {
 

@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include <core/Direction.h>
+#include "direction.h"
 
 namespace ssim {
 

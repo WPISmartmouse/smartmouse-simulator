@@ -4,7 +4,7 @@
 #include <utility>
 
 #include <core/mouse.h>
-#include <core/Pose.h>
+#include <core/pose.h>
 
 #include <kinematic_controller/RegulatedMotor.h>
 #include <kinematic_controller/RobotConfig.h>

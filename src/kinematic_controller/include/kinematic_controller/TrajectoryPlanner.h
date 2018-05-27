@@ -3,7 +3,7 @@
 #include <cmath>
 #include <vector>
 
-#include <core/Pose.h>
+#include <core/pose.h>
 
 #include <kinematic_controller/EigenArduinoWrapper.h>
 

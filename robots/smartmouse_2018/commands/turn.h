@@ -1,7 +1,7 @@
 #pragma once
 
 #include <commanduino/commanduino.h>
-#include <core/Direction.h>
+#include <core/direction.h>
 
 #include "smartmouse_2018_robot.h"
 

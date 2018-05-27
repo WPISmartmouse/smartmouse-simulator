@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <core/Solver.h>
+#include "solver.h"
 #include <core/mouse.h>
 
 namespace ssim {
