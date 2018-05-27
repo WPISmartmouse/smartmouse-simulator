@@ -1,4 +1,4 @@
-#include <kinematic_controller/TrajectoryPlanner.h>
+#include <kinematic_controller/trajectory_planner.h>
 
 namespace ssim {
 

@@ -4,7 +4,7 @@
 
 #include <core/abstract_maze.h>
 
-#include <kinematic_controller/IRModel.h>
+#include <kinematic_controller/ir_model.h>
 
 namespace ssim {
 

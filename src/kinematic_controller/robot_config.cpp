@@ -1,6 +1,6 @@
 #include <core/abstract_maze.h>
 
-#include <kinematic_controller/RobotConfig.h>
+#include <kinematic_controller/robot_config.h>
 
 namespace ssim {
 

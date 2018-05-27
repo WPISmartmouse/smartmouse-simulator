@@ -3,8 +3,8 @@
 #include <core/pose.h>
 
 #include <kinematic_controller/robot.h>
-#include <kinematic_controller/RobotConfig.h>
-#include <kinematic_controller/VelocityProfileTiming.h>
+#include <kinematic_controller/robot_config.h>
+#include <kinematic_controller/velocity_profile_timing.h>
 
 namespace ssim {
 

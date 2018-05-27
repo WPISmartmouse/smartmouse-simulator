@@ -1,8 +1,8 @@
 #include <core/math_util.h>
 
-#include <kinematic_controller/KinematicController.h>
-#include <kinematic_controller/VelocityProfile.h>
-#include <kinematic_controller/VelocityProfileTiming.h>
+#include <kinematic_controller/kinematic_controller.h>
+#include <kinematic_controller/velocity_profile.h>
+#include <kinematic_controller/velocity_profile_timing.h>
 
 namespace ssim {
 

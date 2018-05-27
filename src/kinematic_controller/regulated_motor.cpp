@@ -3,8 +3,8 @@
 #include <core/mouse.h>
 #include <core/math_util.h>
 
-#include <kinematic_controller/RobotConfig.h>
-#include <kinematic_controller/RegulatedMotor.h>
+#include <kinematic_controller/robot_config.h>
+#include <kinematic_controller/regulated_motor.h>
 
 namespace ssim {
 

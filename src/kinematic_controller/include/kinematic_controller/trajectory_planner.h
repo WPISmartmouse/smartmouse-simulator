@@ -5,7 +5,7 @@
 
 #include <core/pose.h>
 
-#include <kinematic_controller/EigenArduinoWrapper.h>
+#include <kinematic_controller/eigen_arduino_wrapper.h>
 
 namespace ssim {
 

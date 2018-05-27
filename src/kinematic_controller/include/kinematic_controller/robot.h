@@ -2,7 +2,7 @@
 
 #include <core/mouse.h>
 
-#include <kinematic_controller/KinematicController.h>
+#include <kinematic_controller/kinematic_controller.h>
 
 namespace ssim {
 

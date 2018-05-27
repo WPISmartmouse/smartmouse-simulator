@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <kinematic_controller/KinematicController.h>
+#include <kinematic_controller/kinematic_controller.h>
 
 #include "commands/forward.h"
 

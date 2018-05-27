@@ -6,9 +6,9 @@
 #include <core/mouse.h>
 #include <core/pose.h>
 
-#include <kinematic_controller/RegulatedMotor.h>
-#include <kinematic_controller/RobotConfig.h>
-#include <kinematic_controller/TrajectoryPlanner.h>
+#include <kinematic_controller/regulated_motor.h>
+#include <kinematic_controller/robot_config.h>
+#include <kinematic_controller/trajectory_planner.h>
 
 namespace ssim {
 

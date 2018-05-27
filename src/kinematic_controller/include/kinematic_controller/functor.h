@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EigenArduinoWrapper.h>
+#include <kinematic_controller/eigen_arduino_wrapper.h>
 
 /** Generic functor
  * See http://eigen.tuxfamily.org/index.php?title=Functors

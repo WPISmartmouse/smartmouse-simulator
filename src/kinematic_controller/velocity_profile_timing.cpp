@@ -1,7 +1,7 @@
 #include <algorithm>
 
-#include <kinematic_controller/VelocityProfileTiming.h>
-#include <kinematic_controller/RobotConfig.h>
+#include <kinematic_controller/velocity_profile_timing.h>
+#include <kinematic_controller/robot_config.h>
 
 namespace ssim {
 

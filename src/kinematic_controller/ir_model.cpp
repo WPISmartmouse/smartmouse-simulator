@@ -1,7 +1,7 @@
 #include <cmath>
 
-#include <kinematic_controller/IRModel.h>
-#include <kinematic_controller/RobotConfig.h>
+#include <kinematic_controller/ir_model.h>
+#include <kinematic_controller/robot_config.h>
 
 namespace ssim {
 

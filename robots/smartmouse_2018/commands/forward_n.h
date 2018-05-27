@@ -2,7 +2,7 @@
 
 #include <commanduino/commanduino.h>
 #include <core/pose.h>
-#include <kinematic_controller/VelocityProfile.h>
+#include "../../../src/kinematic_controller/include/kinematic_controller/velocity_profile.h"
 
 #include "smartmouse_2018_robot.h"
 
