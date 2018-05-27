@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <core/math_util.h>
 
-#include "commands/TurnInPlace.h"
+#include "commands/turn_in_place.h"
 
 const double TurnInPlace::kP = 0.9;
 

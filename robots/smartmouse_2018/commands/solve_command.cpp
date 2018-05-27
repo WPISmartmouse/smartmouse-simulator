@@ -1,11 +1,11 @@
-#include "commands/Turn.h"
-#include "commands/ForwardToCenter.h"
-#include "commands/TurnInPlace.h"
-#include "commands/SolveCommand.h"
-#include "commands/WaitForStart.h"
-#include "commands/Stop.h"
-#include "commands/Finish.h"
-#include "commands/SolveMaze.h"
+#include "commands/turn.h"
+#include "commands/forward_to_center.h"
+#include "commands/turn_in_place.h"
+#include "commands/solve_command.h"
+#include "commands/wait_for_start.h"
+#include "commands/stop.h"
+#include "commands/finish.h"
+#include "commands/solve_maze.h"
 
 SolveCommand::SolveCommand(Smartmouse2018Robot &robot, ssim::Solver *solver) : CommandGroup("SolveGroup"),
                                                    robot(robot),

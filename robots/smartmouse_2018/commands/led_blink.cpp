@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "commands/LEDBlink.h"
+#include "commands/led_blink.h"
 
 LEDBlink::LEDBlink(const uint8_t led_pin, unsigned long blink_time) : Command("blink"), led_pin(led_pin), off(false),
                                                                   blink_time(blink_time) {}

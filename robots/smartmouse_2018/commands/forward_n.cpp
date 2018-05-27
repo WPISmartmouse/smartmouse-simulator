@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "commands/ForwardN.h"
+#include "commands/forward_n.h"
 
 ForwardN::ForwardN(Smartmouse2018Robot &robot, unsigned int n) : Command("Forward"), robot(robot), n(n),
                                                                  profile(nullptr) {}

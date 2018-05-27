@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "commands/WallSmash.h"
+#include "commands/wall_smash.h"
 
 WallSmash::WallSmash(Smartmouse2018Robot &robot) : Command("WallSmash"), robot(robot) {}
 

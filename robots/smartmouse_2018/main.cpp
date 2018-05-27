@@ -4,7 +4,7 @@
 #include <core/Flood.h>
 #include <core/Plugin.h>
 
-#include "commands/SolveCommand.h"
+#include "commands/solve_command.h"
 #include "smartmouse_2018_robot.h"
 
 class Smartmouse2018Main : public ssim::RobotPlugin {

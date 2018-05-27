@@ -1,10 +1,10 @@
-#include "commands/Turn.h"
-#include "commands/TurnInPlace.h"
-#include "commands/Forward.h"
-#include "commands/ArcTurn.h"
-#include "commands/ForwardToCenter.h"
-#include "commands/WallSmash.h"
-#include "commands/Backup.h"
+#include "commands/turn.h"
+#include "commands/turn_in_place.h"
+#include "commands/forward.h"
+#include "commands/arc_turn.h"
+#include "commands/forward_to_center.h"
+#include "commands/wall_smash.h"
+#include "commands/backup.h"
 
 Turn::Turn(Smartmouse2018Robot &robot, ssim::Direction dir) : CommandGroup("RealTurnGroup"), robot(robot), dir(dir) {}
 

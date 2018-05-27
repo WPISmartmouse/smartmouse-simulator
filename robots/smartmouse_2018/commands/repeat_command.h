@@ -3,9 +3,9 @@
 #include <commanduino/CommandDuino.h>
 
 template<typename CommandType, typename... CommandArgs>
-class RepeatCommand : public CommandGroup {
+class repeat_command : public CommandGroup {
 public:
-  RepeatCommand (int count, CommandArgs... args) : CommandGroup("RepeatCommand") {
+  repeat_command (int count, CommandArgs... args) : CommandGroup("RepeatCommand") {
     for (int i = 0; i < count; i++) {
       addSequential(new CommandType(args...));
     }

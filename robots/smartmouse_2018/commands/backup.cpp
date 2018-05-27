@@ -2,7 +2,7 @@
 
 #include <kinematic_controller/robot.h>
 
-#include "commands/Backup.h"
+#include "commands/backup.h"
 
 Backup::Backup(Smartmouse2018Robot &robot) : Command("Backup"), robot(robot) {}
 

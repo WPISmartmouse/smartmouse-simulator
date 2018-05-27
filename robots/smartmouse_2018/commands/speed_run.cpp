@@ -1,7 +1,7 @@
-#include "commands/SpeedRun.h"
-#include "commands/WaitForStart.h"
-#include "commands/Turn.h"
-#include "commands/Forward.h"
+#include "commands/speed_run.h"
+#include "commands/wait_for_start.h"
+#include "commands/turn.h"
+#include "commands/forward.h"
 
 SpeedRun::SpeedRun(Smartmouse2018Robot &robot) : CommandGroup("speed"), robot(robot) {}
 

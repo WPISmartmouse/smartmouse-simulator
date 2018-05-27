@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "commands/ForwardToCenter.h"
+#include "commands/forward_to_center.h"
 
 ForwardToCenter::ForwardToCenter(Smartmouse2018Robot &robot) : Command("FwdToCenter"), robot(robot), profile(nullptr) {}
 

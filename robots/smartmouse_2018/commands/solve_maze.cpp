@@ -1,10 +1,10 @@
 #include <hal/hal.h>
 
-#include <commands/SolveMaze.h>
-#include <commands/ForwardN.h>
-#include <commands/Turn.h>
-#include <commands/ForwardToCenter.h>
-#include <commands/TurnInPlace.h>
+#include <commands/solve_maze.h>
+#include <commands/forward_n.h>
+#include <commands/turn.h>
+#include <commands/forward_to_center.h>
+#include <commands/turn_in_place.h>
 
 SolveMaze::SolveMaze(Smartmouse2018Robot &robot, ssim::Solver *solver, ssim::Solver::Goal goal) : CommandGroup("solve"),
                                                                                                   robot(robot),

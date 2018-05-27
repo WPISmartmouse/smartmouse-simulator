@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <core/mouse.h>
 
-#include "commands/Stop.h"
+#include "commands/stop.h"
 
 Stop::Stop(Smartmouse2018Robot &robot) : Command("end"), robot(robot), stop_time(10000) {}
 

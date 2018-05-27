@@ -1,7 +1,7 @@
-#include "commands/WaitForStart.h"
-#include "commands/ReturnToStart.h"
-#include "commands/Forward.h"
-#include "commands/Turn.h"
+#include "commands/wait_for_start.h"
+#include "commands/return_to_start.h"
+#include "commands/forward.h"
+#include "commands/turn.h"
 
 ReturnToStart::ReturnToStart(Smartmouse2018Robot &robot) : CommandGroup("return"), robot(robot) {
 }

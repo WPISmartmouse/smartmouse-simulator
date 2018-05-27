@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-#include "commands/WaitForStart.h"
+#include "commands/wait_for_start.h"
 
 WaitForStart::WaitForStart(Smartmouse2018Robot &robot) : CommandGroup("wait_calibrate"), robot(robot), speed(0) {}
 

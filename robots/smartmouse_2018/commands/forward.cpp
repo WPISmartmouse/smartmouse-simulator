@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <kinematic_controller/KinematicController.h>
 
-#include "commands/Forward.h"
+#include "commands/forward.h"
 
 Forward::Forward(Smartmouse2018Robot &robot) : Command("Forward"), robot(robot), profile(nullptr) {}
 

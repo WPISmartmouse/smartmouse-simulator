@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "commands/Finish.h"
+#include "commands/finish.h"
 
 Finish::Finish(Smartmouse2018Robot &robot, ssim::AbstractMaze *maze) : Command("finish"), maze(maze), robot(robot),
                                                                        t(0), pin_id(0), on(false) {

@@ -1,4 +1,4 @@
-#include "commands/Delay.h"
+#include "commands/delay.h"
 
 Delay::Delay(int timeout) : Command("delay"), timeout(timeout) {}
 
