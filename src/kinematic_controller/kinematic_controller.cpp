@@ -297,10 +297,7 @@ void KinematicController::setSpeedCps(double left_setpoint_cps,
 
 void KinematicController::planTraj(Waypoints waypoints) {
   TrajectoryPlanner planner(waypoints);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-  Eigen::Matrix<double, 10, 1> plan = planner.plan();
-#pragma GCC diagnostic pop
+  planner.plan();
 }
 
 void KinematicController::setParams(double kP, double kI, double kD, double ff_scale, double ff_offset) {
