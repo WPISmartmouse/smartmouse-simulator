@@ -1,4 +1,4 @@
-#include <commanduino/CommandGroup.h>
+#include <commanduino/command_group.h>
 
 CommandGroup::CommandGroup(const char *name) : Command(name) {}
 

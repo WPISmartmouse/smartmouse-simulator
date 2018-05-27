@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <commanduino/CommanDuino.h>
+#include <commanduino/commanduino.h>
 #include <core/mouse.h>
 #include <core/Flood.h>
 #include <core/Plugin.h>

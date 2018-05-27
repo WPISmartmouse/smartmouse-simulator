@@ -1,6 +1,6 @@
 #include "Arduino.h"
 
-#include <AS5048A.h>
+#include <as5048a.h>
 
 //#define AS5048A_DEBUG
 

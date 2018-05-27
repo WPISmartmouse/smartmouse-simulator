@@ -1,6 +1,6 @@
 #pragma once
 
-#include <commanduino/CommanDuino.h>
+#include <commanduino/commanduino.h>
 #include <core/Pose.h>
 #include <kinematic_controller/VelocityProfile.h>
 

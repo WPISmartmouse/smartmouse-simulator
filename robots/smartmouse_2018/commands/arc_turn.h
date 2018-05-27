@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <commanduino/CommanDuino.h>
+#include <commanduino/commanduino.h>
 #include <core/Direction.h>
 #include <core/AbstractMaze.h>
 #include <kinematic_controller/RobotConfig.h>

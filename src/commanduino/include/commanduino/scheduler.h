@@ -5,8 +5,8 @@
  * Sequential commands could be added by copying the logic from CommandGroups
  */
 
-#include <commanduino/LinkedList.h>
-#include <commanduino/Command.h>
+#include <commanduino/linked_list.h>
+#include <commanduino/command.h>
 
 class Scheduler {
 public:

@@ -1,4 +1,4 @@
-#include <commanduino/Scheduler.h>
+#include <commanduino/scheduler.h>
 
 Scheduler::Scheduler(Command *masterCommand) {
   addCommand(masterCommand);

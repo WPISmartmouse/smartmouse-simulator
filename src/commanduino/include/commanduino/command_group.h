@@ -1,7 +1,7 @@
 #pragma once
 
-#include <commanduino/Command.h>
-#include <commanduino/LinkedList.h>
+#include <commanduino/command.h>
+#include <commanduino/linked_list.h>
 
 /** \brief grouping commands is a useful abstraction.
  * Commands groups execute commands in parallel or series

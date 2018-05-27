@@ -1,6 +1,6 @@
 #pragma once
 
-#include <commanduino/CommanDuino.h>
+#include <commanduino/commanduino.h>
 #include <core/Direction.h>
 
 #include "smartmouse_2018_robot.h"

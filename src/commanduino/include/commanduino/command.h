@@ -1,7 +1,5 @@
 #pragma once
 
-#include <commanduino/TimerInterface.h>
-
 /**
  * \brief this class is the very core of the framework
  * commands are initialized once, then run until they're done
@@ -10,9 +8,6 @@
 class Command {
 
 public:
-
-  static void setTimerImplementation(TimerInterface *timer);
-  static TimerInterface *getTimerImplementation();
 
   Command();
 
@@ -71,8 +66,6 @@ public:
 
   /** \brief for convenient printing */
   const char *name;
-
-  static TimerInterface *timer;
 
   bool initialized, running;
   unsigned long timeout;

@@ -1,10 +1,6 @@
-#include <commanduino/Command.h>
+#include <Arduino.h>
 
-TimerInterface *Command::timer;
-
-void Command::setTimerImplementation(TimerInterface *timer) {
-  Command::timer = timer;
-}
+#include <commanduino/command.h>
 
 Command::Command() : name("unnamed"), initialized(false), running(false), timeout(0), startTime(0) {}
 
@@ -38,7 +34,7 @@ void Command::setTimeout(unsigned long timeout) {
 }
 
 unsigned long Command::getTime() {
-  return timer->programTimeMs() - startTime;
+  return millis() - startTime;
 }
 
 bool Command::isTimedOut() {
@@ -53,7 +49,7 @@ void Command::initialize() {}
 
 void Command::_initialize() {
   running = true;
-  startTime = timer->programTimeMs();
+  startTime = millis();
 }
 
 void Command::execute() {}
@@ -68,8 +64,4 @@ void Command::_end() {
 
 bool Command::operator!=(const Command &other) {
   return this->name != other.name;
-}
-
-TimerInterface *Command::getTimerImplementation() {
-  return timer;
 }

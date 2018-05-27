@@ -26,7 +26,13 @@ void pinMode(unsigned int pin, unsigned int mode) {
 }
 
 long micros() {
-  return std::chrono::high_resolution_clock::now().time_since_epoch().count();
+  return std::chrono::duration_cast<std::chrono::microseconds>(
+      std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+}
+
+long millis() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
 void CoutSerial::print(const std::string &s) {

@@ -34,6 +34,8 @@ unsigned int analogRead(unsigned int pin);
 
 long micros();
 
+long millis();
+
 void pinMode(unsigned int pin, unsigned int mode);
 
 class CoutSerial {

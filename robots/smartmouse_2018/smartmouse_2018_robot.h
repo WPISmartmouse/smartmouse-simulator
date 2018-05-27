@@ -1,6 +1,6 @@
 #pragma once
 
-#include <AS5048A.h>
+#include <as5048a.h>
 
 #include <kinematic_controller/robot.h>
 
