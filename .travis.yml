@@ -1,0 +1,11 @@
+language: C++
+sudo: enabled
+addons:
+  apt:
+    update: true
+    packages:
+      - cmake
+script:
+  - mkdir .sim_build && cd .sim_build && cmake .. && make
+  - mkdir .real_build && cd .real_build && cmake .. -DREAL=ON && make
+
