@@ -3,6 +3,26 @@ project(smartmouse-simulator)
 
 option(REAL "target teensy" OFF)
 option(BUILD_TESTS "build tests" ON)
+option(ADDRESS_SANITIZER "use address sanitizer" OFF)
+option(UNDEFINED_SANITIZER "use undefined behavior sanitizer" OFF)
+option(THREAD_SANITIZER "use thread sanitizer" OFF)
+option(LEAK_SANITIZER "use leak sanitizer" OFF)
+
+macro(sanitize TARGET)
+    if (${ADDRESS_SANITIZER})
+        target_link_libraries(${TARGET} asan)
+        target_compile_options(${TARGET} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    elseif (${UNDEFINED_SANITIZER})
+        target_link_libraries(${TARGET} ubsan)
+        target_compile_options(${TARGET} PRIVATE -fsanitize=undefined)
+    elseif (${THREAD_SANITIZER})
+        target_link_libraries(${TARGET} tsan)
+        target_compile_options(${TARGET} PRIVATE -fsanitize=thread)
+    elseif (${LEAK_SANITIZER})
+        target_link_libraries(${TARGET} lsan)
+        target_compile_options(${TARGET} PRIVATE -fsanitize=leak)
+    endif ()
+endmacro()
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
@@ -21,6 +41,7 @@ include(cmake/Teensy.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 # Arduino
 if (CMAKE_HOST_WIN32)
