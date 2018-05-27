@@ -2,7 +2,7 @@
 
 namespace ssim {
 
-Flood::Flood(Mouse *mouse) : Solver(mouse), done(false), solved(false) {}
+Flood::Flood(Mouse *mouse) : Solver(mouse), done(false), solved(false), all_wall_maze(nullptr), goal(Goal::CENTER) {}
 
 //starts at 0, 0 and explores the whole maze
 void Flood::setup() {

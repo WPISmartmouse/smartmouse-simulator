@@ -19,7 +19,7 @@ Node *Node::neighbor(const Direction dir) {
   }
 }
 
-Node::Node() : weight(32767), distance(0), known(false), visited(false), neighbors({}) {
+Node::Node() : weight(32767), distance(0), known(false), visited(false), neighbors({}), r(0), c(0) {
 }
 
 Node::Node(unsigned int row, unsigned int col) : weight(-1), distance(0), known(false), visited(false), neighbors({}),
