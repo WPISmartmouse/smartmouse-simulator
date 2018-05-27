@@ -5,6 +5,7 @@ addons:
     update: true
     packages:
       - cmake
+      - libeigen3-dev
 script:
   - mkdir .sim_build && cd .sim_build && cmake .. && make
   - mkdir .real_build && cd .real_build && cmake .. -DREAL=ON && make
