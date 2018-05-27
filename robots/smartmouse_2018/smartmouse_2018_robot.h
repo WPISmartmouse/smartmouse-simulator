@@ -2,7 +2,7 @@
 
 #include <AS5048A.h>
 
-#include "robot.h"
+#include <kinematic_controller/robot.h>
 
 class Smartmouse2018Robot : public ssim::Robot {
 
@@ -47,7 +47,7 @@ public:
   static const uint8_t BUTTON_PIN = 23;
 
   AS5048A left_encoder, right_encoder;
-  
+
   Smartmouse2018Robot();
 
   void resetToStartPose();

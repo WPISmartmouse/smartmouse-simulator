@@ -1,6 +1,5 @@
-#include "common_hal.h"
-#include <Arduino.h>
-#include "mouse.h"
+#include <hal/hal.h>
+#include <core/mouse.h>
 
 #include "commands/End.h"
 

@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "mouse.h"
+#include <core/mouse.h>
 
 #include "commands/Stop.h"
 

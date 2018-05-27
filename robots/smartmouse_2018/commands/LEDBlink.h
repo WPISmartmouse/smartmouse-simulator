@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "CommanDuino.h"
+#include <commanduino/CommanDuino.h>
 
 class LEDBlink : public Command {
 public:

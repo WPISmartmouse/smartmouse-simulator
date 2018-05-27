@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CommanDuino.h"
-#include "Solver.h"
+#include <commanduino/CommanDuino.h>
+#include <core/Solver.h>
 
 #include "smartmouse_2018_robot.h"
 

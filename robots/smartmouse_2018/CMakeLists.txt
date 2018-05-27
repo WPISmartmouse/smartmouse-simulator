@@ -1,6 +1,5 @@
 file(GLOB COMMAND_SRCS commands/*.cpp)
-file(GLOB COMMAND_HDRS commands/*.h)
-add_library(commands ${COMMAND_SRCS} ${COMMAND_HDRS})
+add_library(commands ${COMMAND_SRCS})
 target_include_directories(commands PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(commands core commanduino kinematic_controller hal AS5048A)
 

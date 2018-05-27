@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "CommanDuino.h"
-#include "Direction.h"
-#include "AbstractMaze.h"
-#include "RobotConfig.h"
+#include <commanduino/CommanDuino.h>
+#include <core/Direction.h>
+#include <core/AbstractMaze.h>
+#include <kinematic_controller/RobotConfig.h>
 
 #include "smartmouse_2018_robot.h"
 

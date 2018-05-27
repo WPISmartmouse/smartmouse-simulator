@@ -1,3 +1,6 @@
-add_subdirectory(smartmouse)
+add_subdirectory(core)
+add_subdirectory(commanduino)
+add_subdirectory(kinematic_controller)
+add_subdirectory(mock_teensyduino)
+add_subdirectory(sim)
 add_subdirectory(bin)
-add_subdirectory(mock_teensyarduino)

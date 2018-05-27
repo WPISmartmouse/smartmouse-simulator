@@ -2,8 +2,8 @@
 
 #include "commands/ArcTurn.h"
 
-#include "math_util.h"
-#include "mouse.h"
+#include <core/math_util.h>
+#include <core/mouse.h>
 
 
 ArcTurn::ArcTurn(Smartmouse2018Robot &robot, ssim::Direction dir) : Command("ArcTurn"), robot(robot), dir(dir) {}

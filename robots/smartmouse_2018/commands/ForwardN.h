@@ -1,8 +1,8 @@
 #pragma once
 
-#include "CommanDuino.h"
-#include "Pose.h"
-#include "VelocityProfile.h"
+#include <commanduino/CommanDuino.h>
+#include <core/Pose.h>
+#include <kinematic_controller/VelocityProfile.h>
 
 #include "smartmouse_2018_robot.h"
 

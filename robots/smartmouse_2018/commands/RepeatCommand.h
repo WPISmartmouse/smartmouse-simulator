@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CommandDuino.h"
+#include <commanduino/CommandDuino.h>
 
 template<typename CommandType, typename... CommandArgs>
 class RepeatCommand : public CommandGroup {

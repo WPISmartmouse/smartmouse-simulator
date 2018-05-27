@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CommanDuino.h"
-#include "AbstractMaze.h"
+#include <commanduino/CommanDuino.h>
+#include <core/AbstractMaze.h>
 
 #include "smartmouse_2018_robot.h"
 

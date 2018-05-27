@@ -1,7 +1,8 @@
 #include <Arduino.h>
 
+#include <kinematic_controller/robot.h>
+
 #include "commands/Backup.h"
-#include "robot.h"
 
 Backup::Backup(Smartmouse2018Robot &robot) : Command("Backup"), robot(robot) {}
 

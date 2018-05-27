@@ -1,5 +1,4 @@
-#include "common_hal.h"
-#include <Arduino.h>
+#include <hal/hal.h>
 
 #include "smartmouse_2018_robot.h"
 
