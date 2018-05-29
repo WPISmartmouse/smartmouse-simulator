@@ -6,9 +6,12 @@ addons:
     sources:
       - sourceline: 'ppa:ubuntu-toolchain-r/test'
     packages:
-      - gcc-6
+      - g++-6
       - cmake
       - libeigen3-dev
+before_install:
+    - export CC=/usr/bin/g++-6
+    - export CXX=/usr/bin/g++-6
 script:
   - find /usr/ -name Eigen3Config.cmake
   - mkdir .sim_build && cd .sim_build && cmake .. && make
