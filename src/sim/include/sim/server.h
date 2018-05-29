@@ -1,16 +1,14 @@
 #pragma once
 
 #include <thread>
+#include <mutex>
 
-#include <common/core/AbstractMaze.h>
-#include <common/Time.h>
+#include <core/abstract_maze.h>
+
+#include <sim/msgs.h>
+#include <sim/time.h>
 
 namespace ssim {
-
-struct WorldStats {
-  unsigned long step = 0;
-  Time
-};
 
 class Server {
 
@@ -26,11 +24,11 @@ class Server {
 
   std::thread *thread_;
  private:
-  void OnServerControl(const smartmouse::msgs::ServerControl &msg);
-  void OnPhysics(const smartmouse::msgs::PhysicsConfig &msg);
-  void OnMaze(const smartmouse::msgs::Maze &msg);
-  void OnRobotCommand(const smartmouse::msgs::RobotCommand &msg);
-  void OnRobotDescription(const smartmouse::msgs::RobotDescription &msg);
+  void OnServerControl(const ssim::ServerControl &msg);
+  void OnPhysics(const ssim::PhysicsConfig &msg);
+  void OnMaze(const ssim::Maze &msg);
+  void OnRobotCommand(const ssim::RobotCommand &msg);
+  void OnRobotDescription(const ssim::RobotDescription &msg);
 
   void UpdateRobotState(double dt);
   void ResetRobot(double reset_col, double reset_row, double reset_yaw);
@@ -38,10 +36,10 @@ class Server {
   void PublishInternalState();
   void PublishWorldStats(double rtf);
   void ComputeMaxSensorRange();
-  double ComputeSensorRange(const smartmouse::msgs::SensorDescription sensor);
+  double ComputeSensorRange(const ssim::SensorDescription sensor);
 
-  int ComputeADCValue(smartmouse::msgs::SensorDescription sensor);
-  double ComputeSensorDistToWall(smartmouse::msgs::SensorDescription sensor);
+  int ComputeADCValue(ssim::SensorDescription sensor);
+  double ComputeSensorDistToWall(ssim::SensorDescription sensor);
 
   Time sim_time_;
   unsigned long steps_ = 0UL;
@@ -53,6 +51,11 @@ class Server {
   unsigned int ns_of_sim_per_step_ = 1000000u;
   unsigned long pause_at_steps_ = 0ul;
   double real_time_factor_ = 1.0;
+  ssim::maze_walls_t maze_walls_;
+  ssim::RobotCommand cmd_;
+  ssim::RobotDescription mouse_;
+  ssim::RobotSimState robot_state_;
+
   bool mouse_set_;
   unsigned int max_cells_to_check_;
 };

@@ -26,13 +26,13 @@ void pinMode(unsigned int pin, unsigned int mode) {
 }
 
 long micros() {
-  return std::chrono::duration_cast<std::chrono::microseconds>(
-      std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+  // TODO: get simulation time in micros
+  return 0;
 }
 
 long millis() {
-  return std::chrono::duration_cast<std::chrono::milliseconds>(
-      std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+  // TODO: get simulation time in millis
+  return 0;
 }
 
 void CoutSerial::print(const std::string &s) {
@@ -44,3 +44,4 @@ void CoutSerial::print(word w, unsigned int mode) {
 }
 
 void NopSerial::print(const std::string &s) {}
+
