@@ -24,7 +24,7 @@ macro(sanitize TARGET)
     endif ()
 endmacro()
 
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(Eigen3 REQUIRED NO_MODULE)
 
 # Testing -- only valid on sim
 if (${REAL})
@@ -33,13 +33,12 @@ endif ()
 
 if (${BUILD_TESTS})
     enable_testing()
-    include(GoogleTest)
     add_subdirectory(googletest)
 endif ()
 
 include(cmake/Teensy.cmake)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
