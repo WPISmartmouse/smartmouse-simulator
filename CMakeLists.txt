@@ -24,7 +24,7 @@ macro(sanitize TARGET)
     endif ()
 endmacro()
 
-find_package(Eigen3 REQUIRED CONFIG)
+find_package(Eigen3 REQUIRED)
 
 # Testing -- only valid on sim
 if (${REAL})
