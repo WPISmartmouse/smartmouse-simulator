@@ -10,7 +10,7 @@ addons:
       - cmake
       - libeigen3-dev
 before_install:
-    - export CC=/usr/bin/g++-6
+    - export CC=/usr/bin/gcc-6
     - export CXX=/usr/bin/g++-6
 script:
   - find /usr/ -name Eigen3Config.cmake
