@@ -14,6 +14,8 @@ before_install:
     - export CXX=/usr/bin/g++-6
 script:
   - find /usr/ -name Eigen3Config.cmake
+  - ls /usr/lib/cmake/
+  - ls /usr/local/lib/cmake/
   - mkdir .sim_build && cd .sim_build && cmake .. && make
   - mkdir .real_build && cd .real_build && cmake .. -DREAL=ON && make
 
