@@ -13,9 +13,9 @@ before_install:
     - export CC=/usr/bin/gcc-6
     - export CXX=/usr/bin/g++-6
 script:
-  - find /usr/ -name Eigen3Config.cmake
-  - ls /usr/lib/cmake/
-  - ls /usr/local/lib/cmake/
+  - ls /usr/lib
+  - dpkg-query -L libeigen3-dev
+  - dpkg-query -L libeigen3-dev | grep cmake
   - mkdir .sim_build && cd .sim_build && cmake .. && make
   - mkdir .real_build && cd .real_build && cmake .. -DREAL=ON && make
 
