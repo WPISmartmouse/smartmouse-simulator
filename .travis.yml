@@ -13,9 +13,7 @@ before_install:
     - export CC=/usr/bin/gcc-6
     - export CXX=/usr/bin/g++-6
 script:
-  - ls /usr/lib
-  - dpkg-query -L libeigen3-dev
-  - dpkg-query -L libeigen3-dev | grep cmake
-  - mkdir .sim_build && cd .sim_build && cmake .. && make
-  - mkdir .real_build && cd .real_build && cmake .. -DREAL=ON && make
+  - cmake --version
+  - mkdir .sim_build && cd .sim_build && cmake .. -DCMAKE_MODULE_PATH=/usr/share/cmake-2.8/ && make
+  - mkdir .real_build && cd .real_build && cmake .. -DCMAKE_MODULE_PATH=/usr/share/cmake-2.8/ -DREAL=ON && make
 
