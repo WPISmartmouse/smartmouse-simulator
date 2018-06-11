@@ -9,5 +9,8 @@ target_link_libraries(smartmouse_2018 commands commanduino kinematic_controller 
 if (${REAL})
     add_teensy_executable(teensy_main teensy_main.cpp)
     target_link_libraries(teensy_main smartmouse_2018)
+    // This linker argument is necessary! It tells the compiler how to link with libc and other fancy things
+    // https://answers.launchpad.net/gcc-arm-embedded/+question/254554
+    set_target_properties(teensy_main PROPERTIES LINK_FLAGS "--specs=nosys.specs")
 endif ()
 
