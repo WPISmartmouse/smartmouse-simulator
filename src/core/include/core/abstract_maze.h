@@ -52,11 +52,12 @@ constexpr static double HALF_WALL_THICKNESS_M = WALL_THICKNESS_M / 2.0;
 constexpr static double HALF_UNIT_DIST = UNIT_DIST_M / 2.0;
 constexpr static double SIZE_M = SIZE * UNIT_DIST_M;
 
-constexpr double toMeters(double cu) {
+constexpr double toMeters(double cu) noexcept {
   return cu * UNIT_DIST_M;
 }
 
-constexpr double toCellUnits(double meters) {
+constexpr double toCellUnits(double meters) noexcept {
+  static_assert(UNIT_DIST_M > 0, "UNIT_DIST_M must be greater than zero.");
   return meters / UNIT_DIST_M;
 }
 
@@ -91,7 +92,7 @@ public:
   /** \brief add the neighbor in the given direction
    * \param dir direction connect in
    */
-  void connect_neighbor(unsigned int row, unsigned int col, const Direction dir);
+  void connect_neighbor(unsigned int row, unsigned int col, Direction dir);
 
   void reset();
 
@@ -130,7 +131,7 @@ public:
    * \param dir the direction of the neighbor you want
    * \return 0 on success, OUT_OF_BOUNDS, or -1 on NULL
    */
-  int get_node_in_direction(Node **out, unsigned int row, unsigned int col, const Direction dir);
+  int get_node_in_direction(Node **out, unsigned int row, unsigned int col, Direction dir);
 
   /** \brief add all the neighbors
    */
@@ -139,7 +140,7 @@ public:
   /** \brief disconnect any neighbor in the given direction
    * \param dir direction connect in
    */
-  void disconnect_neighbor(unsigned int row, unsigned int col, const Direction dir);
+  void disconnect_neighbor(unsigned int row, unsigned int col, Direction dir);
 
   /** \brief walks along a route in the maze and return the longest valid path
    * Valid means you don't walk through any walls.
@@ -148,7 +149,7 @@ public:
 
   static AbstractMaze gen_random_legal_maze();
 
-  static void _make_connections(AbstractMaze *maze, Node *node);
+  static void make_connections(AbstractMaze *maze, Node *node);
 
   bool flood_fill(route_t *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1);
 

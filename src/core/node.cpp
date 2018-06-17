@@ -1,10 +1,25 @@
+#include <limits>
+
 #include <core/node.h>
 
 namespace ssim {
 
-const int Node::OUT_OF_BOUNDS = -2;
+constexpr int Node::OUT_OF_BOUNDS = -2;
 
-Node *Node::neighbor(const Direction dir) {
+Node::Node(unsigned int row, unsigned int col) : weight(-1), distance(0), known(false), visited(false), neighbors({}),
+                                                 r(row),
+                                                 c(col) {
+}
+
+unsigned int Node::row() const {
+  return r;
+}
+
+unsigned int Node::col() const {
+  return c;
+}
+
+Node *Node::neighbor(const Direction dir) const {
   switch (dir) {
     case Direction::N:
       return neighbors[0];
@@ -15,28 +30,19 @@ Node *Node::neighbor(const Direction dir) {
     case Direction::W:
       return neighbors[3];
     default:
-      return 0;
+      return nullptr;
   }
 }
 
-Node::Node() : weight(32767), distance(0), known(false), visited(false), neighbors({}), r(0), c(0) {
+Node::Node() : weight(std::numeric_limits<decltype(weight)>::max()), distance(0), known(false), visited(false),
+               neighbors({}), r(0), c(0) {
 }
 
-Node::Node(unsigned int row, unsigned int col) : weight(-1), distance(0), known(false), visited(false), neighbors({}),
-                                                 r(row),
-                                                 c(col) {
+bool Node::wall(const Direction dir) const {
+  return neighbor(dir) == nullptr;
 }
 
-unsigned int Node::row() {
-  return r;
-}
-
-unsigned int Node::col() {
-  return c;
-}
-
-
-void Node::assign_weights_to_neighbors(Node *goal, int weight, bool *success) {
+void Node::assign_weights_to_neighbors(const Node *const goal, const int weight, bool * const success) {
   //check all nodes that are unvisited, or would be given a lower weight
   if (!this->known || weight < this->weight) {
     //don't visit it again unless you find a shorter path
@@ -53,15 +59,11 @@ void Node::assign_weights_to_neighbors(Node *goal, int weight, bool *success) {
     //recursive call to explore each neighbors
     int i;
     for (i = 0; i < 4; i++) {
-      if (this->neighbors[i] != 0) {
+      if (this->neighbors[i]) {
         this->neighbors[i]->assign_weights_to_neighbors(goal, weight + 1, success);
       }
     }
   }
-}
-
-bool Node::wall(const Direction dir) {
-  return neighbor(dir) == nullptr;
 }
 
 } // namespace ssim

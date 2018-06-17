@@ -14,7 +14,7 @@ public:
 
   std::array<bool, 4> walls;
 
-  bool isWall(Direction dir);
+  bool isWall(Direction dir) const;
 
   const unsigned int row, col;
 };

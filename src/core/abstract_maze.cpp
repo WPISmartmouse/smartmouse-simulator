@@ -47,7 +47,7 @@ AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
 }
 #endif
 
-int AbstractMaze::get_node(Node **out, unsigned int row, unsigned int col) {
+int AbstractMaze::get_node(Node **const out, const unsigned int row, const unsigned int col) {
   if (col < 0 || col >= SIZE || row < 0 || row >= SIZE) {
     return Node::OUT_OF_BOUNDS;
   }
@@ -59,7 +59,8 @@ int AbstractMaze::get_node(Node **out, unsigned int row, unsigned int col) {
   return 0;
 }
 
-int AbstractMaze::get_node_in_direction(Node **out, unsigned int row, unsigned int col, const Direction dir) {
+int AbstractMaze::get_node_in_direction(Node **const out, const unsigned int row, const unsigned int col,
+                                        const Direction dir) {
   switch (dir) {
     case Direction::N:
       return get_node(out, row - 1, col);
@@ -88,7 +89,7 @@ void AbstractMaze::reset() {
   }
 }
 
-void AbstractMaze::update(SensorReading sr) {
+void AbstractMaze::update(const SensorReading sr) {
   for (Direction d = Direction::First; d < Direction::Last; d++) {
     //if a wall exists in that direction, add a wall
     if (sr.isWall(d)) {
@@ -104,19 +105,21 @@ void AbstractMaze::update(SensorReading sr) {
 }
 
 bool
-AbstractMaze::flood_fill_from_point(route_t *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1) {
+AbstractMaze::flood_fill_from_point(route_t *const path, const unsigned int r0, const unsigned int c0,
+                                    const unsigned int r1, const unsigned int c1) {
   return flood_fill(path, r0, c0, r1, c1);
 }
 
-bool AbstractMaze::flood_fill_from_origin(route_t *path, unsigned int r1, unsigned int c1) {
+bool AbstractMaze::flood_fill_from_origin(route_t *const path, const unsigned int r1, const unsigned int c1) {
   return flood_fill(path, 0, 0, r1, c1);
 }
 
-bool AbstractMaze::flood_fill_from_origin_to_center(route_t *path) {
+bool AbstractMaze::flood_fill_from_origin_to_center(route_t *const path) {
   return flood_fill(path, 0, 0, SIZE / 2, SIZE / 2);
 }
 
-bool AbstractMaze::flood_fill(route_t *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1) {
+bool AbstractMaze::flood_fill(route_t *const path, const unsigned int r0, const unsigned int c0, const unsigned int r1,
+                              const unsigned int c1) {
   Node *n;
   Node *goal = nodes[r1][c1];
 
@@ -169,7 +172,7 @@ bool AbstractMaze::flood_fill(route_t *path, unsigned int r0, unsigned int c0, u
   return solvable;
 }
 
-void AbstractMaze::disconnect_neighbor(unsigned int row, unsigned int col, const Direction dir) {
+void AbstractMaze::disconnect_neighbor(const unsigned int row, const unsigned int col, const Direction dir) {
   Node *n1 = nullptr;
   int n1_status = get_node(&n1, row, col);
   Node *n2 = nullptr;
@@ -184,7 +187,7 @@ void AbstractMaze::disconnect_neighbor(unsigned int row, unsigned int col, const
   }
 }
 
-void AbstractMaze::connect_neighbor(unsigned int row, unsigned int col, const Direction dir) {
+void AbstractMaze::connect_neighbor(const unsigned int row, const unsigned int col, const Direction dir) {
   Node *n1 = nullptr;
   int n1_status = get_node(&n1, row, col);
   Node *n2 = nullptr;
@@ -198,7 +201,7 @@ void AbstractMaze::connect_neighbor(unsigned int row, unsigned int col, const Di
   }
 }
 
-void AbstractMaze::connect_all_neighbors(unsigned int row, unsigned int col) {
+void AbstractMaze::connect_all_neighbors(const unsigned int row, const unsigned int col) {
   for (Direction d = Direction::First; d < Direction::Last; d++) {
     connect_neighbor(row, col, d);
   }
@@ -213,7 +216,7 @@ void AbstractMaze::connect_all_neighbors_in_maze() {
   }
 }
 
-void AbstractMaze::mark_position_visited(unsigned int row, unsigned int col) {
+void AbstractMaze::mark_position_visited(const unsigned int row, const unsigned int col) {
   nodes[row][col]->visited = true;
 }
 
@@ -236,7 +239,7 @@ AbstractMaze AbstractMaze::gen_random_legal_maze() {
   unsigned int starting_col = SIZE / 2 - std::rand() % 2;
   Node *start_node = nullptr;
   maze.get_node(&start_node, starting_row, starting_col);
-  _make_connections(&maze, start_node);
+  make_connections(&maze, start_node);
 
   // knock down some more randomly
   unsigned int i = 0;
@@ -321,7 +324,7 @@ AbstractMaze AbstractMaze::gen_random_legal_maze() {
   return maze;
 }
 
-void AbstractMaze::_make_connections(AbstractMaze *maze, Node *node) {
+void AbstractMaze::make_connections(AbstractMaze *maze, Node *node) {
   static std::random_device rd;
   static std::mt19937 g(rd());
 
@@ -339,13 +342,13 @@ void AbstractMaze::_make_connections(AbstractMaze *maze, Node *node) {
     if (result != Node::OUT_OF_BOUNDS && result != -1) {
       if (!neighbor->visited) {
         maze->connect_neighbor(r, c, d);
-        _make_connections(maze, neighbor);
+        make_connections(maze, neighbor);
       }
     }
   }
 }
 
-std::string route_to_string(route_t &route) {
+std::string route_to_string(const route_t &route) {
   std::stringstream ss;
   if (route.empty()) {
     ss << "empty";
@@ -358,7 +361,7 @@ std::string route_to_string(route_t &route) {
   return ss.str();
 }
 
-void insert_motion_primitive_back(route_t *route, motion_primitive_t prim) {
+void insert_motion_primitive_back(route_t *route, const motion_primitive_t prim) {
   if (!route->empty() && prim.d == route->back().d) {
     route->back().n += prim.n;
   } else {
@@ -366,7 +369,7 @@ void insert_motion_primitive_back(route_t *route, motion_primitive_t prim) {
   }
 }
 
-void insert_motion_primitive_front(route_t *route, motion_primitive_t prim) {
+void insert_motion_primitive_front(route_t *route, const motion_primitive_t prim) {
   if (!route->empty() && prim.d == route->front().d) {
     route->front().n += prim.n;
   } else {
@@ -374,7 +377,8 @@ void insert_motion_primitive_front(route_t *route, motion_primitive_t prim) {
   }
 }
 
-route_t AbstractMaze::truncate(unsigned int row, unsigned int col, Direction dir, route_t route) {
+route_t
+AbstractMaze::truncate(const unsigned int row, const unsigned int col, const Direction dir, const route_t route) {
   route_t trunc;
   Node *n = nodes[row][col];
   bool done = false;
@@ -402,8 +406,8 @@ bool AbstractMaze::operator==(const AbstractMaze &other) const {
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
       for (Direction d = Direction::First; d != Direction::Last; d++) {
-        bool n1 = static_cast<bool>(nodes[i][j]->neighbor(d));
-        bool n2 = static_cast<bool>(other.nodes[i][j]->neighbor(d));
+        auto n1 = static_cast<bool>(nodes[i][j]->neighbor(d));
+        auto n2 = static_cast<bool>(other.nodes[i][j]->neighbor(d));
         if (n1 ^ n2) {
           return false;
         }
