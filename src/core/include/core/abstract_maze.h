@@ -85,6 +85,8 @@ public:
 
 #endif
 
+  ~AbstractMaze();
+
   void mark_origin_known();
 
   void mark_position_visited(unsigned int row, unsigned int col);

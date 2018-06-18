@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstring>
+#include <cstdlib>
 #include <random>
 #include <sstream>
 #include <string>
@@ -415,6 +416,16 @@ bool AbstractMaze::operator==(const AbstractMaze &other) const {
     }
   }
   return true;
+}
+
+AbstractMaze::~AbstractMaze() {
+  unsigned int i, j;
+  for (i = 0; i < SIZE; i++) {
+    for (j = 0; j < SIZE; j++) {
+      delete nodes[i][j];
+    }
+  }
+
 }
 
 } // namespace ssim

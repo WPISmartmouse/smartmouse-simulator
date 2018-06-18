@@ -49,6 +49,8 @@ public:
 
   Mouse(AbstractMaze *maze, unsigned int starting_row, unsigned int starting_col);
 
+  ~Mouse();
+
   void reset();
 
   /** \brief return the current column.

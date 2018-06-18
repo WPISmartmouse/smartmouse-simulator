@@ -1,17 +1,24 @@
+#include <cstdlib>
 #include <cstring>
 
 #include <core/mouse.h>
 
 namespace ssim {
 
-Mouse::Mouse() : maze(new AbstractMaze()), row(0), col(0), dir(Direction::E) {}
+Mouse::Mouse() : maze(nullptr), row(0), col(0), dir(Direction::E) {
+  maze = new AbstractMaze();
+}
 
-Mouse::Mouse(unsigned int starting_row, unsigned int starting_col) : maze(new AbstractMaze()), row(starting_row), col(starting_col),
-                                                                     dir(Direction::E) {}
+Mouse::Mouse(unsigned int starting_row, unsigned int starting_col) : maze(nullptr), row(starting_row),
+                                                                     col(starting_col),
+                                                                     dir(Direction::E) {
+  maze = new AbstractMaze();
+}
 
 Mouse::Mouse(AbstractMaze *maze) : maze(maze), row(0), col(0), dir(Direction::E) {}
 
-Mouse::Mouse(AbstractMaze *maze, unsigned int starting_row, unsigned int starting_col) : maze(maze), row(starting_row), col(starting_col),
+Mouse::Mouse(AbstractMaze *maze, unsigned int starting_row, unsigned int starting_col) : maze(maze), row(starting_row),
+                                                                                         col(starting_col),
                                                                                          dir(Direction::E) {}
 
 void Mouse::reset() {
@@ -81,7 +88,7 @@ void Mouse::maze_mouse_string(char *buff) const {
       }
 
       if (row == i && col == j) {
-        switch(dir) {
+        switch (dir) {
           case Direction::N:
             strcpy(b++, "^");
             break;
@@ -109,6 +116,10 @@ void Mouse::maze_mouse_string(char *buff) const {
   }
   b++;
   *b = '\0';
+}
+
+Mouse::~Mouse() {
+  delete maze;
 }
 
 } // namespace ssim

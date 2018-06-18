@@ -2,38 +2,30 @@
 
 namespace ssim {
 
-class LocalPose {
-public:
-  LocalPose();
-
-  LocalPose(double to_left, double to_back);
-
-  LocalPose(double to_left, double to_back, double yaw_from_straight);
-
+struct LocalPose {
   double to_left, to_back;
   double yaw_from_straight;
+
+  LocalPose() = default;
+  LocalPose(double to_left, double to_back);
+  LocalPose(double to_left, double to_back, double yaw_from_straight);
 };
 
-class GlobalPose {
-public:
-  GlobalPose();
-
-  GlobalPose(double col, double row);
-
-  GlobalPose(double col, double row, double yaw);
-
+struct GlobalPose {
   double col, row;
   double yaw;
+
+  GlobalPose() = default;
+  GlobalPose(double col, double row);
+  GlobalPose(double col, double row, double yaw);
 };
 
-class GlobalState {
- public:
-  GlobalState();
-
-  GlobalState(GlobalPose pose, double velocity);
-
+struct GlobalState {
   GlobalPose pose;
   double velocity;
+
+  GlobalState() = default;
+  GlobalState(GlobalPose pose, double velocity);
 };
 
 } // namespace ssim
