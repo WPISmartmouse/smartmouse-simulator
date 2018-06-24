@@ -6,6 +6,7 @@
 #include <core/direction.h>
 #include <core/abstract_maze.h>
 #include <core/pose.h>
+#include "../../../../../../../../../usr/include/c++/5/bits/unique_ptr.h"
 
 namespace ssim {
 
@@ -41,15 +42,13 @@ class Mouse {
 
 public:
 
-  Mouse();
+  Mouse() = default;
 
-  Mouse(AbstractMaze *maze);
+  explicit Mouse(AbstractMaze maze);
 
-  Mouse(unsigned int starting_row, unsigned int starting_col);
+  Mouse(AbstractMaze maze, unsigned int starting_row, unsigned int starting_col);
 
-  Mouse(AbstractMaze *maze, unsigned int starting_row, unsigned int starting_col);
-
-  ~Mouse();
+  virtual ~Mouse() = default;
 
   void reset();
 
@@ -57,20 +56,18 @@ public:
    * Guaranteed to be between 0 and MAZE_SIZE
    * \return current column
    */
-  unsigned int getCol();
+  unsigned int getCol() const;
 
   /** \brief return the current row.
    * Guaranteed to be between 0 and MAZE_SIZE
    * \return current row
    */
-  unsigned int getRow();
+  unsigned int getRow() const;
 
   /** \brief return the current direction.
    * \return current direction
    */
-  Direction getDir();
-
-  void mark_mouse_position_visited();
+  Direction getDir() const;
 
   void internalTurnToFace(Direction dir);
 
@@ -82,13 +79,14 @@ public:
   virtual SensorReading checkWalls() = 0;
 
   /** doesn't simply read sensors. Check the internal maze structure */
-  bool isWallInDirection(Direction d);
+  bool isWallInDirection(Direction d) const;
 
-  AbstractMaze *maze;
+  AbstractMaze maze;
 
 protected:
-  unsigned int row, col;
-  Direction dir;
+  unsigned int row = 0;
+  unsigned int col = 0;
+  Direction dir = Direction::E;
 };
 
 } // namespace ssim

@@ -1,3 +1,4 @@
+add_subdirectory(spdlog)
 add_subdirectory(core)
 add_subdirectory(commanduino)
 add_subdirectory(kinematic_controller)

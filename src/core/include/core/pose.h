@@ -3,8 +3,8 @@
 namespace ssim {
 
 struct LocalPose {
-  double to_left, to_back;
-  double yaw_from_straight;
+  double to_left = 0, to_back = 0;
+  double yaw_from_straight = 0;
 
   LocalPose() = default;
   LocalPose(double to_left, double to_back);
@@ -12,8 +12,8 @@ struct LocalPose {
 };
 
 struct GlobalPose {
-  double col, row;
-  double yaw;
+  double col = 0, row = 0;
+  double yaw = 0;
 
   GlobalPose() = default;
   GlobalPose(double col, double row);
@@ -22,7 +22,7 @@ struct GlobalPose {
 
 struct GlobalState {
   GlobalPose pose;
-  double velocity;
+  double velocity = 0;
 
   GlobalState() = default;
   GlobalState(GlobalPose pose, double velocity);

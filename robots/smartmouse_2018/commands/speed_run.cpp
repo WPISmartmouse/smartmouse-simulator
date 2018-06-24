@@ -7,7 +7,7 @@ SpeedRun::SpeedRun(Smartmouse2018Robot &robot) : CommandGroup("speed"), robot(ro
 
 void SpeedRun::initialize() {
   index = 0;
-  path = &robot.maze->fastest_route;
+  path = &robot.maze.fastest_route;
 }
 
 bool SpeedRun::isFinished() {

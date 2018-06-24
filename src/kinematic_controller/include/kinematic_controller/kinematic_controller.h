@@ -41,23 +41,27 @@ const std::pair<double, double> from_sensors_to_right_wall(SensorPose s1,
 
 class KinematicController {
 public:
-  KinematicController(Mouse *mouse);
+  static const double kPWall;
+  static const double kDWall;
+  static const double kPYaw;
 
   static GlobalPose forwardKinematics(double vl, double vr, double yaw, double dt);
 
+  KinematicController() = default;
+
   void planTraj(Waypoints waypoints);
 
-  std::tuple<double, double, bool> estimate_pose(RangeData<double> range_data, Mouse &mouse);
+  std::tuple<double, double, bool> estimate_pose(RangeData<double> range_data, const Mouse &mouse);
 
   GlobalPose getGlobalPose();
 
-  LocalPose getLocalPose();
+  LocalPose getLocalPose(const Mouse &mouse);
 
   std::pair<double, double> getWheelVelocitiesCPS();
 
   bool isStopped();
 
-  void reset_fwd_to_center();
+  void reset_fwd_to_center(const Mouse &mouse);
 
   void reset_col_to(double new_col);
 
@@ -66,38 +70,31 @@ public:
   void reset_yaw_to(double new_yaw);
 
   std::pair<double, double>
-  run(double dt_s, double left_angle_rad, double right_angle_rad, RangeData<double> range_data);
+  run(double dt_s, double left_angle_rad, double right_angle_rad, RangeData<double> range_data, const Mouse &mouse);
 
   void setAccelerationCpss(double acceleration_mpss);
 
   void setSpeedCps(double left_setpoint_mps, double right_setpoint_mps);
 
-  static const double kPWall;
-  static const double kDWall;
-  static const double kPYaw;
-
   void setParams(double kP, double kI, double kD, double ff_scale, double ff_offset);
+
+  double getCurrentForwardSpeedCUPS();
 
   RegulatedMotor left_motor;
   RegulatedMotor right_motor;
 
-  bool enable_sensor_pose_estimate;
-  bool enabled;
-  bool kinematics_enabled;
-  unsigned int row;
-  unsigned int col;
-  bool sense_left_wall;
-  bool sense_right_wall;
-
-  double getCurrentForwardSpeedCUPS();
+  bool enable_sensor_pose_estimate = true;
+  bool enabled = true;
+  bool kinematics_enabled = true;
+  bool sense_left_wall = false;
+  bool sense_right_wall = false;
 
 private:
-  bool initialized;
-  bool ignoring_left;
-  bool ignoring_right;
+  bool initialized = false;
+  bool ignoring_left = false;
+  bool ignoring_right = false;
 
   GlobalPose current_pose_estimate_cu;
-  Mouse *mouse;
   static const double kDropSafety;
   double acceleration_cellpss;
   double dt_s;

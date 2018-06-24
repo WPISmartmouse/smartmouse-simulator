@@ -19,12 +19,22 @@ AbstractMaze::AbstractMaze() : solved(false) {
   }
 }
 
-#ifndef ARDUINO
+AbstractMaze::AbstractMaze(const AbstractMaze &m) : AbstractMaze() {
+  unsigned int i, j;
+  for (i = 0; i < SIZE; i++) {
+    for (j = 0; j < SIZE; j++) {
+      nodes[i][j]->distance = m.nodes[i][j]->distance;
+      nodes[i][j]->known = m.nodes[i][j]->known;
+      nodes[i][j]->neighbors = m.nodes[i][j]->neighbors;
+    }
+  }
+}
+
 AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
   std::string line;
 
   //look West and North to connect any nodes
-  for (unsigned int i = 0; i < SIZE; i++) { //read in each line
+  for (unsigned int i = 0; i < SIZE; i++) {
     std::getline(fs, line);
 
     if (!fs.good()) {
@@ -46,9 +56,8 @@ AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
   }
   printf("\n");
 }
-#endif
 
-int AbstractMaze::get_node(Node **const out, const unsigned int row, const unsigned int col) {
+int AbstractMaze::get_node(Node **const out, const unsigned int row, const unsigned int col) const {
   if (col < 0 || col >= SIZE || row < 0 || row >= SIZE) {
     return Node::OUT_OF_BOUNDS;
   }
@@ -61,7 +70,7 @@ int AbstractMaze::get_node(Node **const out, const unsigned int row, const unsig
 }
 
 int AbstractMaze::get_node_in_direction(Node **const out, const unsigned int row, const unsigned int col,
-                                        const Direction dir) {
+                                        const Direction dir) const {
   switch (dir) {
     case Direction::N:
       return get_node(out, row - 1, col);
@@ -225,7 +234,6 @@ void AbstractMaze::mark_origin_known() {
   nodes[0][0]->known = true;
 }
 
-
 AbstractMaze AbstractMaze::gen_random_legal_maze() {
   AbstractMaze maze;
 
@@ -379,7 +387,7 @@ void insert_motion_primitive_front(route_t *route, const motion_primitive_t prim
 }
 
 route_t
-AbstractMaze::truncate(const unsigned int row, const unsigned int col, const Direction dir, const route_t route) {
+AbstractMaze::truncate(const unsigned int row, const unsigned int col, const Direction dir, const route_t route) const {
   route_t trunc;
   Node *n = nodes[row][col];
   bool done = false;
@@ -419,13 +427,13 @@ bool AbstractMaze::operator==(const AbstractMaze &other) const {
 }
 
 AbstractMaze::~AbstractMaze() {
+  std::cout << "~AbstractMaze()" << std::endl;
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
       delete nodes[i][j];
     }
   }
-
 }
 
 } // namespace ssim

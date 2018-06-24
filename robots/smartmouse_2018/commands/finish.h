@@ -1,13 +1,12 @@
 #pragma once
 
 #include <commanduino/commanduino.h>
-#include <core/abstract_maze.h>
 
 #include "smartmouse_2018_robot.h"
 
 class Finish : public Command {
 public:
-  Finish(Smartmouse2018Robot &robot, ssim::AbstractMaze *maze);
+  Finish(Smartmouse2018Robot &robot);
 
   void initialize();
   void execute();
@@ -16,7 +15,6 @@ public:
 private:
   const unsigned int BLINK_TIME = 50;
 
-  ssim::AbstractMaze *maze;
   Smartmouse2018Robot &robot;
   unsigned long t;
   uint8_t pin_id;

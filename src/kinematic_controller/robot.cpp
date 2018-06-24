@@ -2,9 +2,6 @@
 
 namespace ssim {
 
-Robot::Robot() : kinematic_controller(this) {}
-
-
 double Robot::fwdDisp(Direction dir, GlobalPose current_pose, GlobalPose start_pose) {
   switch (dir) {
     case Direction::N:
@@ -91,11 +88,15 @@ ssim::GlobalPose Robot::getGlobalPose() {
 }
 
 ssim::LocalPose Robot::getLocalPose() {
-  return kinematic_controller.getLocalPose();
+  return kinematic_controller.getLocalPose(*this);
 }
 
 std::pair<double, double> Robot::getWheelVelocitiesCPS() {
   return kinematic_controller.getWheelVelocitiesCPS();
+}
+
+void Robot::reset_fwd_to_center() {
+  kinematic_controller.reset_fwd_to_center(*this);
 }
 
 };

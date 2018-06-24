@@ -79,11 +79,9 @@ public:
    */
   AbstractMaze();
 
-#ifndef ARDUINO // this can't exist on arduino
+  AbstractMaze(const AbstractMaze &m);
 
   AbstractMaze(std::ifstream &fs);
-
-#endif
 
   ~AbstractMaze();
 
@@ -124,7 +122,7 @@ public:
   /** \brief get node by its position
    * \return 0 on success, OUT_OF_BOUNDS, or -1 on NULL
    */
-  int get_node(Node **out, unsigned int r, unsigned int c);
+  int get_node(Node **out, unsigned int r, unsigned int c) const;
 
   /** \brief get neighbor node in a direction from a position
    * \param the adress of the node to set
@@ -133,7 +131,7 @@ public:
    * \param dir the direction of the neighbor you want
    * \return 0 on success, OUT_OF_BOUNDS, or -1 on NULL
    */
-  int get_node_in_direction(Node **out, unsigned int row, unsigned int col, Direction dir);
+  int get_node_in_direction(Node **out, unsigned int row, unsigned int col, Direction dir) const;
 
   /** \brief add all the neighbors
    */
@@ -147,7 +145,7 @@ public:
   /** \brief walks along a route in the maze and return the longest valid path
    * Valid means you don't walk through any walls.
    */
-  route_t truncate(unsigned int row, unsigned int col, Direction dir, route_t route);
+  route_t truncate(unsigned int row, unsigned int col, Direction dir, route_t route) const;
 
   static AbstractMaze gen_random_legal_maze();
 

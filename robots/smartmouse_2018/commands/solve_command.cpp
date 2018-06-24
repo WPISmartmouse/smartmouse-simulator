@@ -18,7 +18,7 @@ void SolveCommand::initialize() {
   solver->setup();
   addSequential(new Stop(robot, 1000));
   addSequential(new SolveMaze(robot, solver, ssim::Solver::Goal::CENTER));
-  addSequential(new Finish(robot, solver->mouse->maze));
+  addSequential(new Finish(robot));
   addSequential(new SolveMaze(robot, solver, ssim::Solver::Goal::START));
 }
 
@@ -36,7 +36,7 @@ bool SolveCommand::isFinished() {
     addSequential(new Stop(robot, 200));
     addSequential(new WaitForStart(robot));
     addSequential(new SolveMaze(robot, solver, ssim::Solver::Goal::CENTER));
-    addSequential(new Finish(robot, solver->mouse->maze));
+    addSequential(new Finish(robot));
     addSequential(new SolveMaze(robot, solver, ssim::Solver::Goal::START));
     return false;
   }

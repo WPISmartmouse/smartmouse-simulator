@@ -2,22 +2,13 @@
 #include <cstring>
 
 #include <core/mouse.h>
+#include <iostream>
 
 namespace ssim {
 
-Mouse::Mouse() : maze(nullptr), row(0), col(0), dir(Direction::E) {
-  maze = new AbstractMaze();
-}
+Mouse::Mouse(AbstractMaze maze) : maze(maze) {}
 
-Mouse::Mouse(unsigned int starting_row, unsigned int starting_col) : maze(nullptr), row(starting_row),
-                                                                     col(starting_col),
-                                                                     dir(Direction::E) {
-  maze = new AbstractMaze();
-}
-
-Mouse::Mouse(AbstractMaze *maze) : maze(maze), row(0), col(0), dir(Direction::E) {}
-
-Mouse::Mouse(AbstractMaze *maze, unsigned int starting_row, unsigned int starting_col) : maze(maze), row(starting_row),
+Mouse::Mouse(AbstractMaze maze, unsigned int starting_row, unsigned int starting_col) : maze(maze), row(starting_row),
                                                                                          col(starting_col),
                                                                                          dir(Direction::E) {}
 
@@ -27,15 +18,15 @@ void Mouse::reset() {
   dir = Direction::E;
 }
 
-unsigned int Mouse::getRow() {
+unsigned int Mouse::getRow() const {
   return row;
 }
 
-unsigned int Mouse::getCol() {
+unsigned int Mouse::getCol() const {
   return col;
 }
 
-Direction Mouse::getDir() {
+Direction Mouse::getDir() const {
   return dir;
 }
 
@@ -62,17 +53,13 @@ void Mouse::internalForward() {
   }
 }
 
-bool Mouse::isWallInDirection(Direction d) {
+bool Mouse::isWallInDirection(Direction d)  const {
   Node *mouse_node = nullptr;
-  if ((maze->get_node(&mouse_node, row, col) == Node::OUT_OF_BOUNDS)) {
+  if ((maze.get_node(&mouse_node, row, col) == Node::OUT_OF_BOUNDS)) {
     return false;
   }
   bool is_wall = mouse_node->neighbor(d) == nullptr;
   return is_wall;
-}
-
-void Mouse::mark_mouse_position_visited() {
-  maze->nodes[row][col]->visited = true;
 }
 
 void Mouse::maze_mouse_string(char *buff) const {
@@ -80,7 +67,7 @@ void Mouse::maze_mouse_string(char *buff) const {
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
-      Node *n = maze->nodes[i][j];
+      Node *n = maze.nodes[i][j];
       if (n->neighbor(Direction::W) == NULL) {
         strcpy(b++, "|");
       } else {
@@ -116,10 +103,6 @@ void Mouse::maze_mouse_string(char *buff) const {
   }
   b++;
   *b = '\0';
-}
-
-Mouse::~Mouse() {
-  delete maze;
 }
 
 } // namespace ssim

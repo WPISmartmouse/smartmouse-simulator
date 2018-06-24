@@ -6,8 +6,8 @@ WallFollow::WallFollow(Mouse *mouse) : Solver(mouse) {}
 
 void WallFollow::setup() {
   mouse->reset();
-  mouse->maze->reset();
-  mouse->maze->mark_origin_known();
+  mouse->maze.reset();
+  mouse->maze.mark_origin_known();
   goal = Solver::Goal::CENTER;
 }
 
@@ -22,11 +22,11 @@ route_t WallFollow::solve() {
     if (prim.d != Direction::INVALID) {
       mouse->internalTurnToFace(prim.d);
       mouse->internalForward();
-      insert_motion_primitive_back(&mouse->maze->fastest_route, prim);
+      insert_motion_primitive_back(&mouse->maze.fastest_route, prim);
     }
   }
   teardown();
-  return mouse->maze->fastest_route;
+  return mouse->maze.fastest_route;
 }
 
 bool WallFollow::isFinished() {
@@ -67,7 +67,7 @@ motion_primitive_t WallFollow::planNextStep() {
     return {0, Direction::INVALID};
   }
 
-  mouse->mark_mouse_position_visited();
+  mouse->maze.mark_position_visited(mouse->getRow(), mouse->getCol());
 
   return {1, nextDir};
 }

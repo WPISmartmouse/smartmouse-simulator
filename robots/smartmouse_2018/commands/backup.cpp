@@ -20,7 +20,7 @@ bool Backup::isFinished() {
 }
 
 void Backup::end() {
-  robot.kinematic_controller.reset_fwd_to_center();
+  robot.reset_fwd_to_center();
   digitalWrite(Smartmouse2018Robot::LED_6, 0);
 }
 

@@ -30,6 +30,8 @@ public:
 
   void setSpeedCps(double left_speed_cps, double right_speed_cps);
 
+  void reset_fwd_to_center();
+
   ssim::GlobalPose getGlobalPose();
 
   ssim::LocalPose getLocalPose();
