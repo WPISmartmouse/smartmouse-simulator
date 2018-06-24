@@ -19,7 +19,7 @@ AbstractMaze::AbstractMaze() : solved(false) {
   }
 }
 
-AbstractMaze::AbstractMaze(const AbstractMaze &m) : AbstractMaze() {
+AbstractMaze::AbstractMaze(AbstractMaze const &m) : AbstractMaze() {
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
@@ -65,7 +65,7 @@ int AbstractMaze::get_node(Node **const out, const unsigned int row, const unsig
   if (nodes[row][col] == nullptr) {
     return -1;
   }
-  (*out) = nodes[row][col];
+  *out = nodes[row][col];
   return 0;
 }
 
@@ -99,7 +99,7 @@ void AbstractMaze::reset() {
   }
 }
 
-void AbstractMaze::update(const SensorReading sr) {
+void AbstractMaze::update(SensorReading const sr) {
   for (Direction d = Direction::First; d < Direction::Last; d++) {
     //if a wall exists in that direction, add a wall
     if (sr.isWall(d)) {
@@ -115,12 +115,12 @@ void AbstractMaze::update(const SensorReading sr) {
 }
 
 bool
-AbstractMaze::flood_fill_from_point(route_t *const path, const unsigned int r0, const unsigned int c0,
-                                    const unsigned int r1, const unsigned int c1) {
+AbstractMaze::flood_fill_from_point(route_t *const path, unsigned int const r0, unsigned int const c0,
+                                    unsigned int const r1, unsigned int const c1) {
   return flood_fill(path, r0, c0, r1, c1);
 }
 
-bool AbstractMaze::flood_fill_from_origin(route_t *const path, const unsigned int r1, const unsigned int c1) {
+bool AbstractMaze::flood_fill_from_origin(route_t *const path, unsigned int const r1, unsigned int const c1) {
   return flood_fill(path, 0, 0, r1, c1);
 }
 
@@ -128,8 +128,8 @@ bool AbstractMaze::flood_fill_from_origin_to_center(route_t *const path) {
   return flood_fill(path, 0, 0, SIZE / 2, SIZE / 2);
 }
 
-bool AbstractMaze::flood_fill(route_t *const path, const unsigned int r0, const unsigned int c0, const unsigned int r1,
-                              const unsigned int c1) {
+bool AbstractMaze::flood_fill(route_t *const path, unsigned int const r0, unsigned int const c0, unsigned int const r1,
+                              unsigned int const c1) {
   Node *n;
   Node *goal = nodes[r1][c1];
 
@@ -182,7 +182,7 @@ bool AbstractMaze::flood_fill(route_t *const path, const unsigned int r0, const 
   return solvable;
 }
 
-void AbstractMaze::disconnect_neighbor(const unsigned int row, const unsigned int col, const Direction dir) {
+void AbstractMaze::disconnect_neighbor(unsigned int const row, unsigned int const col, Direction const dir) {
   Node *n1 = nullptr;
   int n1_status = get_node(&n1, row, col);
   Node *n2 = nullptr;
@@ -197,7 +197,7 @@ void AbstractMaze::disconnect_neighbor(const unsigned int row, const unsigned in
   }
 }
 
-void AbstractMaze::connect_neighbor(const unsigned int row, const unsigned int col, const Direction dir) {
+void AbstractMaze::connect_neighbor(unsigned int const row, unsigned int const col, Direction const dir) {
   Node *n1 = nullptr;
   int n1_status = get_node(&n1, row, col);
   Node *n2 = nullptr;
@@ -211,7 +211,7 @@ void AbstractMaze::connect_neighbor(const unsigned int row, const unsigned int c
   }
 }
 
-void AbstractMaze::connect_all_neighbors(const unsigned int row, const unsigned int col) {
+void AbstractMaze::connect_all_neighbors(unsigned int const row, unsigned int const col) {
   for (Direction d = Direction::First; d < Direction::Last; d++) {
     connect_neighbor(row, col, d);
   }
@@ -226,7 +226,7 @@ void AbstractMaze::connect_all_neighbors_in_maze() {
   }
 }
 
-void AbstractMaze::mark_position_visited(const unsigned int row, const unsigned int col) {
+void AbstractMaze::mark_position_visited(unsigned int const row, unsigned int const col) {
   nodes[row][col]->visited = true;
 }
 
@@ -357,7 +357,7 @@ void AbstractMaze::make_connections(AbstractMaze *maze, Node *node) {
   }
 }
 
-std::string route_to_string(const route_t &route) {
+std::string route_to_string(route_t const &route) {
   std::stringstream ss;
   if (route.empty()) {
     ss << "empty";
@@ -370,7 +370,7 @@ std::string route_to_string(const route_t &route) {
   return ss.str();
 }
 
-void insert_motion_primitive_back(route_t *route, const motion_primitive_t prim) {
+void insert_motion_primitive_back(route_t *route, motion_primitive_t const prim) {
   if (!route->empty() && prim.d == route->back().d) {
     route->back().n += prim.n;
   } else {
@@ -378,7 +378,7 @@ void insert_motion_primitive_back(route_t *route, const motion_primitive_t prim)
   }
 }
 
-void insert_motion_primitive_front(route_t *route, const motion_primitive_t prim) {
+void insert_motion_primitive_front(route_t *route, motion_primitive_t const prim) {
   if (!route->empty() && prim.d == route->front().d) {
     route->front().n += prim.n;
   } else {
@@ -387,7 +387,7 @@ void insert_motion_primitive_front(route_t *route, const motion_primitive_t prim
 }
 
 route_t
-AbstractMaze::truncate(const unsigned int row, const unsigned int col, const Direction dir, const route_t route) const {
+AbstractMaze::truncate(unsigned int const row, unsigned int const col, Direction const dir, route_t const route) const {
   route_t trunc;
   Node *n = nodes[row][col];
   bool done = false;
@@ -410,7 +410,7 @@ AbstractMaze::truncate(const unsigned int row, const unsigned int col, const Dir
   return trunc;
 }
 
-bool AbstractMaze::operator==(const AbstractMaze &other) const {
+bool AbstractMaze::operator==(AbstractMaze const &other) const {
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {

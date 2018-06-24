@@ -90,7 +90,7 @@ route_t Flood::solve() {
 bool Flood::isFinished() {
   unsigned int r = mouse->getRow();
   unsigned int c = mouse->getCol();
-  const unsigned int C = SIZE / 2;
+  unsigned int const C = SIZE / 2;
   if (goal == Solver::Goal::CENTER) {
     return !solvable || ((r >= C - 1 && r <= C) && (c >= C - 1 && c <= C));
   } else if (goal == Solver::Goal::START) {

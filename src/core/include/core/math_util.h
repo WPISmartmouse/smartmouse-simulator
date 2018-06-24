@@ -73,7 +73,7 @@ inline void wrapAngleRadInPlace(double *angle_rad)
   *angle_rad = MyMod(*angle_rad + M_PI, 2*M_PI) - M_PI;
 }
 
-constexpr double rad_to_deg(double rad) {
+double constexpr rad_to_deg(double rad) {
   return rad * 180 / (2 * M_PI);
 }
 

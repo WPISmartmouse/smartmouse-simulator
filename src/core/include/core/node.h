@@ -21,7 +21,7 @@ public:
   //if you want to iterate over neighbors, just increment the pointer to north
   std::array<Node *, 4> neighbors;
 
-  static const int OUT_OF_BOUNDS;
+  int const static OUT_OF_BOUNDS;
 
   /** \brief intializes a node */
   Node(unsigned int row, unsigned int col);

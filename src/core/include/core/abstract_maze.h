@@ -43,27 +43,27 @@ void insert_motion_primitive_front(route_t *route, motion_primitive_t prim);
 
 void insert_motion_primitive_back(route_t *route, motion_primitive_t prim);
 
-constexpr static unsigned int SIZE = 16;
-const unsigned long BUFF_SIZE = (SIZE * 2 + 3) * SIZE;
-constexpr static unsigned int CENTER = SIZE / 2;
-constexpr static double UNIT_DIST_M = 0.18;
-constexpr static double WALL_THICKNESS_M = 0.012;
-constexpr static double HALF_WALL_THICKNESS_M = WALL_THICKNESS_M / 2.0;
-constexpr static double HALF_UNIT_DIST = UNIT_DIST_M / 2.0;
-constexpr static double SIZE_M = SIZE * UNIT_DIST_M;
+unsigned int constexpr static SIZE = 16;
+unsigned long const BUFF_SIZE = (SIZE * 2 + 3) * SIZE;
+unsigned int constexpr static CENTER = SIZE / 2;
+double constexpr static UNIT_DIST_M = 0.18;
+double constexpr static WALL_THICKNESS_M = 0.012;
+double constexpr static HALF_WALL_THICKNESS_M = WALL_THICKNESS_M / 2.0;
+double constexpr static HALF_UNIT_DIST = UNIT_DIST_M / 2.0;
+double constexpr static SIZE_M = SIZE * UNIT_DIST_M;
 
-constexpr double toMeters(double cu) noexcept {
+double constexpr toMeters(double cu) noexcept {
   return cu * UNIT_DIST_M;
 }
 
-constexpr double toCellUnits(double meters) noexcept {
+double constexpr toCellUnits(double meters) noexcept {
   static_assert(UNIT_DIST_M > 0, "UNIT_DIST_M must be greater than zero.");
   return meters / UNIT_DIST_M;
 }
 
-constexpr double WALL_THICKNESS_CU = toCellUnits(WALL_THICKNESS_M);
-constexpr double HALF_WALL_THICKNESS_CU = toCellUnits(HALF_WALL_THICKNESS_M);
-constexpr double SIZE_CU = toCellUnits(SIZE_M);
+double constexpr WALL_THICKNESS_CU = toCellUnits(WALL_THICKNESS_M);
+double constexpr HALF_WALL_THICKNESS_CU = toCellUnits(HALF_WALL_THICKNESS_M);
+double constexpr SIZE_CU = toCellUnits(SIZE_M);
 
 class AbstractMaze {
 
@@ -79,7 +79,7 @@ public:
    */
   AbstractMaze();
 
-  AbstractMaze(const AbstractMaze &m);
+  AbstractMaze(AbstractMaze const &m);
 
   AbstractMaze(std::ifstream &fs);
 
@@ -122,7 +122,7 @@ public:
   /** \brief get node by its position
    * \return 0 on success, OUT_OF_BOUNDS, or -1 on NULL
    */
-  int get_node(Node **out, unsigned int r, unsigned int c) const;
+  int get_node(Node **const out, unsigned int r, unsigned int c) const;
 
   /** \brief get neighbor node in a direction from a position
    * \param the adress of the node to set
@@ -131,7 +131,7 @@ public:
    * \param dir the direction of the neighbor you want
    * \return 0 on success, OUT_OF_BOUNDS, or -1 on NULL
    */
-  int get_node_in_direction(Node **out, unsigned int row, unsigned int col, Direction dir) const;
+  int get_node_in_direction(Node ** const out, unsigned int row, unsigned int col, Direction dir) const;
 
   /** \brief add all the neighbors
    */
@@ -153,7 +153,7 @@ public:
 
   bool flood_fill(route_t *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1);
 
-  bool operator==(const AbstractMaze &other) const;
+  bool operator==(AbstractMaze const &other) const;
 
   Node *nodes[SIZE][SIZE]; // array of node pointers
 };

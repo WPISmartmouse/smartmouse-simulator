@@ -4,7 +4,7 @@
 
 namespace ssim {
 
-constexpr int Node::OUT_OF_BOUNDS = -2;
+int constexpr Node::OUT_OF_BOUNDS = -2;
 
 Node::Node(unsigned int row, unsigned int col) : weight(-1), distance(0), known(false), visited(false), neighbors({}),
                                                  r(row),
@@ -19,7 +19,7 @@ unsigned int Node::col() const {
   return c;
 }
 
-Node *Node::neighbor(const Direction dir) const {
+Node *Node::neighbor(Direction const dir) const {
   switch (dir) {
     case Direction::N:
       return neighbors[0];
@@ -38,11 +38,11 @@ Node::Node() : weight(std::numeric_limits<decltype(weight)>::max()), distance(0)
                neighbors({}), r(0), c(0) {
 }
 
-bool Node::wall(const Direction dir) const {
+bool Node::wall(Direction const dir) const {
   return neighbor(dir) == nullptr;
 }
 
-void Node::assign_weights_to_neighbors(const Node *const goal, const int weight, bool * const success) {
+void Node::assign_weights_to_neighbors(Node const *const goal, int const weight, bool *const success) {
   //check all nodes that are unvisited, or would be given a lower weight
   if (!this->known || weight < this->weight) {
     //don't visit it again unless you find a shorter path

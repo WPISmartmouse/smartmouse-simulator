@@ -16,7 +16,7 @@ public:
 
   bool isWall(Direction dir) const;
 
-  const unsigned int row, col;
+  unsigned int const row, col;
 };
 
 } // namespace ssim
