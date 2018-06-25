@@ -81,7 +81,9 @@ public:
 
   AbstractMaze(AbstractMaze const &m);
 
+#ifndef REAL
   AbstractMaze(std::ifstream &fs);
+#endif
 
   ~AbstractMaze();
 

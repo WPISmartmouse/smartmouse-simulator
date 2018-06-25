@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(smartmouse-simulator)
 
+# This is used by the bops tool
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 option(REAL "target teensy" OFF)
 option(BUILD_TESTS "build tests" ON)
 option(ADDRESS_SANITIZER "use address sanitizer" OFF)
@@ -28,6 +31,7 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 
 # Testing -- only valid on sim
 if (${REAL})
+    add_definitions(-DREAL)
     set(BUILD_TESTS OFF)
 endif ()
 

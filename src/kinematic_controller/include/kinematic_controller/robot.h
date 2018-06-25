@@ -6,11 +6,10 @@
 
 namespace ssim {
 
+/// Class to combine Mouse (inherited) and KinematicController (member)
 class Robot : public Mouse {
 
 public:
-
-  Robot();
 
   static double dispToNextEdge(Robot &robot);
 
@@ -24,7 +23,7 @@ public:
 
   static double sidewaysDispToCenter(Robot &robot);
 
-  KinematicController kinematic_controller;
+  Robot() = default;
 
   std::pair<double, double> getWheelVelocitiesCPS();
 
@@ -35,6 +34,8 @@ public:
   ssim::GlobalPose getGlobalPose();
 
   ssim::LocalPose getLocalPose();
+
+  KinematicController kinematic_controller;
 
 };
 

@@ -30,6 +30,7 @@ AbstractMaze::AbstractMaze(AbstractMaze const &m) : AbstractMaze() {
   }
 }
 
+#ifndef REAL
 AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
   std::string line;
 
@@ -56,6 +57,7 @@ AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
   }
   printf("\n");
 }
+#endif
 
 int AbstractMaze::get_node(Node **const out, const unsigned int row, const unsigned int col) const {
   if (col < 0 || col >= SIZE || row < 0 || row >= SIZE) {
