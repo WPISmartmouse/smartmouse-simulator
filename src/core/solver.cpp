@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <core/solver.h>
 
 namespace ssim {

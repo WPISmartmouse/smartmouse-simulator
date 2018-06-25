@@ -372,6 +372,11 @@ std::string route_to_string(route_t const &route) {
   return ss.str();
 }
 
+unsigned int expanded_route_length(route_t const &route) {
+  return std::accumulate(route.begin(), route.end(), 0u,
+                         [](unsigned int accum, const motion_primitive_t &prim) { return accum + prim.n; });
+}
+
 void insert_motion_primitive_back(route_t *route, motion_primitive_t const prim) {
   if (!route->empty() && prim.d == route->back().d) {
     route->back().n += prim.n;
@@ -429,7 +434,6 @@ bool AbstractMaze::operator==(AbstractMaze const &other) const {
 }
 
 AbstractMaze::~AbstractMaze() {
-  std::cout << "~AbstractMaze()" << std::endl;
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {

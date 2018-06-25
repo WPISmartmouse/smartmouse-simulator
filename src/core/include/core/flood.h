@@ -16,7 +16,7 @@ class Flood : public Solver {
 
 public:
 
-  Flood(Mouse *mouse);
+  explicit Flood(Mouse *mouse);
 
   virtual void setup() override;
 

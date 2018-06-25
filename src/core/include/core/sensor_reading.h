@@ -8,9 +8,7 @@ namespace ssim {
 
 class SensorReading {
 public:
-  SensorReading(int row, int col);
-
-  SensorReading(int row, int col, bool *walls);
+  SensorReading(unsigned int row, unsigned int col);
 
   std::array<bool, 4> walls;
 

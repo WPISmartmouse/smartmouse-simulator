@@ -45,3 +45,6 @@ void CoutSerial::print(word w, unsigned int mode) {
 
 void NopSerial::print(const std::string &s) {}
 
+CoutSerial Serial;
+NopSerial Serial1;
+

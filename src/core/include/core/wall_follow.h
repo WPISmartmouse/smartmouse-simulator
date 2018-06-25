@@ -13,7 +13,7 @@ class WallFollow : public Solver {
 
 public:
 
-  WallFollow(Mouse *mouse);
+  explicit WallFollow(Mouse *mouse);
 
   virtual void setup() override;
 

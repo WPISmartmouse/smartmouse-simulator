@@ -42,9 +42,12 @@ class CoutSerial {
 public:
   void print(const std::string &);
   void print(word, unsigned int);
-} Serial;
+};
 
 class NopSerial {
 public:
   void print(const std::string &);
-} Serial1;
+};
+
+extern CoutSerial Serial;
+extern NopSerial Serial1;

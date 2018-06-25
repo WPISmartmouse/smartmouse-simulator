@@ -11,7 +11,7 @@ public:
     START
   };
 
-  Solver(Mouse *mouse);
+  explicit Solver(Mouse *mouse);
 
   virtual void setup() = 0;
 
@@ -28,6 +28,8 @@ public:
   bool isSolvable();
 
   bool solvable;
+
+  // Non-Owning pointer -- we will not free this memory, because we don't own it.
   Mouse *mouse;
 };
 

@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include <core/abstract_maze.h>
+
 namespace ssim {
 
 void print(const char *fmt, ...);
@@ -10,7 +12,7 @@ void csv_print(std::vector<double> values);
 
 void print_maze_mouse();
 
-void print_maze();
+void print_maze(AbstractMaze const &maze);
 
 void print_maze_str(char *buff);
 

@@ -6,19 +6,7 @@
 #include <core/mouse.h>
 #include <core/abstract_maze.h>
 
-class MockMouse : public ssim::Mouse {
-
-public:
-  ssim::SensorReading checkWalls() override {
-    return {0, 0};
-  }
-
-  MockMouse() = default;
-  ~MockMouse() = default;
-
-  explicit MockMouse(ssim::AbstractMaze &maze) : Mouse(maze) {
-  }
-};
+#include <core/test/mock_mouse.h>
 
 TEST(MouseTest, movement_test) {
   MockMouse m;

@@ -8,13 +8,6 @@
 
 #include <hal/hal.h>
 
-// FIXME: I forget what this was for
-//extern "C" {
-//int _getpid() { return -1; }
-//int _kill(int pid, int sig) { return -1; }
-//void _write_r() {}
-//}
-
 namespace ssim {
 
 void print(const char *fmt, ...) {
@@ -74,9 +67,9 @@ void print_maze_str(const AbstractMaze &maze, char *buff) {
   *b = '\0';
 }
 
-void print_maze() {
+void print_maze(AbstractMaze const &maze) {
   char buff[BUFF_SIZE];
-  print_maze_str(buff);
+  print_maze_str(maze, buff);
   print(buff);
 }
 

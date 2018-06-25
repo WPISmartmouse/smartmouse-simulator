@@ -37,7 +37,9 @@ struct motion_primitive_t {
 
 typedef std::vector<motion_primitive_t> route_t;
 
-std::string route_to_string(route_t &route);
+std::string route_to_string(route_t const &route);
+
+unsigned int expanded_route_length(route_t const &route);
 
 void insert_motion_primitive_front(route_t *route, motion_primitive_t prim);
 

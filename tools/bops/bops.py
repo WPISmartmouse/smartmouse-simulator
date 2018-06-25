@@ -100,7 +100,10 @@ def test_conf(root, conf):
 
     # Recompile if necessary
     if len(tests) >= 0:
-        build_conf(root, conf, targets=tests)
+        success = build_conf(root, conf, targets=tests)
+        if not success:
+            return False
+
 
     cmd = ["ctest", "--output-on-failure"]
     result = subprocess.run(cmd, cwd=cwd)
