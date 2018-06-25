@@ -3,6 +3,7 @@ import colorama
 import json
 import os
 import subprocess
+import sys
 
 ALL = 'all'
 
@@ -34,10 +35,25 @@ def common(args):
         root = os.path.join(os.getcwd(), '.build')
 
     confs = os.listdir(root)
-    if args.build_conf == ALL:
-        return root, confs
-    else:
-        return root, [args.build_conf]
+
+    if not os.path.isdir(root):
+        print(colorama.Fore.RED, end='')
+        print("Root {} is not a directory".format(root))
+        print(colorama.Fore.RESET, end='')
+
+    # yea it's annoying, but precheck all the confs
+    if args.build_conf != ALL:
+        confs = [args.build_conf]
+
+    for conf in confs:
+        conf_dir = os.path.join(root, conf)
+        if not os.path.isdir(conf_dir):
+            print(colorama.Fore.RED, end='')
+            print("Conf {} is not a directory".format(conf_dir))
+            print(colorama.Fore.RESET, end='')
+            sys.exit(1)
+
+    return root, confs
 
 
 def build(args):
@@ -71,6 +87,7 @@ def test(args):
 
 def test_conf(root, conf):
     cwd = os.path.join(root, conf)
+    print(cwd)
 
     # Check which targets we need to recompile
     compile_commands = json.load(open(os.path.join(cwd, 'compile_commands.json'), 'r'))

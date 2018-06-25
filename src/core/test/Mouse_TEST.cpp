@@ -50,10 +50,7 @@ TEST(MouseTest, movement_test) {
 TEST(Mouse_Test, wall_test) {
   auto ssim_env = std::getenv("SSIM");
 
-  if (!ssim_env) {
-    std::cerr << "SSIM environment variable not set\n";
-    return;
-  }
+  ASSERT_TRUE(ssim_env);
 
   auto project_root = std::string(ssim_env);
   // TODO: implement this with std::fs when we upgrade to gcc 8.0
@@ -64,5 +61,4 @@ TEST(Mouse_Test, wall_test) {
   EXPECT_TRUE(m.isWallInDirection(ssim::Direction::S));
   EXPECT_TRUE(m.isWallInDirection(ssim::Direction::N));
   EXPECT_FALSE(m.isWallInDirection(ssim::Direction::E));
-  EXPECT_TRUE(false);
 }
