@@ -10,13 +10,13 @@ class Forward : public Command {
 public:
   explicit Forward(Smartmouse2018Robot &robot);
 
-  void initialize();
+  void initialize() override;
 
-  void execute();
+  void execute() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
-  void end();
+  void end() override;
 
 private:
   ssim::GlobalPose start;

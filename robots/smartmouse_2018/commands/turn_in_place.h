@@ -10,13 +10,13 @@ class TurnInPlace : public Command {
 public:
   TurnInPlace(Smartmouse2018Robot &robot, ssim::Direction dir);
 
-  void initialize();
+  void initialize() override;
 
-  void execute();
+  void execute() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
-  void end();
+  void end() override;
 
 private:
   Smartmouse2018Robot &robot;

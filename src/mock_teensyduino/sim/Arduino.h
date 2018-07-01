@@ -40,6 +40,7 @@ void pinMode(unsigned int pin, unsigned int mode);
 
 class CoutSerial {
 public:
+  void println(const std::string &);
   void print(const std::string &);
   void print(word, unsigned int);
 };
@@ -47,6 +48,7 @@ public:
 class NopSerial {
 public:
   void print(const std::string &);
+  void println(const std::string &);
 };
 
 extern CoutSerial Serial;

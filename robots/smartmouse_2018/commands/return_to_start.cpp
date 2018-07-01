@@ -1,4 +1,3 @@
-#include "commands/wait_for_start.h"
 #include "commands/return_to_start.h"
 #include "commands/forward.h"
 #include "commands/turn.h"
@@ -20,8 +19,8 @@ bool ReturnToStart::isFinished() {
 
     if (!returned) {
       ssim::motion_primitive_t prim = pathToStart[index++];
-      addSequential(new Turn(robot, prim.d));
-      addSequential(new Forward(robot));
+      add<Turn>(robot, prim.d);
+      add<Forward>(robot);
     } else {
       return true;
     }

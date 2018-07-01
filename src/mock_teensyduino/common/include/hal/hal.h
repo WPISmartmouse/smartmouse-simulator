@@ -6,7 +6,11 @@
 
 namespace ssim {
 
-void print(const char *fmt, ...);
+void println(std::string const &);
+
+void print(std::string const &);
+
+void print(char const *fmt, ...);
 
 void csv_print(std::vector<double> values);
 

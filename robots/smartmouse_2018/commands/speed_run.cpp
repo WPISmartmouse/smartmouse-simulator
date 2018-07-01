@@ -19,8 +19,8 @@ bool SpeedRun::isFinished() {
 
     if (!returned) {
       ssim::motion_primitive_t prim = path->at(index++);
-      addSequential(new Turn(robot, prim.d));
-      addSequential(new Forward(robot));
+      add<Turn>(robot, prim.d);
+      add<Forward>(robot);
     } else {
       return true;
     }

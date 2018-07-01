@@ -10,13 +10,13 @@ class ForwardN : public Command {
 public:
   explicit ForwardN(Smartmouse2018Robot &robot, unsigned int n);
 
-  void initialize();
+  void initialize() override;
 
-  void execute();
+  void execute() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
-  void end();
+  void end() override;
 
 private:
 

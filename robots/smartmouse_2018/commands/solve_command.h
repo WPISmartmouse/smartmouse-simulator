@@ -9,9 +9,9 @@ class SolveCommand : public CommandGroup {
 public:
   SolveCommand(Smartmouse2018Robot &robot, ssim::Solver *solver);
 
-  void initialize();
+  void initialize() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
 private:
   Smartmouse2018Robot &robot;

@@ -13,7 +13,7 @@
 void Smartmouse2018Main::Setup() {
   robot.setup();
 
-  scheduler = new Scheduler(new SolveCommand(robot, new ssim::Flood(&robot)));
+  auto root = std::make_unique<SolveCommand>(robot, new ssim::Flood(&robot));
 
   last_t_us = micros();
   last_blink_us = micros();
@@ -28,10 +28,7 @@ void Smartmouse2018Main::Loop() {
 
   if (now_us - last_blink_us > 1000000) {
     last_blink_us = now_us;
-    digitalWrite(Smartmouse2018Robot::SYS_LED,
-                 static_cast
-                     <uint8_t>(on)
-    );
+    digitalWrite(Smartmouse2018Robot::SYS_LED, static_cast <uint8_t>(on));
     on = !on;
   }
 
@@ -41,17 +38,13 @@ void Smartmouse2018Main::Loop() {
   }
 
   if (not paused and not done) {
-    done = scheduler->run();
+    done = root->run();
   } else {
     robot.setSpeedCps(0, 0);
-    digitalWrite(Smartmouse2018Robot::SYS_LED,
-                 1);
-    digitalWrite(Smartmouse2018Robot::LED_2,
-                 1);
-    digitalWrite(Smartmouse2018Robot::LED_4,
-                 1);
-    digitalWrite(Smartmouse2018Robot::LED_6,
-                 1);
+    digitalWrite(Smartmouse2018Robot::SYS_LED, 1);
+    digitalWrite(Smartmouse2018Robot::LED_2, 1);
+    digitalWrite(Smartmouse2018Robot::LED_4, 1);
+    digitalWrite(Smartmouse2018Robot::LED_6, 1);
   }
 
   auto dt_s = dt_us / 1e6;

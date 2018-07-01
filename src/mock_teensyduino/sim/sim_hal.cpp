@@ -35,15 +35,21 @@ long millis() {
   return 0;
 }
 
-void CoutSerial::print(const std::string &s) {
+void CoutSerial::print(std::string const &s) {
   std::cout << s;
+}
+
+void CoutSerial::println(std::string const &s) {
+  std::cout << s << std::endl;
 }
 
 void CoutSerial::print(word w, unsigned int mode) {
   print(std::to_string(w));
 }
 
-void NopSerial::print(const std::string &s) {}
+void NopSerial::print(std::string const &s) {}
+
+void NopSerial::println(std::string const &s) {}
 
 CoutSerial Serial;
 NopSerial Serial1;

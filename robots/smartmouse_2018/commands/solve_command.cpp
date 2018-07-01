@@ -14,12 +14,12 @@ SolveCommand::SolveCommand(Smartmouse2018Robot &robot, ssim::Solver *solver) : C
 
 void SolveCommand::initialize() {
   runs = 0;
-  addSequential(new WaitForStart(robot));
+  add<WaitForStart>(robot);
   solver->setup();
-  addSequential(new Stop(robot, 1000));
-  addSequential(new SolveMaze(robot, solver, ssim::Solver::Goal::CENTER));
-  addSequential(new Finish(robot));
-  addSequential(new SolveMaze(robot, solver, ssim::Solver::Goal::START));
+  add<Stop>(robot, 1000);
+  add<SolveMaze>(robot, solver, ssim::Solver::Goal::CENTER);
+  add<Finish>(robot);
+  add<SolveMaze>(robot, solver, ssim::Solver::Goal::START);
 }
 
 bool SolveCommand::isFinished() {
@@ -33,11 +33,11 @@ bool SolveCommand::isFinished() {
       return true;
     }
 
-    addSequential(new Stop(robot, 200));
-    addSequential(new WaitForStart(robot));
-    addSequential(new SolveMaze(robot, solver, ssim::Solver::Goal::CENTER));
-    addSequential(new Finish(robot));
-    addSequential(new SolveMaze(robot, solver, ssim::Solver::Goal::START));
+    add<Stop>(robot, 200);
+    add<WaitForStart>(robot);
+    add<SolveMaze>(robot, solver, ssim::Solver::Goal::CENTER);
+    add<Finish>(robot);
+    add<SolveMaze>(robot, solver, ssim::Solver::Goal::START);
     return false;
   }
 

@@ -10,11 +10,11 @@ public:
 
   Stop(Smartmouse2018Robot &robot, unsigned long stop_time);
 
-  void initialize();
+  void initialize() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
-  void end();
+  void end() override;
 
 private:
   Smartmouse2018Robot &robot;

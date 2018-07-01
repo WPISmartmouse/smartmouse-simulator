@@ -6,11 +6,13 @@
 
 class Finish : public Command {
 public:
-  Finish(Smartmouse2018Robot &robot);
+  explicit Finish(Smartmouse2018Robot &robot);
 
-  void initialize();
-  void execute();
-  bool isFinished();
+  void initialize() override;
+
+  void execute() override;
+
+  bool isFinished() override;
 
 private:
   const unsigned int BLINK_TIME = 50;

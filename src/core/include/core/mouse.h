@@ -33,7 +33,7 @@ struct RangeData {
   }
 };
 
-/** \brief depresents a mouse
+/** \brief represents a mouse
  * don't ever change the row/col of a mouse directly. This prevents it from working on the real robot
  * use forward and turnToFace to move the mouse around.
  * Once those functions work on the real robot it will port over fluidly

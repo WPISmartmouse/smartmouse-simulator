@@ -2,14 +2,10 @@
 
 #include <commanduino/command.h>
 
-Command::Command() : name("unnamed"), initialized(false), running(false), timeout(0), startTime(0) {}
+Command::Command(std::string const &name) : name(name) {
+}
 
-Command::Command(const char *name) : name(name),
-                                     initialized(false), running(false), timeout(0), startTime(0) {}
-
-Command::~Command() {}
-
-bool Command::cycle() {
+bool Command::run() {
   bool finished = false;
 
   if (!initialized) {
@@ -25,7 +21,6 @@ bool Command::cycle() {
     _execute();
   }
 
-
   return finished;
 }
 
@@ -33,15 +28,15 @@ void Command::setTimeout(unsigned long timeout) {
   this->timeout = timeout;
 }
 
-unsigned long Command::getTime() {
+unsigned long Command::getTime() const {
   return millis() - startTime;
 }
 
-bool Command::isTimedOut() {
+bool Command::isTimedOut() const {
   return getTime() > timeout;
 }
 
-bool Command::isRunning() {
+bool Command::isRunning() const {
   return running;
 }
 
@@ -62,6 +57,6 @@ void Command::_end() {
   running = false;
 }
 
-bool Command::operator!=(const Command &other) {
+bool Command::operator!=(const Command &other) const {
   return this->name != other.name;
 }

@@ -9,7 +9,7 @@ class Turn : public CommandGroup {
 public:
   explicit Turn(Smartmouse2018Robot &robot, ssim::Direction dir);
 
-  void initialize();
+  void initialize() override;
 
 private:
   Smartmouse2018Robot &robot;

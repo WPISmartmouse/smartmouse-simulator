@@ -35,7 +35,7 @@ TEST(MouseTest, movement_test) {
   EXPECT_EQ(m.getDir(), ssim::Direction::E);
 }
 
-TEST(Mouse_Test, wall_test) {
+TEST(MouseTest, wall_test) {
   auto ssim_env = std::getenv("SSIM");
 
   ASSERT_TRUE(ssim_env);

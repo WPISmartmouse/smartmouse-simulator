@@ -7,15 +7,15 @@
 
 class ForwardToCenter : public Command {
 public:
-  ForwardToCenter(Smartmouse2018Robot &robot);
+  explicit ForwardToCenter(Smartmouse2018Robot &robot);
 
-  void initialize();
+  void initialize() override;
 
-  void execute();
+  void execute() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
-  void end();
+  void end() override;
 
 private:
 

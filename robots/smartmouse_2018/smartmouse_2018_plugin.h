@@ -10,7 +10,7 @@
 class Smartmouse2018Main : public ssim::RobotPlugin {
 
 public:
-  Scheduler *scheduler = nullptr;
+  std::unique_ptr<Command> root;
   Smartmouse2018Robot robot;
   long last_t_us = millis();
   long last_blink_us = millis();

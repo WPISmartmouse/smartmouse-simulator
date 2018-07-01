@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /**
  * \brief this class is the very core of the framework
  * commands are initialized once, then run until they're done
@@ -9,17 +11,17 @@ class Command {
 
 public:
 
-  Command();
+  Command() = default;
 
-  Command(const char *name);
+  virtual ~Command() = default;
 
-  virtual ~Command();
+  explicit Command(std::string const& name);
 
   void setTimeout(unsigned long timeout);
 
-  unsigned long getTime();
+  unsigned long getTime() const;
 
-  bool isTimedOut();
+  bool isTimedOut() const;
 
   /** \brief run once in the first iteration of the command's life.
    * this will be overrided by individual commands
@@ -48,26 +50,23 @@ public:
 
   virtual void _end();
 
-  /** \brief actually does the  excuting.
+  /** \brief actually does the excuting.
    * @return if command is finished
    */
-  bool cycle();
+  bool run();
 
   /** \brief check if the command is running.
    *  @return if command is still running
    */
-  bool isRunning();
+  bool isRunning() const;
 
   /** \brief comparator overload for !=. used when checking if command is in list */
-  bool operator!=(const Command &other);
-
-  /** \brief used by command group to organize commands */
-  bool inParallel;
+  bool operator!=(const Command &other) const;
 
   /** \brief for convenient printing */
-  const char *name;
+  std::string name;
 
-  bool initialized, running;
-  unsigned long timeout;
-  unsigned long startTime;
+  bool initialized = false, running = false;
+  unsigned long timeout = 0;
+  unsigned long startTime = 0;
 };

@@ -1,38 +1,42 @@
 #pragma once
 
+#include <list>
+#include <memory>
+
 #include <commanduino/command.h>
-#include <commanduino/linked_list.h>
 
 /** \brief grouping commands is a useful abstraction.
  * Commands groups execute commands in parallel or series
  */
 class CommandGroup : public Command {
 public:
-  CommandGroup(const char *name);
+  explicit CommandGroup(std::string const &name);
 
   CommandGroup() = default;
 
-  void addSequential(Command *command);
+  ~CommandGroup() override = default;
 
-  void addParallel(Command *command);
+  template<typename T, class... Args>
+  void add(Args &&... args) {
+    commands.push_back(std::move(std::make_unique<T>(args...)));
+  }
 
-  virtual void _initialize();
+  void _initialize() override;
 
-  virtual void _execute();
+  void _execute() override;
 
-  virtual void _end();
+  void initialize() override;
 
-  virtual void initialize();
+  void execute() override;
 
-  virtual void execute();
+  void end() override;
 
-  virtual void end();
+  bool isFinished() override;
 
-  virtual bool isFinished();
-
-  LinkedList<Command *> commands;
+  std::list<std::unique_ptr<Command>> commands;
 
 private:
 
-  int currentCommandIndex;
+  std::list<std::unique_ptr<Command>>::iterator iterator;
+
 };

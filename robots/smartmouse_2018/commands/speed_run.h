@@ -8,9 +8,9 @@ class SpeedRun : public CommandGroup {
 public:
   explicit SpeedRun(Smartmouse2018Robot &robot);
 
-  void initialize();
+  void initialize() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
 private:
   Smartmouse2018Robot &robot;

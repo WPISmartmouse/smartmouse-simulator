@@ -11,19 +11,19 @@ Turn::Turn(Smartmouse2018Robot &robot, ssim::Direction dir) : CommandGroup("Real
 void Turn::initialize() {
   // if we want a logical 180 turn, we do full stop then turn.
   if (opposite_direction(robot.getDir()) == dir) {
-    addSequential(new ForwardToCenter(robot)); // slowly stop
-    addSequential(new TurnInPlace(robot, dir));
-    addSequential(new Forward(robot));
+    add<ForwardToCenter>(robot); // slowly stop
+    add<TurnInPlace>(robot, dir);
+    add<Forward>(robot);
   } else if (robot.getDir() != dir) {
     if (ssim::WALL_SMASH) {
-      addSequential(new WallSmash(robot)) ;
-      addSequential(new TurnInPlace(robot, dir));
-      addSequential(new Forward(robot));
+      add<WallSmash>(robot);
+      add<TurnInPlace>(robot, dir);
+      add<Forward>(robot);
     }
     else {
-      addSequential(new ForwardToCenter(robot));
-      addSequential(new TurnInPlace(robot, dir));
-      addSequential(new Forward(robot));
+      add<ForwardToCenter>(robot);
+      add<TurnInPlace>(robot, dir);
+      add<Forward>(robot);
     }
   }
 }

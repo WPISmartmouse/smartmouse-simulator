@@ -8,10 +8,10 @@ class WaitForStart : public CommandGroup {
 public:
   explicit WaitForStart(Smartmouse2018Robot &robot);
 
-  void initialize();
-  void execute();
-  bool isFinished();
-  void end();
+  void initialize() override;
+  void execute() override;
+  bool isFinished() override;
+  void end() override;
 
 private:
   Smartmouse2018Robot &robot;

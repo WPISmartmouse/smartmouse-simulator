@@ -2,7 +2,6 @@
 
 #include <core/abstract_maze.h>
 #include <core/flood.h>
-#include <hal/hal.h>
 
 #include "include/core/test/mock_mouse.h"
 

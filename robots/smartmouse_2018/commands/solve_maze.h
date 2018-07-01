@@ -9,11 +9,11 @@ class SolveMaze : public CommandGroup {
 public:
   SolveMaze(Smartmouse2018Robot &robot, ssim::Solver *solver, ssim::Solver::Goal goal);
 
-  void initialize();
+  void initialize() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
-  void end();
+  void end() override;
 
 private:
   Smartmouse2018Robot &robot;

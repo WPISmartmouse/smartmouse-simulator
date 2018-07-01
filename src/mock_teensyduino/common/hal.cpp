@@ -10,6 +10,16 @@
 
 namespace ssim {
 
+void println(const std::string &str) {
+  Serial.println(str.c_str());
+  Serial1.println(str.c_str());
+}
+
+void print(const std::string &str) {
+  Serial.print(str.c_str());
+  Serial1.print(str.c_str());
+}
+
 void print(const char *fmt, ...) {
   char buf[1024]; // resulting string limited to 128 chars
   va_list args;

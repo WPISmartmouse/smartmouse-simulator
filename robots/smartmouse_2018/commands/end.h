@@ -6,7 +6,7 @@ class End : public Command {
 public:
   End();
 
-  bool isFinished();
+  bool isFinished() override;
 
-  void end();
+  void end() override;
 };

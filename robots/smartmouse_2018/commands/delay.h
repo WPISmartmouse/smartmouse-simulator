@@ -4,15 +4,15 @@
 
 class Delay : public Command {
 public:
-  Delay(int timeout);
+  explicit Delay(int timeout);
 
-  void initialize();
+  void initialize() override;
 
-  void execute();
+  void execute() override;
 
-  bool isFinished();
+  bool isFinished() override;
 
-  void end();
+  void end() override;
 
 private:
   int timeout;

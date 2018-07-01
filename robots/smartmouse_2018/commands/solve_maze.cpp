@@ -35,16 +35,16 @@ bool SolveMaze::isFinished() {
       }
 
       if (prim.d == solver->mouse->getDir()) {
-        addSequential(new ForwardN(robot, prim.n));
+        add<ForwardN>(robot, prim.n);
       } else {
-        addSequential(new Turn(robot, prim.d));
+        add<Turn>(robot, prim.d);
       }
 
       movements++;
     } else if (!at_center) {
-      addSequential(new ForwardToCenter(robot));
+      add<ForwardToCenter>(robot);
       if (goal == ssim::Solver::Goal::START) {
-        addSequential(new TurnInPlace(robot, ssim::Direction::E));
+        add<TurnInPlace>(robot, ssim::Direction::E);
       }
       at_center = true;
       solved = true;
