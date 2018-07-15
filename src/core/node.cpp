@@ -6,10 +6,7 @@ namespace ssim {
 
 int constexpr Node::OUT_OF_BOUNDS = -2;
 
-Node::Node(unsigned int row, unsigned int col) : weight(-1), distance(0), known(false), visited(false), neighbors({}),
-                                                 r(row),
-                                                 c(col) {
-}
+Node::Node(unsigned int row, unsigned int col) : r(row), c(col) {}
 
 unsigned int Node::row() const {
   return r;
@@ -32,10 +29,6 @@ Node *Node::neighbor(Direction const dir) const {
     default:
       return nullptr;
   }
-}
-
-Node::Node() : weight(std::numeric_limits<decltype(weight)>::max()), distance(0), known(false), visited(false),
-               neighbors({}), r(0), c(0) {
 }
 
 bool Node::wall(Direction const dir) const {

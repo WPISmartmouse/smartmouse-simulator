@@ -1,5 +1,5 @@
-#include "../../../../include/core/mouse.h"
-#include "../../../../include/core/abstract_maze.h"
+#include <core/mouse.h>
+#include <core/maze.h>
 
 class MockMouse : public ssim::Mouse {
 

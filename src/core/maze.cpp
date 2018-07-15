@@ -6,7 +6,7 @@
 #include <string>
 #include <iostream>
 
-#include <core/abstract_maze.h>
+#include <core/maze.h>
 
 namespace ssim {
 

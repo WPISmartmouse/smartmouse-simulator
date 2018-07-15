@@ -4,9 +4,8 @@
 #include <cmath>
 
 #include <core/direction.h>
-#include <core/abstract_maze.h>
+#include <core/maze.h>
 #include <core/pose.h>
-#include "../../../../../../../../../usr/include/c++/5/bits/unique_ptr.h"
 
 namespace ssim {
 

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <core/abstract_maze.h>
+#include <core/maze.h>
 #include <core/flood.h>
 
 #include "include/core/test/mock_mouse.h"

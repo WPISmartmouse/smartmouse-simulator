@@ -4,7 +4,7 @@
 
 #include <core/direction.h>
 #include <core/mouse.h>
-#include <core/abstract_maze.h>
+#include <core/maze.h>
 
 #include <core/test/mock_mouse.h>
 

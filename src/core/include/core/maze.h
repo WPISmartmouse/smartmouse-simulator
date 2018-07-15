@@ -159,7 +159,7 @@ public:
 
   bool operator==(AbstractMaze const &other) const;
 
-  Node *nodes[SIZE][SIZE]; // array of node pointers
+  std::array<std::array<Node *, SIZE>, SIZE> nodes; // array of node pointers
 };
 
 }
