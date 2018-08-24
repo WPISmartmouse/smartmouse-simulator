@@ -12,6 +12,7 @@ ERROR = colorama.Fore.RED + "ERROR: " + colorama.Fore.RESET
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("conf_name", nargs='?', default=ALL, help="A name of one of the build confs in the .build folder")
+    parser.add_argument("--verbose", '-v', help="print more stuff")
     parser.add_argument("--root", '-r', help="specify a custom root build directory")
     parser.add_argument("--continue-on-failure", '-c', action="store_true", help="Keep going if one build conf has an error")
 
@@ -33,7 +34,7 @@ class BuildConf:
     def __init__(self, root, name, cmake_flags):
         self.name = name
         self.dir = os.path.join(root, name)
-        self.cmake_flags = cmake_flags
+        self.cmake_flags = cmake_flags.split(' ')
 
 def cmake_succeeded(cwd):
     return os.path.exists(os.path.join(cwd, 'Makefile'))
@@ -103,16 +104,18 @@ def build(args):
     if error:
         return
     for conf in confs:
-        success = build_conf(root, conf)
+        success = build_conf(args, root, conf)
         if not success and not args.continue_on_failure:
             break
 
 
-def build_conf(root, conf, targets=[]):
+def build_conf(args, root, conf, targets=[]):
     cwd = os.path.join(root, conf.name)
 
     if not cmake_succeeded(cwd):
-        cmd = ['cmake', '../..', conf.cmake_flags]
+        cmd = ['cmake', '../..'] + conf.cmake_flags
+        if args.verbose:
+            print(cmd)
         result = subprocess.run(cmd, cwd=cwd)
         if result.returncode:
             print(colorama.Fore.RED, end='')
@@ -155,7 +158,7 @@ def test_conf(root, conf):
 
     # Recompile if necessary
     if len(tests) >= 0:
-        success = build_conf(root, conf, targets=tests)
+        success = build_conf(args, root, conf, targets=tests)
         if not success:
             return False
 

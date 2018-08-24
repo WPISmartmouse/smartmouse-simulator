@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include <core/abstract_maze.h>
+#include <core/maze.h>
 
 #include <kinematic_controller/ir_model.h>
 

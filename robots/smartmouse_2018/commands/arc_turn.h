@@ -4,7 +4,7 @@
 
 #include <commanduino/commanduino.h>
 #include "../../../src/core/include/core/direction.h"
-#include <core/abstract_maze.h>
+#include <core/maze.h>
 #include "../../../src/kinematic_controller/include/kinematic_controller/robot_config.h"
 
 #include "smartmouse_2018_robot.h"

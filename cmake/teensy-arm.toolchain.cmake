@@ -22,11 +22,20 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set(TRIPLE "arm-none-eabi")
-if (CMAKE_HOST_WIN32)
-    set(ARDUINO_ROOT "C:/PROGRA~2/Arduino" CACHE PATH "Path to the Arduino directory")
-else()
-    set(ARDUINO_ROOT "/opt/arduino-1.8.4" CACHE PATH "Path to the Arduino directory")
+
+find_program(ARDUINO_EXECUTABLE NAMES "arduino" HINTS /opt DOC "Path to the arduinoYou  executable" NO_DEFAULT_PATH)
+
+file(GLOB ARDUINO_ROOT /opt/arduino-1.*)
+if (NOT ARDUINO_ROOT)
+  message(FATAL_ERROR "arduino-1.* folder not found anywhere in /opt")
 endif()
+
+set(ARDUINO_LIB_ROOT "${ARDUINO_ROOT}/hardware/teensy/avr/libraries" CACHE PATH "arduino libraries directory")
+
+if (NOT EXISTS ${ARDUINO_LIB_ROOT})
+  message(FATAL_ERROR "${ARDUINO_LIB_ROOT} does not exist")
+endif()
+
 set(TEENSY_CORES_ROOT "${ARDUINO_ROOT}/hardware/teensy/avr/cores" CACHE PATH "Teensy cores")
 set(ARDUINO_LIB_ROOT "${ARDUINO_ROOT}/hardware/teensy/avr/libraries" CACHE PATH "arduino libraries directory")
 set(TEENSY_ROOT "${TEENSY_CORES_ROOT}/teensy3")
