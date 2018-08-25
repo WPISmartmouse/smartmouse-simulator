@@ -175,12 +175,12 @@ def test(args):
     if error:
         return
     for conf in confs:
-        success = test_conf(root, conf)
+        success = test_conf(args, root, conf)
         if not success and not args.continue_on_failure:
             break
 
 
-def test_conf(root, conf):
+def test_conf(args, root, conf):
     cwd = os.path.join(root, conf.name)
 
     # Check which targets we need to recompile
