@@ -9,25 +9,33 @@ import sys
 ALL = 'all'
 ERROR = colorama.Fore.RED + "ERROR: " + colorama.Fore.RESET
 
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("conf_name", nargs='?', default=ALL, help="A name of one of the build confs in the .build folder")
     parser.add_argument("--verbose", '-v', help="print more stuff")
     parser.add_argument("--root", '-r', help="specify a custom root build directory")
-    parser.add_argument("--continue-on-failure", '-c', action="store_true", help="Keep going if one build conf has an error")
+    parser.add_argument("--continue-on-failure", '-c', action="store_true",
+                        help="Keep going if one build conf has an error")
 
     subparsers = parser.add_subparsers(dest='cmd')
     subparsers.required = True
 
+    clean_parser = subparsers.add_parser('clean')
+    clean_parser.set_defaults(func=clean)
+    clean_parser.add_argument("conf_name", nargs='?', default=ALL, help="name(s) of build conf(s)")
+
     build_parser = subparsers.add_parser('build')
     build_parser.set_defaults(func=build)
+    build_parser.add_argument("conf_name", nargs='?', default=ALL, help="name(s) of build conf(s)")
 
     test_parser = subparsers.add_parser('test')
     test_parser.set_defaults(func=test)
+    test_parser.add_argument("conf_name", nargs='?', default=ALL, help="name(s) of build conf(s)")
 
     args = parser.parse_args()
 
     args.func(args)
+
 
 class BuildConf:
 
@@ -36,8 +44,10 @@ class BuildConf:
         self.dir = os.path.join(root, name)
         self.cmake_flags = cmake_flags.split(' ')
 
+
 def cmake_succeeded(cwd):
     return os.path.exists(os.path.join(cwd, 'Makefile'))
+
 
 def common(args):
     if args.root:
@@ -64,13 +74,13 @@ def common(args):
         print(colorama.Fore.RESET, end='')
 
         config['build'] = {
-                'arm': '-DREAL=ON',
-                'debug': '-DCMAKE_BUILD_TYPE=DEBUG',
-                'asan': '-DADDRESS_SANITIZER=ON',
-                'ubsan': '-DUNDEFINED_SANITIZER=ON',
-                'tsan': '-DTHREAD_SANITIZER=ON',
-                'lsan': '-DLEAK_SANITIZER=ON',
-                'release': '-DCMAKE_BUILD_TYPE=RELEASE',
+            'arm': '-DREAL=ON',
+            'debug': '-DCMAKE_BUILD_TYPE=DEBUG',
+            'asan': '-DADDRESS_SANITIZER=ON',
+            'ubsan': '-DUNDEFINED_SANITIZER=ON',
+            'tsan': '-DTHREAD_SANITIZER=ON',
+            'lsan': '-DLEAK_SANITIZER=ON',
+            'release': '-DCMAKE_BUILD_TYPE=RELEASE',
         }
         config.write(open(config_path, 'w'))
     else:
@@ -97,6 +107,32 @@ def common(args):
             os.mkdir(conf.dir)
 
     return root, confs, False
+
+
+def clean(args):
+    root, confs, error = common(args)
+    if error:
+        return
+    for conf in confs:
+        success = clean_conf(args, root, conf)
+        if not success and not args.continue_on_failure:
+            break
+
+
+def clean_conf(args, root, conf, targets=[]):
+    full_conf_path = os.path.join(root, conf.name, "*")
+    if full_conf_path[:5] != '/home':
+        print(colorama.Fore.RED, end='')
+        print("you probably don't want to delete {}".format(full_conf_path))
+        print(colorama.Fore.RESET, end='')
+        return False
+    cmd = ['rm', '-rf', full_conf_path]
+    result = subprocess.run(cmd)
+    if result.returncode:
+        print(colorama.Fore.RED, end='')
+        print("rm command {} failed".format(full_conf_path))
+        print(colorama.Fore.RESET, end='')
+        return False
 
 
 def build(args):
@@ -162,7 +198,6 @@ def test_conf(root, conf):
         if not success:
             return False
 
-
     cmd = ["ctest", "--output-on-failure"]
     result = subprocess.run(cmd, cwd=cwd)
     if result.returncode:
@@ -172,4 +207,3 @@ def test_conf(root, conf):
         return False
 
     return True
-

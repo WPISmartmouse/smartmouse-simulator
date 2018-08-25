@@ -3,7 +3,7 @@
 #include <thread>
 #include <mutex>
 
-#include <core/abstract_maze.h>
+#include <core/maze.h>
 
 #include <sim/msgs.h>
 #include <sim/time.h>

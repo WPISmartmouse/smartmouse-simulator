@@ -4,7 +4,7 @@
 
 namespace ssim {
 
-int constexpr Node::OUT_OF_BOUNDS = -2;
+int const Node::OUT_OF_BOUNDS = -2;
 
 Node::Node(unsigned int row, unsigned int col) : r(row), c(col) {}
 

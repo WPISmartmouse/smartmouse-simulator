@@ -10,9 +10,9 @@ class SensorReading {
 public:
   SensorReading(unsigned int row, unsigned int col);
 
-  std::array<bool, 4> walls;
-
   bool isWall(Direction dir) const;
+
+  std::array<bool, 4> walls;
 
   unsigned int const row, col;
 };
