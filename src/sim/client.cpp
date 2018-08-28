@@ -4,55 +4,40 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QSpinBox>
 
-#include <lib/common/TopicNames.h>
-#include <sim/simulator/lib/Server.h>
-#include <sim/simulator/lib/Client.h>
-#include <sim/simulator/msgs/pid_constants.pb.h>
+#include <sim/server.h>
+#include <sim/client.h>
+#include <QFileDialog>
+#include <QCloseEvent>
 
 #include "ui_mainwindow.h"
+
+namespace ssim {
 
 Client::Client(QMainWindow *parent) :
     QMainWindow(parent), ui_(new Ui::MainWindow) {
   ui_->setupUi(this);
 
-  uuid = sole::uuid1();
-
-  server_control_pub_ = node_.Advertise<smartmouse::msgs::ServerControl>(TopicNames::kServerControl);
-  physics_pub_ = node_.Advertise<smartmouse::msgs::PhysicsConfig>(TopicNames::kPhysics);
-  maze_pub_ = node_.Advertise<smartmouse::msgs::Maze>(TopicNames::kMaze);
-  robot_description_pub_ = node_.Advertise<smartmouse::msgs::RobotDescription>(TopicNames::kRobotDescription);
-  robot_command_pub_ = node_.Advertise<smartmouse::msgs::RobotCommand>(TopicNames::kRobotCommand);
-  pid_setpoints_pub_ = node_.Advertise<ignition::msgs::Vector2d>(TopicNames::kPIDSetpoints);
-  pid_constants_pub_ = node_.Advertise<smartmouse::msgs::PIDConstants>(TopicNames::kPIDConstants);
-  node_.Subscribe(TopicNames::kWorldStatistics, &Client::OnWorldStats, this);
-  node_.Subscribe(TopicNames::kGuiActions, &Client::OnGuiActions, this);
-  node_.Subscribe(TopicNames::kPhysics, &Client::OnPhysics, this);
-  node_.Subscribe(TopicNames::kServerControl, &Client::OnServerControl, this);
-
   ConfigureGui();
   RestoreSettings();
 
   // publish the initial configuration
-  smartmouse::msgs::PhysicsConfig initial_physics_config;
-  initial_physics_config.set_ns_of_sim_per_step(1000000u);
-  initial_physics_config.set_author(uuid.str());
-  physics_pub_.Publish(initial_physics_config);
+  PhysicsConfig initial_physics_config;
+  initial_physics_config.ns_of_sim_per_step = 1000000u;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPhysics(initial_physics_config); });
 
   // publish initial config of the server
-  smartmouse::msgs::ServerControl initial_server_control;
-  initial_server_control.set_author(uuid.str());
-  initial_server_control.set_pause(false);
-  initial_server_control.set_reset_robot(true);
-  initial_server_control.set_reset_time(true);
-  server_control_pub_.Publish(initial_server_control);
+  ServerControl initial_ServerControl;
+  initial_ServerControl.pause = false;
+  initial_ServerControl.reset_robot = true;
+  initial_ServerControl.reset_time = true;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(initial_ServerControl); });
 }
 
 void Client::Exit() {
   SaveSettings();
-  smartmouse::msgs::ServerControl quit_msg;
-  quit_msg.set_quit(true);
-  quit_msg.set_author(uuid.str());
-  server_control_pub_.Publish(quit_msg);
+  ServerControl quit_msg;
+  quit_msg.quit = true;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(quit_msg); });
   QApplication::exit(0);
 }
 
@@ -62,45 +47,39 @@ void Client::Restart() {
 }
 
 void Client::TogglePlayPause() {
-  smartmouse::msgs::ServerControl msg;
-  msg.set_toggle_play_pause(true);
-  msg.set_author(uuid.str());
-  server_control_pub_.Publish(msg);
+  ServerControl msg;
+  msg.toggle_play_pause = true;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(msg); });
 }
 
 void Client::SetStatic() {
-  smartmouse::msgs::ServerControl static_msg;
-  static_msg.set_author(uuid.str());
-  static_msg.set_static_(ui_->static_checkbox->isChecked());
-  server_control_pub_.Publish(static_msg);
+  ServerControl static_msg;
+  static_msg.stationary = ui_->static_checkbox->isChecked();
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(static_msg); });
 }
 
 void Client::Step() {
-  smartmouse::msgs::ServerControl step_msg;
-  step_msg.set_author(uuid.str());
-  step_msg.set_step(step_count_);
-  server_control_pub_.Publish(step_msg);
+  ServerControl step_msg;
+  step_msg.step = step_count_;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(step_msg); });
 }
 
 void Client::ResetMouse() {
-  smartmouse::msgs::ServerControl reset_msg;
-  reset_msg.set_author(uuid.str());
-  reset_msg.set_reset_robot(true);
-  server_control_pub_.Publish(reset_msg);
+  ServerControl reset_msg;
+  reset_msg.reset_robot = true;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(reset_msg); });
 }
 
 void Client::ResetTime() {
-  smartmouse::msgs::ServerControl reset_msg;
-  reset_msg.set_author(uuid.str());
-  reset_msg.set_reset_time(true);
-  server_control_pub_.Publish(reset_msg);
+  ServerControl reset_msg;
+  reset_msg.reset_time = true;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(reset_msg); });
 }
 
 void Client::RealTimeFactorChanged(double real_time_factor) {
-  smartmouse::msgs::PhysicsConfig rtf_msg;
-  rtf_msg.set_real_time_factor(real_time_factor);
-  rtf_msg.set_author(uuid.str());
-  physics_pub_.Publish(rtf_msg);
+  PhysicsConfig rtf_msg;
+  rtf_msg.real_time_factor = real_time_factor;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPhysics(rtf_msg); });
 }
 
 void Client::StepCountChanged(int step_time_ms) {
@@ -110,43 +89,33 @@ void Client::StepCountChanged(int step_time_ms) {
 }
 
 void Client::TimePerStepMsChanged(int step_time_ms) {
-  smartmouse::msgs::PhysicsConfig time_per_step_msg;
-  time_per_step_msg.set_ns_of_sim_per_step(step_time_ms * 1000000u);
-  time_per_step_msg.set_author(uuid.str());
-  physics_pub_.Publish(time_per_step_msg);
+  PhysicsConfig time_per_step_msg;
+  time_per_step_msg.ns_of_sim_per_step = step_time_ms * 1000000u;
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPhysics(time_per_step_msg); });
 }
 
-void Client::OnWorldStats(const smartmouse::msgs::WorldStatistics &msg) {
-  Time time(msg.sim_time());
-  emit SetRealTime(QString::number(msg.real_time_factor(), 'f', 4));
+void Client::OnWorldStats(const WorldStatistics &msg) {
+  Time time(msg.sim_time);
+  emit SetRealTime(QString::number(msg.real_time_factor, 'f', 4));
   emit SetTime(QString::fromStdString(time.FormattedString()));
 }
 
-void Client::OnPhysics(const smartmouse::msgs::PhysicsConfig &msg) {
-  if (msg.author() == uuid.str()) {
-    return;
+void Client::OnPhysics(const PhysicsConfig &msg) {
+  if (msg.ns_of_sim_per_step) {
+    ui_->ms_per_step_spinner->setValue(msg.ns_of_sim_per_step.value() / 1000000);
   }
-  if (msg.has_ns_of_sim_per_step()) {
-    ui_->ms_per_step_spinner->setValue(msg.ns_of_sim_per_step() / 1000000);
-  }
-  if (msg.has_real_time_factor()) {
-    ui_->real_time_factor_spinner->setValue(msg.real_time_factor());
+  if (msg.real_time_factor) {
+    ui_->real_time_factor_spinner->setValue(msg.real_time_factor.value());
   }
 }
 
-void Client::OnServerControl(const smartmouse::msgs::ServerControl &msg) {
-  if (msg.has_pause()) {
-    if (msg.pause()) {
+void Client::OnServerControl(const ServerControl &msg) {
+  if (msg.pause) {
+    if (msg.pause.value()) {
       ui_->play_button->setText("Play");
     } else {
       ui_->play_button->setText("Pause");
     }
-  }
-}
-
-void Client::OnGuiActions(const smartmouse::msgs::GuiActions &msg) {
-  if (msg.source_code_action()) {
-    ShowSourceCode();
   }
 }
 
@@ -176,8 +145,8 @@ void Client::LoadNewMouse() {
     std::ifstream fs;
     fs.open(file_info.absoluteFilePath().toStdString(), std::fstream::in);
 
-    smartmouse::msgs::RobotDescription robot_description_msg = smartmouse::msgs::Convert(fs);
-    robot_description_pub_.Publish(robot_description_msg);
+    RobotDescription robot_description_msg = convert(fs);
+    std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobot(robot_description_msg); });
     ui_->mouse_file_name_label->setText(file_info.fileName());
   }
 }
@@ -195,16 +164,14 @@ void Client::LoadNewMaze() {
     std::ifstream fs;
     fs.open(file_info.absoluteFilePath().toStdString(), std::fstream::in);
     AbstractMaze maze(fs);
-    smartmouse::msgs::Maze maze_msg = smartmouse::msgs::Convert(&maze);
-    maze_pub_.Publish(maze_msg);
+    std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnMaze(maze); });
     ui_->maze_file_name_label->setText(file_info.fileName());
   }
 }
 
 void Client::LoadRandomMaze() {
-  AbstractMaze maze = AbstractMaze::gen_random_legal_maze();
-  smartmouse::msgs::Maze maze_msg = smartmouse::msgs::Convert(&maze);
-  maze_pub_.Publish(maze_msg);
+  const AbstractMaze &maze = AbstractMaze::gen_random_legal_maze();
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnMaze(maze); });
 }
 
 void Client::LoadDefaultMouse() {
@@ -215,8 +182,8 @@ void Client::LoadDefaultMouse() {
     std::string mouse_filename = file_info.absoluteFilePath().toStdString();
     fs.open(mouse_filename, std::fstream::in);
     if (fs.good()) {
-      smartmouse::msgs::RobotDescription mouse_msg = smartmouse::msgs::Convert(fs);
-      robot_description_pub_.Publish(mouse_msg);
+      RobotDescription mouse_msg = convert(fs);
+      std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobot(mouse_msg); });
       ui_->mouse_file_name_label->setText(file_info.fileName());
     } else {
       std::cout << "default mouse file [" << mouse_filename << "] not found\n";
@@ -235,9 +202,8 @@ void Client::LoadDefaultMaze() {
     std::string maze_filename = file_info.absoluteFilePath().toStdString();
     fs.open(maze_filename, std::fstream::in);
     if (fs.good()) {
-      AbstractMaze maze(fs);
-      smartmouse::msgs::Maze maze_msg = smartmouse::msgs::Convert(&maze);
-      maze_pub_.Publish(maze_msg);
+      const AbstractMaze maze(fs);
+      std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnMaze(maze); });
       ui_->maze_file_name_label->setText(file_info.fileName());
     } else {
       std::cout << "default mouse file [" << maze_filename << "] not found. Loading random maze.\n";
@@ -250,46 +216,43 @@ void Client::LoadDefaultMaze() {
 }
 
 void Client::SendRobotCmd() {
-  smartmouse::msgs::RobotCommand cmd;
-  auto left = cmd.mutable_left();
-  auto right = cmd.mutable_right();
-  left->set_abstract_force(ui_->left_f_spinbox->value());
-  right->set_abstract_force(ui_->right_f_spinbox->value());
-  robot_command_pub_.Publish(cmd);
+  RobotCommand cmd;
+  cmd.left.abstract_force = ui_->left_f_spinbox->value();
+  cmd.right.abstract_force = ui_->right_f_spinbox->value();
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobotCommand(cmd); });
 }
 
 void Client::SendTeleportCmd() {
-  smartmouse::msgs::ServerControl cmd;
-  cmd.set_reset_robot(true);
-  cmd.set_reset_col(ui_->teleport_column_spinbox->value());
-  cmd.set_reset_row(ui_->teleport_row_spinbox->value());
-  cmd.set_reset_yaw(ui_->teleport_yaw_spinbox->value());
-  cmd.set_author(uuid.str());
-  server_control_pub_.Publish(cmd);
+  ServerControl cmd;
+  cmd.reset_robot = true;
+  cmd.reset_col = ui_->teleport_column_spinbox->value();
+  cmd.reset_row = ui_->teleport_row_spinbox->value();
+  cmd.reset_yaw = ui_->teleport_yaw_spinbox->value();
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(cmd); });
 }
 
 void Client::PublishPIDConstants() {
-  smartmouse::msgs::PIDConstants msg;
-  msg.set_kp(ui_->kp_spinbox->value());
-  msg.set_ki(ui_->ki_spinbox->value());
-  msg.set_kd(ui_->kd_spinbox->value());
-  msg.set_kffoffset(ui_->kff_offset_spinbox->value());
-  msg.set_kffscale(ui_->kff_scale_spinbox->value());
-  pid_constants_pub_.Publish(msg);
+  PIDConstants msg;
+  msg.kP = ui_->kp_spinbox->value();
+  msg.kI = ui_->ki_spinbox->value();
+  msg.kD = ui_->kd_spinbox->value();
+  msg.kFFOffset = ui_->kff_offset_spinbox->value();
+  msg.kFFScale = ui_->kff_scale_spinbox->value();
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPIDConstants(msg); });
 }
 
 void Client::PublishPIDSetpoints() {
-  ignition::msgs::Vector2d msg;
-  msg.set_x(ui_->left_setpoint_spinbox->value());
-  msg.set_y(ui_->right_setpoint_spinbox->value());
-  pid_setpoints_pub_.Publish(msg);
+  Vector2d msg;
+  msg.x = ui_->left_setpoint_spinbox->value();
+  msg.y = ui_->right_setpoint_spinbox->value();
+  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPIDSetpoints(msg); });
 }
 
 void Client::ConfigureGui() {
-  maze_widget_ = new MazeWidget();
-  ui_->gui_tabs->addTab(maze_widget_, maze_widget_->GetTabName());
-  state_widget_ = new StateWidget();
-  ui_->main_splitter->addWidget(state_widget_);
+//  maze_widget_ = new MazeWidget();
+//  ui_->gui_tabs->addTab(maze_widget_, maze_widget_->GetTabName());
+//  state_widget_ = new StateWidget();
+//  ui_->main_splitter->addWidget(state_widget_);
   ui_->info_tabs->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   ui_->info_tabs->setMaximumWidth(300);
 
@@ -384,3 +347,5 @@ void Client::RestoreSettings() {
   ui_->kff_offset_spinbox->setValue(settings_->value("gui/kff_offset").toDouble());
   ui_->kff_scale_spinbox->setValue(settings_->value("gui/kff_scale").toDouble());
 }
+
+} // namespace ssim
