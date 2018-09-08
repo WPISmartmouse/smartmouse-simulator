@@ -1,8 +1,8 @@
-add_library(sim ray_tracing.cpp time.cpp ../core/msgs.cpp)
+add_library(sim ray_tracing.cpp time.cpp conversions.cpp)
 target_include_directories(sim PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
-target_link_libraries(sim core)
+target_link_libraries(sim core Eigen3::Eigen)
 
 add_library(server server.cpp)
 target_include_directories(server PUBLIC

@@ -242,7 +242,9 @@ void Client::PublishPIDConstants() {
 }
 
 void Client::PublishPIDSetpoints() {
-  Eigen::Vector2d msg{ui_->left_setpoint_spinbox->value(), ui_->right_setpoint_spinbox->value()};
+  PIDSetpoints msg;
+  msg.left_setpoints_cups = ui_->left_setpoint_spinbox->value();
+  msg.right_setpoints_cups = ui_->right_setpoint_spinbox->value();
   std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPIDSetpoints(msg); });
 }
 

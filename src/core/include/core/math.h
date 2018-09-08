@@ -3,7 +3,7 @@
 #include <cmath>
 #include <limits>
 
-#include <eigen3/Eigen/Eigen>
+#include <core/eigen_wrapper.h>
 
 namespace ssim {
 

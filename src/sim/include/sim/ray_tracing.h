@@ -1,16 +1,16 @@
 #pragma once
 
-#include <eigen3/Eigen/Eigen>
+#include <optional>
 
-#include <experimental/optional>
-#include <core/msgs.h>
+#include <Eigen/Eigen>
+
+#include <core/math.h>
 
 namespace ssim {
 
 class RayTracing {
  public:
-  static std::experimental::optional<double>
-  distance_to_wall(Line2d const &wall, Eigen::Vector2d const &pt, Eigen::Vector2d u);
+  static std::optional<double> distance_to_wall(Line2d const &wall, Eigen::Vector2d const &pt, Eigen::Vector2d u);
 };
 
 } // namespace ssim

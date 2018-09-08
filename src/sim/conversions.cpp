@@ -1,6 +1,6 @@
 #include <core/json.h>
 #include <core/maze.h>
-#include <core/msgs.h>
+#include <sim/conversions.h>
 
 namespace ssim {
 

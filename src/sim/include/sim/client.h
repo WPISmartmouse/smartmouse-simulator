@@ -6,7 +6,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QShortcut>
 
-#include <core/msgs.h>
+#include <sim/conversions.h>
 #include <core/plugin.h>
 
 namespace Ui {

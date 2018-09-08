@@ -1,16 +1,21 @@
-import configparser
 import argparse
-import colorama
+import configparser
 import json
 import os
 import subprocess
-import sys
+
+import colorama
 
 ALL = 'all'
 ERROR = colorama.Fore.RED + "ERROR: " + colorama.Fore.RESET
 
 
 def main():
+    if not os.environ["SSIM"]:
+        print(colorama.Fore.RED, end='')
+        print("$SSIM environment variable was not set")
+        print(colorama.Fore.RESET, end='')
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", '-v', help="print more stuff")
     parser.add_argument("--root", '-r', help="specify a custom root build directory")
@@ -23,6 +28,10 @@ def main():
     clean_parser = subparsers.add_parser('clean')
     clean_parser.set_defaults(func=clean)
     clean_parser.add_argument("conf_names", nargs='*', default=ALL, help="name(s) of build conf(s)")
+
+    cmake_parser = subparsers.add_parser('cmake')
+    cmake_parser.set_defaults(func=cmake)
+    cmake_parser.add_argument("conf_names", nargs='*', default=ALL, help="name(s) of cmake conf(s)")
 
     build_parser = subparsers.add_parser('build')
     build_parser.set_defaults(func=build)
@@ -40,11 +49,10 @@ def main():
 
 class CompleteConf:
 
-    def __init__(self, root, name, cmake_flags, targets):
+    def __init__(self, root, name, cmake_flags):
         self.name = name
         self.dir = os.path.join(root, name)
         self.cmake_flags = cmake_flags.split(' ')
-        self.targets = targets
 
 
 def cmake_succeeded(cwd):
@@ -55,7 +63,7 @@ def common(args):
     if args.root:
         root = args.root
     else:
-        root = os.path.join(os.getcwd(), '.build')
+        root = os.path.join(os.environ["SSIM"], '.build')
 
     if not os.path.isdir(root):
         if not os.path.exists(root):
@@ -93,10 +101,10 @@ def common(args):
     complete_confs = []
     if args.conf_names == ALL:
         print(colorama.Fore.GREEN, end='')
-        print("Working on ALL confs, with targets", args.targets)
+        print("Working on ALL confs")
         print(colorama.Fore.RESET, end='\n')
         for conf_name, cmake_flags in cmake_confs.items():
-            complete_confs.append(CompleteConf(root, conf_name, cmake_flags, args.targets))
+            complete_confs.append(CompleteConf(root, conf_name, cmake_flags))
     else:
         for conf_name in args.conf_names:
             if conf_name not in cmake_confs:
@@ -104,7 +112,7 @@ def common(args):
                 return root, None, True
             else:
                 cmake_flags = cmake_confs[conf_name]
-                complete_confs.append(CompleteConf(root, conf_name, cmake_flags, args.targets))
+                complete_confs.append(CompleteConf(root, conf_name, cmake_flags))
 
     for conf in complete_confs:
         if not os.path.isdir(conf.dir):
@@ -114,6 +122,29 @@ def common(args):
             os.mkdir(conf.dir)
 
     return root, complete_confs, False
+
+
+def cmake(args):
+    root, confs, error = common(args)
+    if error:
+        return
+    for conf in confs:
+        success = cmake_conf(args, root, conf)
+        if not success and not args.continue_on_failure:
+            break
+
+
+def cmake_conf(args, root, conf):
+    cwd = os.path.join(root, conf.name)
+    cmd = ['cmake', '../..'] + conf.cmake_flags
+    if args.verbose:
+        print(cmd)
+    result = subprocess.run(cmd, cwd=cwd)
+    if result.returncode:
+        print(colorama.Fore.RED, end='')
+        print("CMake failed {} in directory {}".format(cmd, cwd))
+        print(colorama.Fore.RESET, end='')
+        return False
 
 
 def clean(args):
@@ -147,7 +178,7 @@ def build(args):
     if error:
         return
     for conf in confs:
-        success = build_conf(args, root, conf, conf.targets)
+        success = build_conf(args, root, conf, args.targets)
         if not success and not args.continue_on_failure:
             break
 

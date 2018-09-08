@@ -3,6 +3,7 @@ project(smartmouse-simulator)
 
 # This is used by the bops tool
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-I")
 
 option(REAL "target teensy" OFF)
 option(BUILD_TESTS "build tests" ON)
@@ -31,7 +32,7 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 
 # Testing -- only valid on sim
 if (${REAL})
-    add_definitions(-DREAL)
+    add_definitions(-DREAL -DNO_IMPLICIT_EXTERN_C)
     set(BUILD_TESTS OFF)
 endif ()
 

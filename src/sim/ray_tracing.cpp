@@ -1,12 +1,9 @@
-#include <sim/ray_tracing.h>
 #include <core/maze.h>
-#include <core/msgs.h>
+#include <sim/ray_tracing.h>
 
 namespace ssim {
 
-std::experimental::optional<double>
-RayTracing::distance_to_wall(Line2d const &wall, Eigen::Vector2d const &pt,
-                             Eigen::Vector2d u) {
+std::optional<double> RayTracing::distance_to_wall(Line2d const &wall, Eigen::Vector2d const &pt, Eigen::Vector2d u) {
   // project along u the size of the maze
   Eigen::Vector2d u_proj(u);
   u_proj *= SIZE_M;
@@ -17,9 +14,9 @@ RayTracing::distance_to_wall(Line2d const &wall, Eigen::Vector2d const &pt,
 
   if (intersects) {
     double dist = Distance(pt, intersection_point);
-    return std::experimental::optional<double>(dist);
+    return std::optional<double>(dist);
   } else {
-    return std::experimental::optional<double>();
+    return std::optional<double>();
   }
 }
 

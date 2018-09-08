@@ -1,13 +1,9 @@
 #pragma once
 
-#include <optional>
 #include <cstdint>
 #include <array>
 #include <vector>
 
-#include <eigen3/Eigen/Eigen>
-
-#include <core/node.h>
 #include <core/math.h>
 
 namespace ssim {
@@ -26,53 +22,12 @@ class XYTheta {
   double theta;
 };
 
-class ServerControl {
+class WheelPhysicsState {
  public:
-  std::optional<bool> pause;
-  std::optional<bool> stationary;
-  std::optional<uint32_t> step;
-  std::optional<bool> quit;
-  std::optional<bool> reset_time;
-  std::optional<bool> reset_robot;
-  std::optional<double> reset_row;
-  std::optional<double> reset_col;
-  std::optional<double> reset_yaw;
-  std::optional<std::string> author;
-  std::optional<bool> toggle_play_pause;
-};
-
-class PIDConstants {
- public:
-  std::optional<double> kP;
-  std::optional<double> kI;
-  std::optional<double> kD;
-  std::optional<double> kFFOffset;
-  std::optional<double> kFFScale;
-};
-
-class PhysicsConfig {
- public:
-  std::optional<uint32_t> ns_of_sim_per_step;
-  std::optional<double> real_time_factor; // desired RTF
-};
-
-class WheelDescription {
- public:
-  Eigen::Vector2d pose;
-  double radius;
-  double thickness;
-  double u_static;
-};
-
-class MotorDescription {
- public:
-  double u_kinetic;
-  double u_static;
-  double J;
-  double b;
-  double R;
-  double L;
-  double K;
+  double theta; // radians
+  double omega; // radians/second
+  double alpha;
+  double current; // amperes
 };
 
 class SensorDescription {
@@ -98,22 +53,15 @@ class SensorsDescription {
   SensorDescription back_right;
 };
 
-class RobotDescription {
+class MotorDescription {
  public:
-  std::vector<Eigen::Vector2d> footprint;
-  WheelDescription left_wheel;
-  WheelDescription right_wheel;
-  Eigen::Vector3d cog;
-  MotorDescription motor;
-  SensorsDescription sensors;
-};
-
-class WheelPhysicsState {
- public:
-  double theta; // radians
-  double omega; // radians/second
-  double alpha;
-  double current; // amperes
+  double u_kinetic;
+  double u_static;
+  double J;
+  double b;
+  double R;
+  double L;
+  double K;
 };
 
 class RobotSimState {
@@ -157,9 +105,5 @@ class WorldStatistics {
   int32_t time_ns = 0;
   double real_time_factor = 0.0; // RTF acutally acheived
 };
-
-/// A series of funtions to convert various things into the above messages
-RobotDescription Convert(std::ifstream const &fs);
-std::array<Line2d, 16> Convert(Node const &node);
 
 } // namespace ssim
