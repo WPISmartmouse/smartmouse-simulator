@@ -22,27 +22,29 @@ def main():
 
     clean_parser = subparsers.add_parser('clean')
     clean_parser.set_defaults(func=clean)
-    clean_parser.add_argument("conf_name", nargs='?', default=ALL, help="name(s) of build conf(s)")
+    clean_parser.add_argument("conf_names", nargs='*', default=ALL, help="name(s) of build conf(s)")
 
     build_parser = subparsers.add_parser('build')
     build_parser.set_defaults(func=build)
-    build_parser.add_argument("conf_name", nargs='?', default=ALL, help="name(s) of build conf(s)")
+    build_parser.add_argument("conf_names", nargs='*', default=ALL, help="name(s) of build conf(s)")
+    build_parser.add_argument("--targets", nargs='*', default=[ALL], help="name(s) of target(s)")
 
     test_parser = subparsers.add_parser('test')
     test_parser.set_defaults(func=test)
-    test_parser.add_argument("conf_name", nargs='?', default=ALL, help="name(s) of build conf(s)")
+    test_parser.add_argument("conf_names", nargs='*', default=ALL, help="name(s) of build conf(s)")
 
     args = parser.parse_args()
 
     args.func(args)
 
 
-class BuildConf:
+class CompleteConf:
 
-    def __init__(self, root, name, cmake_flags):
+    def __init__(self, root, name, cmake_flags, targets):
         self.name = name
         self.dir = os.path.join(root, name)
         self.cmake_flags = cmake_flags.split(' ')
+        self.targets = targets
 
 
 def cmake_succeeded(cwd):
@@ -66,14 +68,14 @@ def common(args):
             print("Root {} is not a directory".format(root))
             print(colorama.Fore.RESET, end='')
 
-    config = configparser.ConfigParser()
+    cmake_config = configparser.ConfigParser()
     config_path = os.path.expanduser("~/.config/smartmouse-simulator.ini")
     if not os.path.exists(config_path):
         print(colorama.Fore.YELLOW, end='')
         print("Configuration file {} does not exist. Generating default...".format(config_path))
-        print(colorama.Fore.RESET, end='')
+        print(colorama.Fore.RESET, end='\n')
 
-        config['build'] = {
+        cmake_config['cmake_args'] = {
             'arm': '-DREAL=ON',
             'debug': '-DCMAKE_BUILD_TYPE=DEBUG',
             'asan': '-DADDRESS_SANITIZER=ON',
@@ -82,31 +84,36 @@ def common(args):
             'lsan': '-DLEAK_SANITIZER=ON',
             'release': '-DCMAKE_BUILD_TYPE=RELEASE',
         }
-        config.write(open(config_path, 'w'))
+        cmake_config.write(open(config_path, 'w'))
     else:
-        config.read(config_path)
+        cmake_config.read(config_path)
 
-    confs_dict = config['build']
+    cmake_confs = cmake_config['cmake_args']
 
-    if args.conf_name != ALL:
-        if args.conf_name not in confs_dict:
-            print(ERROR + "No configuration {}. Valid options are: {}".format(args.conf_name, list(confs_dict.keys())))
-            return root, None, True
-        else:
-            confs_dict = {args.conf_name: confs_dict[args.conf_name]}
+    complete_confs = []
+    if args.conf_names == ALL:
+        print(colorama.Fore.GREEN, end='')
+        print("Working on ALL confs, with targets", args.targets)
+        print(colorama.Fore.RESET, end='\n')
+        for conf_name, cmake_flags in cmake_confs.items():
+            complete_confs.append(CompleteConf(root, conf_name, cmake_flags, args.targets))
+    else:
+        for conf_name in args.conf_names:
+            if conf_name not in cmake_confs:
+                print(ERROR + "No configuration {}. Valid options are: {}".format(conf_name, list(cmake_confs.keys())))
+                return root, None, True
+            else:
+                cmake_flags = cmake_confs[conf_name]
+                complete_confs.append(CompleteConf(root, conf_name, cmake_flags, args.targets))
 
-    confs = []
-    for conf_name, cmake_flags in confs_dict.items():
-        confs.append(BuildConf(root, conf_name, cmake_flags))
-
-    for conf in confs:
+    for conf in complete_confs:
         if not os.path.isdir(conf.dir):
             print(colorama.Fore.YELLOW, end='')
             print("Making new build conf {}".format(conf.dir))
             print(colorama.Fore.RESET, end='')
             os.mkdir(conf.dir)
 
-    return root, confs, False
+    return root, complete_confs, False
 
 
 def clean(args):
@@ -140,7 +147,7 @@ def build(args):
     if error:
         return
     for conf in confs:
-        success = build_conf(args, root, conf)
+        success = build_conf(args, root, conf, conf.targets)
         if not success and not args.continue_on_failure:
             break
 

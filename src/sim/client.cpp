@@ -95,7 +95,7 @@ void Client::TimePerStepMsChanged(int step_time_ms) {
 }
 
 void Client::OnWorldStats(const WorldStatistics &msg) {
-  Time time(msg.sim_time);
+  Time time(msg.time_s, msg.time_ns);
   emit SetRealTime(QString::number(msg.real_time_factor, 'f', 4));
   emit SetTime(QString::fromStdString(time.FormattedString()));
 }
@@ -145,7 +145,7 @@ void Client::LoadNewMouse() {
     std::ifstream fs;
     fs.open(file_info.absoluteFilePath().toStdString(), std::fstream::in);
 
-    RobotDescription robot_description_msg = convert(fs);
+    RobotDescription robot_description_msg = Convert(fs);
     std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobot(robot_description_msg); });
     ui_->mouse_file_name_label->setText(file_info.fileName());
   }
@@ -182,7 +182,7 @@ void Client::LoadDefaultMouse() {
     std::string mouse_filename = file_info.absoluteFilePath().toStdString();
     fs.open(mouse_filename, std::fstream::in);
     if (fs.good()) {
-      RobotDescription mouse_msg = convert(fs);
+      RobotDescription mouse_msg = Convert(fs);
       std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobot(mouse_msg); });
       ui_->mouse_file_name_label->setText(file_info.fileName());
     } else {
@@ -242,9 +242,7 @@ void Client::PublishPIDConstants() {
 }
 
 void Client::PublishPIDSetpoints() {
-  Vector2d msg;
-  msg.x = ui_->left_setpoint_spinbox->value();
-  msg.y = ui_->right_setpoint_spinbox->value();
+  Eigen::Vector2d msg{ui_->left_setpoint_spinbox->value(), ui_->right_setpoint_spinbox->value()};
   std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPIDSetpoints(msg); });
 }
 

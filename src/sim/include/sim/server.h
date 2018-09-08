@@ -6,7 +6,7 @@
 #include <core/maze.h>
 #include <core/plugin.h>
 
-#include <sim/msgs.h>
+#include <core/msgs.h>
 #include <sim/time.h>
 
 namespace ssim {

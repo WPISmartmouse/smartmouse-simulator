@@ -1,7 +1,7 @@
 #include <tuple>
 
 #include <Arduino.h>
-#include <core/math_util.h>
+#include <core/math.h>
 
 #include "commands/turn_in_place.h"
 

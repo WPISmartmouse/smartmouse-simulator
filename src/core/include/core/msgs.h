@@ -5,22 +5,12 @@
 #include <array>
 #include <vector>
 
-#include <sim/time.h>
+#include <eigen3/Eigen/Eigen>
+
+#include <core/node.h>
+#include <core/math.h>
 
 namespace ssim {
-
-class Vector2d {
- public:
-  double x;
-  double y;
-};
-
-class Vector3d {
- public:
-  double x;
-  double y;
-  double z;
-};
 
 class RowColYaw {
  public:
@@ -34,13 +24,6 @@ class XYTheta {
   double x;
   double y;
   double theta;
-};
-
-class WorldStatistics {
- public:
-  unsigned long step = 0;
-  Time sim_time;
-  double real_time_factor = 0.0; // RTF acutally acheived
 };
 
 class ServerControl {
@@ -75,7 +58,7 @@ class PhysicsConfig {
 
 class WheelDescription {
  public:
-  Vector2d pose;
+  Eigen::Vector2d pose;
   double radius;
   double thickness;
   double u_static;
@@ -117,10 +100,10 @@ class SensorsDescription {
 
 class RobotDescription {
  public:
-  std::vector<Vector2d> footprint;
+  std::vector<Eigen::Vector2d> footprint;
   WheelDescription left_wheel;
   WheelDescription right_wheel;
-  Vector3d cog;
+  Eigen::Vector3d cog;
   MotorDescription motor;
   SensorsDescription sensors;
 };
@@ -165,11 +148,18 @@ class RobotCommand {
  public:
   Command left;
   Command right;
-  Time stamp;
 };
 
+class WorldStatistics {
+ public:
+  unsigned long step = 0;
+  int32_t time_s = 0;
+  int32_t time_ns = 0;
+  double real_time_factor = 0.0; // RTF acutally acheived
+};
 
 /// A series of funtions to convert various things into the above messages
-RobotDescription convert(std::ifstream const &fs);
+RobotDescription Convert(std::ifstream const &fs);
+std::array<Line2d, 16> Convert(Node const &node);
 
 } // namespace ssim

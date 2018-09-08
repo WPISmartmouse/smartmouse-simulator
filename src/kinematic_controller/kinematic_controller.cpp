@@ -3,7 +3,7 @@
 #include <iostream>
 #include <tuple>
 
-#include <core/math_util.h>
+#include <core/math.h>
 #include <core/mouse.h>
 
 #include <kinematic_controller/kinematic_controller.h>

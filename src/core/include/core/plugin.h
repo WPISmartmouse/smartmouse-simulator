@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/maze.h>
-#include <sim/msgs.h>
+#include <core/msgs.h>
 
 namespace ssim {
 
@@ -17,7 +17,7 @@ class RobotPlugin {
 
   virtual void OnServerControl(ServerControl const &msg) {};
 
-  virtual void OnRobotState(ServerControl const &msg) {};
+  virtual void OnRobotState(RobotSimState const &msg) {};
 
   virtual void OnRobotCommand(RobotCommand const &msg) {};
 
@@ -27,7 +27,7 @@ class RobotPlugin {
 
   virtual void OnPIDConstants(PIDConstants const &msg) {};
 
-  virtual void OnPIDSetpoints(Vector2d const &msg) {};
+  virtual void OnPIDSetpoints(Eigen::Vector2d const &msg) {};
 };
 
 }

@@ -1,4 +1,4 @@
-#include <core/math_util.h>
+#include <core/math.h>
 
 #include <kinematic_controller/kinematic_controller.h>
 #include <kinematic_controller/velocity_profile.h>

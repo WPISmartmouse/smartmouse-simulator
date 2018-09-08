@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include <core/mouse.h>
-#include <core/math_util.h>
+#include <core/math.h>
 
 #include <kinematic_controller/robot_config.h>
 #include <kinematic_controller/regulated_motor.h>

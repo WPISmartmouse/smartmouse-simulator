@@ -2,7 +2,9 @@
 
 // this should be specific to each robot and somehow pluginable or loadable
 //#include <common/kinematic_controller/RobotConfig.h>
+#include <core/math.h>
 #include <kinematic_controller/kinematic_controller.h>
+#include <sim/ray_tracing.h>
 #include <sim/server.h>
 
 namespace ssim {
@@ -124,8 +126,8 @@ void Server::UpdateRobotState(double dt) {
   double wr = robot_state_.right_wheel.omega;
   double ir = robot_state_.right_wheel.current;
 
-  double vl = smartmouse::kc::radToMeters(wl);
-  double vr = smartmouse::kc::radToMeters(wr);
+  double vl = radToMeters(wl);
+  double vr = radToMeters(wr);
 
   double new_al = il * motor_K / motor_J - motor_b * wl / motor_J; // equation 36
   double new_ar = ir * motor_K / motor_J - motor_b * wr / motor_J; // equation 39
@@ -146,13 +148,13 @@ void Server::UpdateRobotState(double dt) {
   double new_tr = tr + new_wr * dt + 1 / 2 * new_ar * dt * dt;
 
   const double kVRef = 5.0;
-  double voltage_l = (cmd_.left().abstract_force() * kVRef) / 255.0;
-  double voltage_r = (cmd_.right().abstract_force() * kVRef) / 255.0;
+  double voltage_l = (cmd_.left.abstract_force * kVRef) / 255.0;
+  double voltage_r = (cmd_.right.abstract_force * kVRef) / 255.0;
   double new_il = il + dt * (voltage_l - motor_K * wl - motor_R * il) / motor_L;
   double new_ir = ir + dt * (voltage_r - motor_K * wr - motor_R * ir) / motor_L;
 
-  double vl_cups = smartmouse::maze::toCellUnits(vl);
-  double vr_cups = smartmouse::maze::toCellUnits(vr);
+  double vl_cups = toCellUnits(vl);
+  double vr_cups = toCellUnits(vr);
   GlobalPose d_pose = KinematicController::forwardKinematics(vl_cups, vr_cups, yaw, dt);
 
   // update row and col position
@@ -178,20 +180,20 @@ void Server::UpdateRobotState(double dt) {
   // find the intersection of that wall with each sensor
   // if the intersection exists, and the distance is the shortest range for that sensor, replace the current range
   robot_state_.front_m = ComputeSensorDistToWall(mouse_.sensors.front);
-  robot_state_.front_left_m = ComputeSensorDistToWall(mouse_.sensors.front_left));
-  robot_state_.front_right_m = ComputeSensorDistToWall(mouse_.sensors.front_right));
-  robot_state_.gerald_left_m = ComputeSensorDistToWall(mouse_.sensors.gerald_left));
-  robot_state_.gerald_right_m = ComputeSensorDistToWall(mouse_.sensors.gerald_right));
-  robot_state_.back_left_m = ComputeSensorDistToWall(mouse_.sensors.back_left));
-  robot_state_.back_right_m = ComputeSensorDistToWall(mouse_.sensors.back_right));
+  robot_state_.front_left_m = ComputeSensorDistToWall(mouse_.sensors.front_left);
+  robot_state_.front_right_m = ComputeSensorDistToWall(mouse_.sensors.front_right);
+  robot_state_.gerald_left_m = ComputeSensorDistToWall(mouse_.sensors.gerald_left);
+  robot_state_.gerald_right_m = ComputeSensorDistToWall(mouse_.sensors.gerald_right);
+  robot_state_.back_left_m = ComputeSensorDistToWall(mouse_.sensors.back_left);
+  robot_state_.back_right_m = ComputeSensorDistToWall(mouse_.sensors.back_right);
 
-  robot_state_.front_adc = ComputeADCValue(mouse_.sensors.front));
-  robot_state_.front_left_adc = ComputeADCValue(mouse_.sensors.front_left));
-  robot_state_.front_right_adc = ComputeADCValue(mouse_.sensors.front_right));
-  robot_state_.gerald_left_adc = ComputeADCValue(mouse_.sensors.gerald_left));
-  robot_state_.gerald_right_adc = ComputeADCValue(mouse_.sensors.gerald_right));
-  robot_state_.back_left_adc = ComputeADCValue(mouse_.sensors.back_left));
-  robot_state_.back_right_adc = ComputeADCValue(mouse_.sensors.back_right));
+  robot_state_.front_adc = ComputeADCValue(mouse_.sensors.front);
+  robot_state_.front_left_adc = ComputeADCValue(mouse_.sensors.front_left);
+  robot_state_.front_right_adc = ComputeADCValue(mouse_.sensors.front_right);
+  robot_state_.gerald_left_adc = ComputeADCValue(mouse_.sensors.gerald_left);
+  robot_state_.gerald_right_adc = ComputeADCValue(mouse_.sensors.gerald_right);
+  robot_state_.back_left_adc = ComputeADCValue(mouse_.sensors.back_left);
+  robot_state_.back_right_adc = ComputeADCValue(mouse_.sensors.back_right);
 
   if (!stationary_) {
     robot_state_.p.col = new_col;
@@ -224,23 +226,23 @@ void Server::ResetTime() {
 }
 
 void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
-  robot_state_.mutable_p()->set_col(reset_col);
-  robot_state_.mutable_p()->set_row(reset_row);
-  robot_state_.mutable_p()->set_yaw(reset_yaw);
-  robot_state_.mutable_v()->set_col(0);
-  robot_state_.mutable_v()->set_row(0);
-  robot_state_.mutable_v()->set_yaw(0);
-  robot_state_.mutable_a()->set_col(0);
-  robot_state_.mutable_a()->set_row(0);
-  robot_state_.mutable_a()->set_yaw(0);
-  robot_state_.mutable_left_wheel()->set_theta(0);
-  robot_state_.mutable_left_wheel()->set_omega(0);
-  robot_state_.mutable_left_wheel()->set_current(0);
-  robot_state_.mutable_right_wheel()->set_theta(0);
-  robot_state_.mutable_right_wheel()->set_omega(0);
-  robot_state_.mutable_right_wheel()->set_current(0);
-  cmd_.mutable_left()->set_abstract_force(0);
-  cmd_.mutable_right()->set_abstract_force(0);
+  robot_state_.p.col = reset_col;
+  robot_state_.p.row = reset_row;
+  robot_state_.p.yaw = reset_yaw;
+  robot_state_.v.col = 0;
+  robot_state_.v.row = 0;
+  robot_state_.v.yaw = 0;
+  robot_state_.a.col = 0;
+  robot_state_.a.row = 0;
+  robot_state_.a.yaw = 0;
+  robot_state_.left_wheel.theta = 0;
+  robot_state_.left_wheel.omega = 0;
+  robot_state_.left_wheel.current = 0;
+  robot_state_.right_wheel.theta = 0;
+  robot_state_.right_wheel.omega = 0;
+  robot_state_.right_wheel.current = 0;
+  cmd_.left.abstract_force = 0;
+  cmd_.right.abstract_force = 0;
 
   PublishInternalState();
 }
@@ -252,57 +254,58 @@ void Server::PublishInternalState() {
 void Server::PublishWorldStats(double rtf) {
   WorldStatistics world_statistics;
   world_statistics.step = steps_;
-  world_statistics.sim_time = sim_time_;
+  world_statistics.time_s = sim_time_.sec;
+  world_statistics.time_ns = sim_time_.nsec;
   world_statistics.real_time_factor = rtf;
 
   std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnWorldStats(world_statistics); });
 }
 
 void Server::OnServerControl(const ServerControl &server_control) {
-  if (server_control.pause()) {
-    pause_ = server_control.pause().value();
-  } else if (server_control.toggle_play_pause()) {
+  if (server_control.pause) {
+    pause_ = server_control.pause.value();
+  } else if (server_control.toggle_play_pause) {
     ServerControl play_pause_msg;
     play_pause_msg.pause = !pause_;
     std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(play_pause_msg); });
   }
-  if (server_control.stationary()) {
-    stationary = server_control.stationary();
+  if (server_control.stationary) {
+    stationary_ = server_control.stationary.value();
   }
-  if (server_control.quit()) {
-    quit_ = server_control.quit();
+  if (server_control.quit) {
+    quit_ = server_control.quit.value();
   }
-  if (server_control.step()) {
+  if (server_control.step) {
     pause_ = false;
-    pause_at_steps_ = steps_ + server_control.step();
+    pause_at_steps_ = steps_ + server_control.step.value();
   }
-  if (server_control.reset_time()) {
+  if (server_control.reset_time) {
     ResetTime();
   }
-  if (server_control.reset_robot()) {
+  if (server_control.reset_robot) {
     double reset_col = 0.5;
     double reset_row = 0.5;
     double reset_yaw = 0;
-    if (server_control.reset_col()) {
-      reset_col = server_control.reset_col();
+    if (server_control.reset_col) {
+      reset_col = server_control.reset_col.value();
     }
-    if (server_control.reset_row()) {
-      reset_row = server_control.reset_row();
+    if (server_control.reset_row) {
+      reset_row = server_control.reset_row.value();
     }
-    if (server_control.reset_yaw()) {
-      reset_yaw = server_control.reset_yaw();
+    if (server_control.reset_yaw) {
+      reset_yaw = server_control.reset_yaw.value();
     }
     ResetRobot(reset_col, reset_row, reset_yaw);
   }
 }
 
 void Server::OnPhysics(PhysicsConfig const &config) {
-  if (config.ns_of_sim_per_step()) {
-    ns_of_sim_per_step_ = config.ns_of_sim_per_step();
+  if (config.ns_of_sim_per_step) {
+    ns_of_sim_per_step_ = config.ns_of_sim_per_step.value();
   }
-  if (config.real_time_factor()) {
-    if (config.real_time_factor() >= 1e-3 && config.real_time_factor() <= 10) {
-      real_time_factor_ = config.real_time_factor();
+  if (config.real_time_factor) {
+    if (config.real_time_factor >= 1e-3 && config.real_time_factor <= 10) {
+      real_time_factor_ = config.real_time_factor.value();
     }
   }
 }
@@ -336,45 +339,46 @@ unsigned int Server::getNsOfSimPerStep() const {
 int Server::ComputeADCValue(SensorDescription sensor) {
   // take the actual distance and the angle and reverse-calculate the ADC value
   double d = ComputeSensorDistToWall(sensor);
-  smartmouse::ir::Model model{sensor.a(), sensor.b(), sensor.c(), sensor.d()};
+  IRModel model{sensor.a, sensor.b, sensor.c, sensor.d};
   return model.toADC(d);
 }
 
 double Server::ComputeSensorDistToWall(SensorDescription sensor) {
-  double min_range = smartmouse::kc::ANALOG_MAX_DIST_CU;
-  double sensor_col = smartmouse::maze::toCellUnits(sensor.p().x());
-  double sensor_row = smartmouse::maze::toCellUnits(sensor.p().y());
-  double robot_theta = robot_state_.p().yaw();
-  Vector3d s_origin_3d{sensor_col, sensor_row, 1};
+  double min_range = ANALOG_MAX_DIST_CU;
+  // TODO: make a toCellUnits that is vectorized and operates in-place on sense.p
+  double sensor_col = toCellUnits(sensor.p.x);
+  double sensor_row = toCellUnits(sensor.p.y);
+  double robot_theta = robot_state_.p.yaw;
+  Eigen::Vector3d s_origin_3d{sensor_col, sensor_row, 1};
   Eigen::Matrix3d tf;
-  tf << cos(robot_theta), -sin(robot_theta), robot_state_.p().col(),
-      sin(robot_theta), cos(robot_theta), robot_state_.p().row(),
+  tf << cos(robot_theta), -sin(robot_theta), robot_state_.p.col,
+      sin(robot_theta), cos(robot_theta), robot_state_.p.row,
       0, 0, 1;
   s_origin_3d = tf * s_origin_3d;
-  Vector2d s_origin{s_origin_3d.X, s_origin_3d.Y};
-  Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
+  Eigen::Vector2d s_origin{s_origin_3d(0), s_origin_3d(1)};
+  Eigen::Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
 
   // iterate over the lines of walls that are nearby
-  int row = (int) robot_state_.p().row();
-  int col = (int) robot_state_.p().col();
+  int row = (int) robot_state_.p.row;
+  int col = (int) robot_state_.p.col;
   unsigned int min_r = (unsigned int) std::max(0, row - (int) max_cells_to_check_);
-  unsigned int max_r = std::min(smartmouse::maze::SIZE, row + max_cells_to_check_);
+  unsigned int max_r = std::min(SIZE, row + max_cells_to_check_);
   unsigned int min_c = (unsigned int) std::max(0, col - (int) max_cells_to_check_);
-  unsigned int max_c = std::min(smartmouse::maze::SIZE, col + max_cells_to_check_);
+  unsigned int max_c = std::min(SIZE, col + max_cells_to_check_);
   for (unsigned int r = min_r; r < max_r; r++) {
     for (unsigned int c = min_c; c < max_c; c++) {
       // get the walls at r/c
-      for (auto wall : maze_walls_[r][c]) {
-        std::vector<Line2d> wall_lines_ = {};
-        wall_lines_.push_back(Line2d(wall.c1(), wall.r1(), wall.c1(), wall.r2()));
-        wall_lines_.push_back(Line2d(wall.c1(), wall.r2(), wall.c2(), wall.r2()));
-        wall_lines_.push_back(Line2d(wall.c2(), wall.r2(), wall.c2(), wall.r1()));
-        wall_lines_.push_back(Line2d(wall.c2(), wall.r1(), wall.c1(), wall.r1()));
-        for (auto line : wall_lines_) {
-          std::optional<double> range = RayTracing::distance_to_wall(line, s_origin, s_direction);
-          if (range && *range < min_range) {
-            min_range = *range;
-          }
+      Node *n = nullptr;
+      if (maze_.get_node(&n, r, c) != 0) {
+        // FIXME make exits do something clever
+        exit(-1);
+      }
+
+      auto lines = Convert(*n);
+      for (const auto &line : lines) {
+        auto range = RayTracing::distance_to_wall(line, s_origin, s_direction);
+        if (range && *range < min_range) {
+          min_range = *range;
         }
       }
     }
@@ -390,22 +394,22 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
 void Server::ComputeMaxSensorRange() {
   double max_range = 0;
 
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors().front()));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors().front_left()));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors().front_right()));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors().gerald_left()));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors().gerald_right()));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors().back_left()));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors().back_right()));
+  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.front));
+  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.front_left));
+  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.front_right));
+  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.gerald_left));
+  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.gerald_right));
+  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.back_left));
+  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.back_right));
 
   max_cells_to_check_ = (unsigned int) std::ceil(toCellUnits(max_range));
 }
 
 double Server::ComputeSensorRange(const SensorDescription sensor) {
-  double sensor_x = sensor.p().x();
-  double sensor_y = sensor.p().x();
-  double range_x = sensor_x + cos(sensor.p().theta()) * ANALOG_MAX_DIST_M;
-  double range_y = sensor_y + sin(sensor.p().theta()) * ANALOG_MAX_DIST_M;
+  double sensor_x = sensor.p.x;
+  double sensor_y = sensor.p.x;
+  double range_x = sensor_x + cos(sensor.p.theta) * ANALOG_MAX_DIST_M;
+  double range_y = sensor_y + sin(sensor.p.theta) * ANALOG_MAX_DIST_M;
   return std::hypot(range_x, range_y);
 }
 

@@ -6,7 +6,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QShortcut>
 
-#include <sim/msgs.h>
+#include <core/msgs.h>
 #include <core/plugin.h>
 
 namespace Ui {
@@ -103,7 +103,5 @@ private:
 
   std::vector<RobotPlugin> plugins;
 };
-
-
 
 } // namespace ssim
