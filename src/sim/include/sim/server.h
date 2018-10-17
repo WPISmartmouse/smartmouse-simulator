@@ -15,6 +15,7 @@ class Server {
 
  public:
   Server();
+  ~Server();
   void Start();
   void RunLoop();
   bool Run();

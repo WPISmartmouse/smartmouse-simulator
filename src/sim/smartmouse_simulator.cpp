@@ -19,7 +19,6 @@ int main(int argc, char *argv[]) {
   do {
     // Start physics thread
     ssim::Server server;
-    server.Start();
 
     QApplication app(argc, argv);
     window = std::make_unique<ssim::Client>();
@@ -27,12 +26,6 @@ int main(int argc, char *argv[]) {
     window->showMaximized();
     // Runs until the application is exited
     return_code = QApplication::exec();
-
-    // We need to restart the server
-    ssim::ServerControl quit_msg;
-    quit_msg.quit = true;
-    server.OnServerControl(quit_msg);
-    server.Join();
   } while (return_code == ssim::Client::kRestartCode);
 
   QApplication::quit();

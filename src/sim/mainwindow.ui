@@ -577,7 +577,7 @@
      <x>0</x>
      <y>0</y>
      <width>923</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -670,7 +670,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../simulator.qrc"/>
+  <include location="simulator.qrc"/>
  </resources>
  <connections/>
 </ui>

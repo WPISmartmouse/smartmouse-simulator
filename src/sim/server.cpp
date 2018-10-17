@@ -22,6 +22,7 @@ Server::Server()
       mouse_set_(false),
       max_cells_to_check_(0) {
   ResetRobot(0.5, 0.5, 0);
+  Start();
 }
 
 void Server::Start() {
@@ -411,6 +412,11 @@ double Server::ComputeSensorRange(const SensorDescription sensor) {
   double range_x = sensor_x + cos(sensor.p.theta) * ANALOG_MAX_DIST_M;
   double range_y = sensor_y + sin(sensor.p.theta) * ANALOG_MAX_DIST_M;
   return std::hypot(range_x, range_y);
+}
+
+Server::~Server() {
+  quit_ = true;
+  Join();
 }
 
 } // namespace ssim
