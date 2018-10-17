@@ -13,8 +13,7 @@
 
 namespace ssim {
 
-Client::Client(QMainWindow *parent) :
-    QMainWindow(parent), ui_(new Ui::MainWindow) {
+Client::Client(QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindow) {
   ui_->setupUi(this);
 
   ConfigureGui();
@@ -349,3 +348,6 @@ void Client::RestoreSettings() {
 }
 
 } // namespace ssim
+
+// Force MOC to run on the header file
+#include "../include/sim/moc_client.cpp"

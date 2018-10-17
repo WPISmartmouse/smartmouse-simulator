@@ -4,7 +4,13 @@ import json
 import os
 import subprocess
 
-import colorama
+try:
+    import colorama
+except ModuleNotFoundError as e:
+    print(e)
+    print("Did you forget to source your virtualenv?")
+
+
 
 ALL = 'all'
 ERROR = colorama.Fore.RED + "ERROR: " + colorama.Fore.RESET

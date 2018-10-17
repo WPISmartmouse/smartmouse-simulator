@@ -23,8 +23,6 @@ class Server {
   bool IsConnected();
   unsigned int getNsOfSimPerStep() const;
 
-  std::thread *thread_;
- private:
   void OnServerControl(ServerControl const &server_control);
   void OnPhysics(PhysicsConfig const &config);
   void OnMaze(AbstractMaze const &maze);
@@ -61,6 +59,8 @@ class Server {
   unsigned int max_cells_to_check_;
 
   std::vector<RobotPlugin> plugins;
+
+  std::thread *thread_;
 };
 
 } // namespace ssim

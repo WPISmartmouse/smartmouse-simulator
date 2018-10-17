@@ -21,7 +21,7 @@ Q_OBJECT
 public:
   static const int kRestartCode = 1337;
 
-  explicit Client(QMainWindow *parent = 0);
+  explicit Client(QMainWindow *parent = nullptr);
 
   void closeEvent(QCloseEvent *event) override;
 

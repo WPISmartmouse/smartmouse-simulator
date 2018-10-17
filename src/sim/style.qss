@@ -1,0 +1,10 @@
+QSplitter::handle:horizontal {
+    width: 16px;
+    margin-right: 6px;
+    margin-left: 6px;
+    image: url(:/images/vsplitter_handle.svg)
+}
+
+QSplitter::handle:vertical {
+    height: 16px;
+}
