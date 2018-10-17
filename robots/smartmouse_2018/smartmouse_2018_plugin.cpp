@@ -1,26 +1,24 @@
-#include <Arduino.h>
+
 #include <commanduino/commanduino.h>
 #include <core/mouse.h>
-#include <core/flood.h>
 #include <core/plugin.h>
 
 #include "commands/solve_command.h"
-#include "smartmouse_2018_robot.h"
 
 #include "smartmouse_2018_plugin.h"
 
 
 void Smartmouse2018Main::Setup() {
-  robot.setup();
+  robot.Setup();
 
-  auto root = std::make_unique<SolveCommand>(robot, new ssim::Flood(&robot));
+  auto root_command = std::make_unique<SolveCommand>(robot, new ssim::Flood(&robot));
 
   last_t_us = micros();
   last_blink_us = micros();
 
 }
 
-void Smartmouse2018Main::Loop() {
+void Smartmouse2018Main::Step() {
   Smartmouse2018Robot::checkVoltage();
 
   long now_us = micros();
@@ -32,13 +30,13 @@ void Smartmouse2018Main::Loop() {
     on = !on;
   }
 
-// minimum period of main loop
+  // minimum period of main loop
   if (dt_us < 1500) {
     return;
   }
 
   if (not paused and not done) {
-    done = root->run();
+    done = root_command->run();
   } else {
     robot.setSpeedCps(0, 0);
     digitalWrite(Smartmouse2018Robot::SYS_LED, 1);
@@ -49,8 +47,7 @@ void Smartmouse2018Main::Loop() {
 
   auto dt_s = dt_us / 1e6;
 
-  robot.
-      run(dt_s);
+  robot.Run(dt_s);
 
   last_t_us = now_us;
 }

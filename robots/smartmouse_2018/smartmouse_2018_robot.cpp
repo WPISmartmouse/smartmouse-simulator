@@ -31,11 +31,11 @@ ssim::SensorReading Smartmouse2018Robot::checkWalls() {
   return ssim::SensorReading(0, 0);
 }
 
-void Smartmouse2018Robot::setup() {
+void Smartmouse2018Robot::Setup() {
 
 }
 
-
-void Smartmouse2018Robot::run(double dt_s) {
+void Smartmouse2018Robot::Run(double dt_s) {
 
 }
+

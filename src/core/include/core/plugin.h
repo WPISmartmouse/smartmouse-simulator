@@ -9,7 +9,7 @@ class RobotPlugin {
  public:
   virtual void Setup() = 0;
 
-  virtual void Loop() = 0;
+  virtual void Step() = 0;
 
   virtual void OnWorldStats(WorldStatistics const &msg) {};
 

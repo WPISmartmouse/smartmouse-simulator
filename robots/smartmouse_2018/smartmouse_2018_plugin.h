@@ -9,8 +9,8 @@
 
 class Smartmouse2018Main : public ssim::RobotPlugin {
 
-public:
-  std::unique_ptr<Command> root;
+ public:
+  std::unique_ptr<Command> root_command;
   Smartmouse2018Robot robot;
   long last_t_us = millis();
   long last_blink_us = millis();
@@ -20,7 +20,7 @@ public:
 
   void Setup() override;
 
-  void Loop() override;
+  void Step() override;
 
 };
 

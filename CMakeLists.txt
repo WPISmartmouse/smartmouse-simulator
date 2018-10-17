@@ -50,3 +50,4 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 add_subdirectory(src)
 add_subdirectory(robots)
+add_subdirectory(tools)

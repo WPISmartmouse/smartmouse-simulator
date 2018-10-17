@@ -15,7 +15,6 @@ Server::Server()
       pause_(true),
       stationary_(false),
       quit_(false),
-      connected_(false),
       ns_of_sim_per_step_(1000000u),
       pause_at_steps_(0),
       real_time_factor_(1),
@@ -30,7 +29,6 @@ void Server::Start() {
 }
 
 void Server::RunLoop() {
-  connected_ = true;
   bool done = false;
   while (!done) {
     done = Run();
@@ -38,10 +36,11 @@ void Server::RunLoop() {
 }
 
 bool Server::Run() {
-  Time update_rate = Time(0, ns_of_sim_per_step_);
-  Time start_step_time = Time::GetWallTime();
-  Time desired_step_time = update_rate / real_time_factor_;
-  Time desired_end_time = start_step_time + desired_step_time;
+  // Handle stepping forward in time
+  auto update_rate = Time(0, ns_of_sim_per_step_);
+  auto start_step_time = Time::GetWallTime();
+  auto desired_step_time = update_rate / real_time_factor_;
+  auto desired_end_time = start_step_time + desired_step_time;
 
   // special case when update_rate is zero, like on startup.
   if (desired_step_time == 0) {
@@ -65,26 +64,27 @@ bool Server::Run() {
     return false;
   }
 
+  // Dequeue all the pending function calls and execute them
+  while (!queue_.empty()) {
+    auto const &func = queue_.front();
+    func();
+  }
+
+  // Update the world and step the robot controller
   Step();
 
-  Time end_step_time = Time::GetWallTime();
+  // Sleep
+  auto end_step_time = Time::GetWallTime();
   if (end_step_time > desired_end_time) {
     // FIXME: do proper logging control
     // std::cout << "step took too long. Skipping sleep." << std::endl;
   } else {
-    // FIXME: fudge factor makes sleep time more accurate, because we are often not woken up in time
-    Time sleep_time = (desired_end_time - end_step_time) - 5e-5;
+    auto sleep_time = desired_end_time - end_step_time;
     Time::Sleep(sleep_time);
   }
 
-  Time actual_end_step_time = Time::GetWallTime();
-  double rtf = update_rate.Double() / (actual_end_step_time - start_step_time).Double();
-
-  // This will send a message the GUI so it can update
-  PublishInternalState();
-
-  // announce completion of this step
-  PublishWorldStats(rtf);
+  // auto actual_end_step_time = Time::GetWallTime();
+  // double rtf = update_rate.Double() / (actual_end_step_time - start_step_time).Double();
 
   return false;
 }
@@ -94,9 +94,11 @@ void Server::Step() {
   auto dt = Time(0, ns_of_sim_per_step_);
   sim_time_ += dt;
 
-  if (mouse_set_) {
-    UpdateRobotState(dt.Double());
-  }
+//  if (mouse_set_) {
+//    UpdateRobotState(dt.Double());
+//  }
+
+  plugin_.Step();
 
   // increment step counter
   ++steps_;
@@ -249,7 +251,7 @@ void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
 }
 
 void Server::PublishInternalState() {
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobotState(robot_state_); });
+  plugin_.OnRobotState(robot_state_);
 }
 
 void Server::PublishWorldStats(double rtf) {
@@ -259,7 +261,7 @@ void Server::PublishWorldStats(double rtf) {
   world_statistics.time_ns = sim_time_.nsec;
   world_statistics.real_time_factor = rtf;
 
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnWorldStats(world_statistics); });
+  std::for_each(plugins_.begin(), plugins_.end(), [&](auto &plugin) { plugin.OnWorldStats(world_statistics); });
 }
 
 void Server::OnServerControl(const ServerControl &server_control) {
@@ -268,7 +270,7 @@ void Server::OnServerControl(const ServerControl &server_control) {
   } else if (server_control.toggle_play_pause) {
     ServerControl play_pause_msg;
     play_pause_msg.pause = !pause_;
-    std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(play_pause_msg); });
+    std::for_each(plugins_.begin(), plugins_.end(), [&](auto &plugin) { plugin.OnServerControl(play_pause_msg); });
   }
   if (server_control.stationary) {
     stationary_ = server_control.stationary.value();
@@ -327,10 +329,6 @@ void Server::OnRobotDescription(RobotDescription const &description) {
 
 void Server::Join() {
   thread_->join();
-}
-
-bool Server::IsConnected() {
-  return connected_;
 }
 
 unsigned int Server::getNsOfSimPerStep() const {
@@ -417,6 +415,10 @@ double Server::ComputeSensorRange(const SensorDescription sensor) {
 Server::~Server() {
   quit_ = true;
   Join();
+}
+
+void Server::Enqueue() {
+
 }
 
 } // namespace ssim

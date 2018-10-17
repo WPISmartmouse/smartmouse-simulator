@@ -7,7 +7,7 @@ int main() {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-noreturn"
   while (true) {
-    robot_main.Loop();
+    robot_main.Step();
   }
 #pragma GCC diagnostic pop
 }
