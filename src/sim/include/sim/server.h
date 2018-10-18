@@ -1,9 +1,6 @@
 #pragma once
 
-#include <queue>
-#include <functional>
 #include <thread>
-#include <mutex>
 
 #include <core/maze.h>
 #include <core/plugin.h>
@@ -20,7 +17,19 @@ class Server {
 
   ~Server();
 
-  void Enqueue();
+  void OnServerControl(ServerControl const &server_control);
+
+  void OnPhysics(PhysicsConfig const &config);
+
+  void OnMaze(AbstractMaze const &maze);
+
+  void OnRobotCommand(RobotCommand const &cmd);
+
+  void OnRobotDescription(RobotDescription const &description);
+
+  void OnPIDConstants(PIDConstants const &msg);
+
+  void OnPIDSetpoints(PIDSetpoints const &msg);
 
  private:
   void Start();
@@ -34,16 +43,6 @@ class Server {
   void Join();
 
   unsigned int getNsOfSimPerStep() const;
-
-  void OnServerControl(ServerControl const &server_control);
-
-  void OnPhysics(PhysicsConfig const &config);
-
-  void OnMaze(AbstractMaze const &maze);
-
-  void OnRobotCommand(RobotCommand const &cmd);
-
-  void OnRobotDescription(RobotDescription const &description);
 
   void UpdateRobotState(double dt);
 
@@ -69,6 +68,7 @@ class Server {
   bool stationary_;
   bool quit_ = false;
   unsigned int ns_of_sim_per_step_ = 1000000u;
+  unsigned int max_cells_to_check_;
   unsigned long pause_at_steps_ = 0ul;
   double real_time_factor_ = 1.0;
   AbstractMaze maze_;
@@ -77,12 +77,7 @@ class Server {
   RobotSimState robot_state_;
   std::optional<RobotDescription> robot_description_;
 
-  unsigned int max_cells_to_check_;
-
-
   std::thread *thread_;
-
-  std::queue<std::function<void()>> queue_;
 };
 
 } // namespace ssim

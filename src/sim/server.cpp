@@ -4,7 +4,6 @@
 #include <kinematic_controller/kinematic_controller.h>
 #include <sim/ray_tracing.h>
 #include <sim/server.h>
-#include <Arduino.h>
 
 namespace ssim {
 
@@ -15,11 +14,16 @@ Server::Server()
       stationary_(false),
       quit_(false),
       ns_of_sim_per_step_(1000000u),
+      max_cells_to_check_(0),
       pause_at_steps_(0),
-      real_time_factor_(1),
-      max_cells_to_check_(0) {
+      real_time_factor_(1) {
   ResetRobot(0.5, 0.5, 0);
   Start();
+}
+
+Server::~Server() {
+  quit_ = true;
+  Join();
 }
 
 void Server::Start() {
@@ -63,10 +67,9 @@ bool Server::Run() {
   }
 
   // Dequeue all the pending function calls and execute them
-  while (!queue_.empty()) {
-    auto const &func = queue_.front();
-    func();
-  }
+//  while (!queue_.empty()) {
+//    queue_.pop_front()();
+//  }
 
   // Update the world and step the robot controller
   Step();
@@ -252,7 +255,7 @@ void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
 }
 
 void Server::PublishInternalState() {
-  plugin_.OnRobotState(robot_state_);
+//  plugin_.OnRobotState(robot_state_);
 }
 
 void Server::PublishWorldStats(double rtf) {
@@ -261,8 +264,6 @@ void Server::PublishWorldStats(double rtf) {
   world_statistics.time_s = sim_time_.sec;
   world_statistics.time_ns = sim_time_.nsec;
   world_statistics.real_time_factor = rtf;
-
-  plugin_.OnWorldStats(world_statistics);
 }
 
 void Server::OnServerControl(const ServerControl &server_control) {
@@ -271,7 +272,6 @@ void Server::OnServerControl(const ServerControl &server_control) {
   } else if (server_control.toggle_play_pause) {
     ServerControl play_pause_msg;
     play_pause_msg.pause = !pause_;
-    plugin_.OnServerControl(play_pause_msg);
   }
   if (server_control.stationary) {
     stationary_ = server_control.stationary.value();
@@ -416,12 +416,11 @@ double Server::ComputeSensorRange(const SensorDescription sensor) {
   return std::hypot(range_x, range_y);
 }
 
-Server::~Server() {
-  quit_ = true;
-  Join();
+void Server::OnPIDConstants(PIDConstants const &msg) {
+
 }
 
-void Server::Enqueue() {
+void Server::OnPIDSetpoints(PIDSetpoints const &msg) {
 
 }
 

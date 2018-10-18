@@ -14,16 +14,16 @@ void PrintVersionInfo() {
 
 int main(int argc, char *argv[]) {
   int return_code = 0;
-  std::unique_ptr<ssim::Client> window;
+  std::unique_ptr<ssim::Client> client;
 
   do {
     // Start physics thread
     ssim::Server server;
 
     QApplication app(argc, argv);
-    window = std::make_unique<ssim::Client>();
-    window->setWindowTitle("Smartmouse Simulator");
-    window->showMaximized();
+    client = std::make_unique<ssim::Client>(server);
+    client->setWindowTitle("Smartmouse Simulator");
+    client->showMaximized();
     // Runs until the application is exited
     return_code = QApplication::exec();
   } while (return_code == ssim::Client::kRestartCode);

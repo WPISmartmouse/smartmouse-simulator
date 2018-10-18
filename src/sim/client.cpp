@@ -14,7 +14,7 @@
 
 namespace ssim {
 
-Client::Client(QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindow) {
+Client::Client(Server &server, QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindow), server_(server) {
   ui_->setupUi(this);
 
   ConfigureGui();
@@ -23,28 +23,21 @@ Client::Client(QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindo
   // publish the initial configuration
   PhysicsConfig initial_physics_config;
   initial_physics_config.ns_of_sim_per_step = 1000000u;
-  if (plugin_)
-  {
-    plugin_->OnPhysics(initial_physics_config);
-  }
+  server_.OnPhysics(initial_physics_config);
 
   // publish initial config of the server
   ServerControl initial_server_control;
   initial_server_control.pause = false;
   initial_server_control.reset_robot = true;
   initial_server_control.reset_time = true;
-  if (plugin_) {
-    plugin_->OnServerControl(initial_server_control);
-  }
+  server_.OnServerControl(initial_server_control);
 }
 
 void Client::Exit() {
   SaveSettings();
   ServerControl quit_msg;
   quit_msg.quit = true;
-  if (plugin_) {
-    plugin_->OnServerControl(quit_msg);
-  }
+  server_.OnServerControl(quit_msg);
   QApplication::exit(0);
 }
 
@@ -56,37 +49,37 @@ void Client::Restart() {
 void Client::TogglePlayPause() {
   ServerControl msg;
   msg.toggle_play_pause = true;
-  plugin_->OnServerControl(msg);
+  server_.OnServerControl(msg);
 }
 
 void Client::SetStatic() {
   ServerControl static_msg;
   static_msg.stationary = ui_->static_checkbox->isChecked();
-  plugin_->OnServerControl(static_msg);
+  server_.OnServerControl(static_msg);
 }
 
 void Client::Step() {
   ServerControl step_msg;
   step_msg.step = step_count_;
-  plugin_->OnServerControl(step_msg);
+  server_.OnServerControl(step_msg);
 }
 
 void Client::ResetMouse() {
   ServerControl reset_msg;
   reset_msg.reset_robot = true;
-  plugin_->OnServerControl(reset_msg);
+  server_.OnServerControl(reset_msg);
 }
 
 void Client::ResetTime() {
   ServerControl reset_msg;
   reset_msg.reset_time = true;
-  plugin_->OnServerControl(reset_msg);
+  server_.OnServerControl(reset_msg);
 }
 
 void Client::RealTimeFactorChanged(double real_time_factor) {
   PhysicsConfig rtf_msg;
   rtf_msg.real_time_factor = real_time_factor;
-  plugin_->OnPhysics(rtf_msg);
+  server_.OnPhysics(rtf_msg);
 }
 
 void Client::StepCountChanged(int step_time_ms) {
@@ -98,7 +91,7 @@ void Client::StepCountChanged(int step_time_ms) {
 void Client::TimePerStepMsChanged(int step_time_ms) {
   PhysicsConfig time_per_step_msg;
   time_per_step_msg.ns_of_sim_per_step = step_time_ms * 1000000u;
-  plugin_->OnPhysics(time_per_step_msg);
+  server_.OnPhysics(time_per_step_msg);
 }
 
 void Client::OnWorldStats(const WorldStatistics &msg) {
@@ -162,12 +155,13 @@ void Client::LoadMouse(QFileInfo const &file_info) {
     auto get_description_func = (get_description_funcion_ptr) dlsym(handle, "get_description");
     const auto robot_description = get_description_func();
 
-    using get_plugin_function_ptr = RobotPlugin *(*)();
-    auto get_plugin_func = (get_plugin_function_ptr) dlsym(handle, "get_plugin");
-    const auto robot_plugin = get_plugin_func();
+    using get_server_function_ptr = RobotPlugin *(*)();
+    auto get_server_func = (get_server_function_ptr) dlsym(handle, "get_plugin");
+    const auto robot_plugin = get_server_func();
 
     plugin_.emplace(*robot_plugin);
-    plugin_->OnRobot(*robot_description);
+    server_.OnRobotDescription(*robot_description);
+
     ui_->mouse_file_name_label->setText(file_info.fileName());
 }
 
@@ -184,18 +178,14 @@ void Client::LoadNewMaze() {
     std::ifstream fs;
     fs.open(file_info.absoluteFilePath().toStdString(), std::fstream::in);
     AbstractMaze maze(fs);
-    if (plugin_) {
-      plugin_->OnMaze(maze);
-    }
+    server_.OnMaze(maze);
     ui_->maze_file_name_label->setText(file_info.fileName());
   }
 }
 
 void Client::LoadRandomMaze() {
   const AbstractMaze &maze = AbstractMaze::gen_random_legal_maze();
-  if (plugin_) {
-    plugin_->OnMaze(maze);
-  }
+  server_.OnMaze(maze);
 }
 
 void Client::LoadDefaultMouse() {
@@ -217,7 +207,7 @@ void Client::LoadDefaultMaze() {
     fs.open(maze_filename, std::fstream::in);
     if (fs.good()) {
       const AbstractMaze maze(fs);
-      plugin_->OnMaze(maze);
+      server_.OnMaze(maze);
       ui_->maze_file_name_label->setText(file_info.fileName());
     } else {
       std::cout << "default mouse file [" << maze_filename << "] not found. Loading random maze.\n";
@@ -233,7 +223,7 @@ void Client::SendRobotCmd() {
   RobotCommand cmd;
   cmd.left.abstract_force = ui_->left_f_spinbox->value();
   cmd.right.abstract_force = ui_->right_f_spinbox->value();
-  plugin_->OnRobotCommand(cmd);
+  server_.OnRobotCommand(cmd);
 }
 
 void Client::SendTeleportCmd() {
@@ -242,7 +232,7 @@ void Client::SendTeleportCmd() {
   cmd.reset_col = ui_->teleport_column_spinbox->value();
   cmd.reset_row = ui_->teleport_row_spinbox->value();
   cmd.reset_yaw = ui_->teleport_yaw_spinbox->value();
-  plugin_->OnServerControl(cmd);
+  server_.OnServerControl(cmd);
 }
 
 void Client::PublishPIDConstants() {
@@ -252,14 +242,14 @@ void Client::PublishPIDConstants() {
   msg.kD = ui_->kd_spinbox->value();
   msg.kFFOffset = ui_->kff_offset_spinbox->value();
   msg.kFFScale = ui_->kff_scale_spinbox->value();
-  plugin_->OnPIDConstants(msg);
+  server_.OnPIDConstants(msg);
 }
 
 void Client::PublishPIDSetpoints() {
   PIDSetpoints msg;
   msg.left_setpoints_cups = ui_->left_setpoint_spinbox->value();
   msg.right_setpoints_cups = ui_->right_setpoint_spinbox->value();
-  plugin_->OnPIDSetpoints(msg);
+  server_.OnPIDSetpoints(msg);
 }
 
 void Client::ConfigureGui() {
