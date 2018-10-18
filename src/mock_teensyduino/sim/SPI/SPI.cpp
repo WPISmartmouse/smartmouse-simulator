@@ -1,23 +1,25 @@
 #include "SPI.h"
 
+SPI_t SPI;
+
 SPISettings::SPISettings(int, int, int) {}
 
-void SPI::begin() {
+void SPI_t::begin() {
 
 }
 
-void SPI::end() {
+void SPI_t::end() {
 
 }
 
-void SPI::beginTransaction(SPISettings) {
+void SPI_t::beginTransaction(SPISettings) {
 
 }
 
-void SPI::endTransaction() {
+void SPI_t::endTransaction() {
 
 }
 
-byte SPI::transfer(byte b) {
+byte SPI_t::transfer(byte b) {
   return 0;
 }

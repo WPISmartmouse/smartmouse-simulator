@@ -27,12 +27,13 @@ struct SPISettings {
   SPISettings(int, int, int);
 };
 
-class SPI {
+class SPI_t {
 public:
   void begin();
   void end();
   void beginTransaction(SPISettings);
   void endTransaction();
   byte transfer(byte b);
-} SPI;
+};
 
+extern SPI_t SPI;

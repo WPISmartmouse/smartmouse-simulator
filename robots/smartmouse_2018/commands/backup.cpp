@@ -3,13 +3,13 @@
 #include <kinematic_controller/robot.h>
 
 #include "commands/backup.h"
-#include "rops_smartmouse_2018.h"
+#include "smartmouse_2018_description.h"
 
 Backup::Backup(Smartmouse2018Robot &robot) : Command("Backup"), robot(robot) {}
 
 void Backup::initialize() {
   setTimeout(300);
-  digitalWrite(Smartmouse2018RobotDescription::LED_6, 1);
+  digitalWrite(smartmouse_2018_description.leds[6].pin, 1);
 }
 
 void Backup::execute() {
@@ -22,6 +22,6 @@ bool Backup::isFinished() {
 
 void Backup::end() {
   robot.reset_fwd_to_center();
-  digitalWrite(Smartmouse2018Robot::LED_6, 0);
+  digitalWrite(smartmouse_2018_description.leds[6].pin, 0);
 }
 

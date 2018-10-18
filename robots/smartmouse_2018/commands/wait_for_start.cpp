@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include <Arduino.h>
+#include <smartmouse_2018_description.h>
 
 #include "commands/wait_for_start.h"
 
@@ -22,32 +23,30 @@ void WaitForStart::execute() {
   auto right = robot.right_encoder.getUnsignedRotation();
   if (right < ssim::TICKS_PER_REVOLUTION / 3) {
     ssim::WALL_SMASH = false;
-  }
-  else if (right < ssim::TICKS_PER_REVOLUTION * 2 / 3) {
+  } else if (right < ssim::TICKS_PER_REVOLUTION * 2 / 3) {
     ssim::WALL_SMASH = false;
-  }
-  else {
+  } else {
     ssim::WALL_SMASH = true;
   }
 
 
 //  digitalWrite(Smartmouse2018Robot::LED_1, static_cast<uint8_t>(GlobalProgramSettings.dead_reckoning));
-  digitalWrite(Smartmouse2018Robot::LED_2, static_cast<uint8_t>(ssim::WALL_SMASH));
+  digitalWrite(smartmouse_2018_description.leds[2].pin, static_cast<uint8_t>(ssim::WALL_SMASH));
 
   constexpr uint8_t NUM_LEDS = 6;
   uint8_t light_up_until_led_index = static_cast<uint8_t >(percent_speed * NUM_LEDS);
   for (uint8_t i = 0; i < NUM_LEDS; i++) {
     if (i < light_up_until_led_index) {
-      digitalWrite(Smartmouse2018Robot::LED_7 - i, 1);
+      digitalWrite(smartmouse_2018_description.leds[7].pin, 1);
     } else {
-      digitalWrite(Smartmouse2018Robot::LED_7 - i, 0);
+      digitalWrite(smartmouse_2018_description.leds[7].pin - i, 0);
     }
   }
 }
 
 bool WaitForStart::isFinished() {
   if (CommandGroup::isFinished()) {
-    return !digitalRead(Smartmouse2018Robot::BUTTON_PIN);
+    return !digitalRead(smartmouse_2018_description.button_pin);
   } else {
     return false;
   }
@@ -60,7 +59,7 @@ void WaitForStart::end() {
 //  smartmouse::kc::MAX_SPEED_MPS = 0.15;
   ssim::MAX_SPEED_CUPS = ssim::toCellUnits(ssim::MAX_SPEED_MPS);
   for (uint8_t i = 0; i < 7; i++) {
-    digitalWrite(Smartmouse2018Robot::LED_7 - i, 0);
+    digitalWrite(smartmouse_2018_description.leds[7].pin - i, 0);
   }
 
   robot.resetToStartPose();

@@ -117,6 +117,7 @@ class RobotDescription {
   std::vector<AnalogInputDescription> analog_inputs;
   std::vector<LEDDescription> leds;
   unsigned int battery_pin;
+  unsigned int button_pin;
 };
 
 class WheelPhysicsState {

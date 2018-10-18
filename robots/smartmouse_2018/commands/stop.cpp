@@ -2,6 +2,7 @@
 #include <core/mouse.h>
 
 #include "commands/stop.h"
+#include "smartmouse_2018_description.h"
 
 Stop::Stop(Smartmouse2018Robot &robot) : Command("end"), robot(robot), stop_time(10000) {}
 
@@ -10,7 +11,7 @@ Stop::Stop(Smartmouse2018Robot &robot, unsigned long stop_time) : Command("end")
 void Stop::initialize() {
   setTimeout(stop_time);
   robot.setSpeedCps(0, 0);
-  digitalWrite(Smartmouse2018Robot::LED_7, 1);
+  digitalWrite(smartmouse_2018_description.leds[7].pin, 1);
 }
 
 bool Stop::isFinished() {
@@ -18,5 +19,5 @@ bool Stop::isFinished() {
 }
 
 void Stop::end() {
-  digitalWrite(Smartmouse2018Robot::LED_7, 0);
+  digitalWrite(smartmouse_2018_description.leds[7].pin, 0);
 }

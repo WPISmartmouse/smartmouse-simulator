@@ -19,6 +19,6 @@ private:
 
   Smartmouse2018Robot &robot;
   unsigned long t;
-  uint8_t pin_id;
+  unsigned int pin_id;
   bool on;
 };

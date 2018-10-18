@@ -21,7 +21,6 @@ public:
 
   static double checkVoltage();
 
- private:
   AS5048A left_encoder;
   AS5048A right_encoder;
 };

@@ -4,6 +4,7 @@
 #include <core/math.h>
 
 #include "commands/turn_in_place.h"
+#include "smartmouse_2018_description.h"
 
 const double TurnInPlace::kP = 0.9;
 
@@ -13,7 +14,7 @@ TurnInPlace::TurnInPlace(Smartmouse2018Robot &robot, ssim::Direction dir) : Comm
 
 void TurnInPlace::initialize() {
   robot.kinematic_controller.enable_sensor_pose_estimate = false;
-  digitalWrite(Smartmouse2018Robot::LED_2, 1);
+  digitalWrite(smartmouse_2018_description.leds[2].pin, 1);
   setTimeout(5000);
   goal_yaw = dir_to_yaw(dir);
   const auto start = robot.getGlobalPose();
@@ -64,7 +65,7 @@ bool TurnInPlace::isFinished() {
 
 void TurnInPlace::end() {
   robot.kinematic_controller.enable_sensor_pose_estimate = true;
-  digitalWrite(Smartmouse2018Robot::LED_2, 0);
+  digitalWrite(smartmouse_2018_description.leds[2].pin, 0);
   robot.internalTurnToFace(dir);
 }
 

@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "commands/forward_to_center.h"
 
+#include "smartmouse_2018_description.h"
+
 ForwardToCenter::ForwardToCenter(Smartmouse2018Robot &robot) : Command("FwdToCenter"), robot(robot), profile(nullptr) {}
 
 void ForwardToCenter::initialize() {
@@ -10,7 +12,7 @@ void ForwardToCenter::initialize() {
   const double v0 = robot.kinematic_controller.getCurrentForwardSpeedCUPS();
   const double vf = 0.0;
   profile = new ssim::VelocityProfile(start, {goal_disp, v0, vf});
-  digitalWrite(Smartmouse2018Robot::LED_3, 1);
+  digitalWrite(smartmouse_2018_description.leds[3].pin, 1);
 }
 
 void ForwardToCenter::execute() {
@@ -32,5 +34,5 @@ bool ForwardToCenter::isFinished() {
 }
 
 void ForwardToCenter::end() {
-  digitalWrite(Smartmouse2018Robot::LED_3, 0);
+  digitalWrite(smartmouse_2018_description.leds[3].pin, 0);
 }
