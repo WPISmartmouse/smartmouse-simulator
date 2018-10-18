@@ -8,22 +8,30 @@
 
 namespace ssim {
 
-class RowColYaw {
- public:
+struct Point2 {
+  double x;
+  double y;
+};
+
+struct Point3 {
+  double x;
+  double y;
+  double z;
+};
+
+struct RowColYaw {
   double row;
   double col;
   double yaw;
 };
 
-class XYTheta {
- public:
+struct XYTheta {
   double x;
   double y;
   double theta;
 };
 
-class SensorDescription {
- public:
+struct SensorDescription {
   XYTheta p;
   double min_range_m;
   double max_range_m;
@@ -34,8 +42,8 @@ class SensorDescription {
   double d;
 };
 
-class SensorsDescription {
- public:
+struct SensorsDescription {
+  unsigned int adc_bits;
   SensorDescription front;
   SensorDescription gerald_left;
   SensorDescription gerald_right;
@@ -45,44 +53,39 @@ class SensorsDescription {
   SensorDescription back_right;
 };
 
-class DigitalInputDescription {
- public:
+struct DigitalInputDescription {
   unsigned int pin;
 };
 
-class DigitalOutputDescription {
- public:
+struct DigitalOutputDescription {
   unsigned int pin;
 };
 
-class AnalogInputDescription {
- public:
+struct AnalogInputDescription {
   unsigned int pin;
   unsigned int n_bits;
 };
 
-class AnalogOutputDescription {
- public:
+struct AnalogOutputDescription {
   unsigned int pin;
   unsigned int n_bits;
 };
 
-class EncoderDescription {
- public:
+struct EncoderDescription {
   unsigned int cs_pin;
   unsigned int n_bits;
 };
 
-class LEDDescription {
- public:
+struct LEDDescription {
   unsigned int pin = 0;
   int r = 0;
   int g = 0;
   int b = 0;
 };
 
-class MotorDescription {
- public:
+struct MotorDescription {
+  double pin_1;
+  double pin_2;
   double u_kinetic;
   double u_static;
   double J;
@@ -92,20 +95,18 @@ class MotorDescription {
   double K;
 };
 
-class WheelDescription {
- public:
-  Eigen::Vector2d pose;
+struct WheelDescription {
+  Point3 position;
   double radius;
   double thickness;
   double u_static;
 };
 
-class RobotDescription {
- public:
-  std::vector<Eigen::Vector2d> footprint;
+struct RobotDescription {
+  std::vector<Point2> footprint;
   WheelDescription left_wheel;
   WheelDescription right_wheel;
-  Eigen::Vector3d cog;
+  Point3 cog;
   MotorDescription left_motor;
   MotorDescription right_motor;
   EncoderDescription left_encoder;
@@ -120,16 +121,14 @@ class RobotDescription {
   unsigned int button_pin;
 };
 
-class WheelPhysicsState {
- public:
+struct WheelPhysicsState {
   double theta; // radians
   double omega; // radians/second
   double alpha;
   double current; // amperes
 };
 
-class RobotSimState {
- public:
+struct RobotSimState {
   WheelPhysicsState left_wheel;
   WheelPhysicsState right_wheel;
   RowColYaw p; // meters
@@ -151,19 +150,16 @@ class RobotSimState {
   double front_m;
 };
 
-class Command {
- public:
+struct Command {
   int32_t abstract_force = 0;
 };
 
-class RobotCommand {
- public:
+struct RobotCommand {
   Command left;
   Command right;
 };
 
-class WorldStatistics {
- public:
+struct WorldStatistics {
   unsigned long step = 0;
   int32_t time_s = 0;
   int32_t time_ns = 0;
