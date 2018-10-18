@@ -140,8 +140,7 @@ void Client::ShowKeyboardShortcuts() {
 }
 
 void Client::LoadNewMouse() {
-  QString file_name = QFileDialog::getOpenFileName(this, tr("Open Mouse"), mouse_files_dir_,
-                                                   tr("Mouse Library (*.so)"));
+  QString file_name = QFileDialog::getOpenFileName(this, tr("Open Mouse"), mouse_files_dir_);
 
   if (!file_name.isEmpty()) {
     QFileInfo file_info(file_name);
