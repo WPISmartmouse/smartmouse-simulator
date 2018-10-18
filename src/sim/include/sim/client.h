@@ -8,6 +8,7 @@
 
 #include <sim/conversions.h>
 #include <core/plugin.h>
+#include <QtCore/QFileInfo>
 
 namespace Ui {
 class MainWindow;
@@ -46,6 +47,8 @@ private slots:
   void LoadNewMaze();
 
   void LoadNewMouse();
+
+  void LoadMouse(QFileInfo const &file_info);
 
   void ShowSourceCode();
 
@@ -101,7 +104,7 @@ private:
   Ui::MainWindow *ui_;
   QShortcut *shortcut;
 
-  std::vector<RobotPlugin> plugins;
+  std::optional<RobotPlugin> plugin_;
 };
 
 } // namespace ssim

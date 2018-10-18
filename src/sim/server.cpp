@@ -1,11 +1,10 @@
 #include <optional>
 
-// this should be specific to each robot and somehow pluginable or loadable
-//#include <common/kinematic_controller/RobotConfig.h>
 #include <core/math.h>
 #include <kinematic_controller/kinematic_controller.h>
 #include <sim/ray_tracing.h>
 #include <sim/server.h>
+#include <Arduino.h>
 
 namespace ssim {
 
@@ -18,7 +17,6 @@ Server::Server()
       ns_of_sim_per_step_(1000000u),
       pause_at_steps_(0),
       real_time_factor_(1),
-      mouse_set_(false),
       max_cells_to_check_(0) {
   ResetRobot(0.5, 0.5, 0);
   Start();
@@ -94,9 +92,7 @@ void Server::Step() {
   auto dt = Time(0, ns_of_sim_per_step_);
   sim_time_ += dt;
 
-//  if (mouse_set_) {
-//    UpdateRobotState(dt.Double());
-//  }
+  UpdateRobotState(dt.Double());
 
   plugin_.Step();
 
@@ -105,15 +101,20 @@ void Server::Step() {
 }
 
 void Server::UpdateRobotState(double dt) {
-  // TODO: Implement friction
-  const double u_k = mouse_.motor.u_kinetic;
-  const double u_s = mouse_.motor.u_static;
+  if (!robot_description_) {
+    return;
+  }
 
-  const double motor_J = mouse_.motor.J;
-  const double motor_b = mouse_.motor.b;
-  const double motor_K = mouse_.motor.K;
-  const double motor_R = mouse_.motor.R;
-  const double motor_L = mouse_.motor.L;
+  // TODO: Implement friction
+  // TODO: use left/right motors seperately
+  const double u_k = robot_description_->left_motor.u_kinetic;
+  const double u_s = robot_description_->left_motor.u_static;
+
+  const double motor_J = robot_description_->left_motor.J;
+  const double motor_b = robot_description_->left_motor.b;
+  const double motor_K = robot_description_->left_motor.K;
+  const double motor_R = robot_description_->left_motor.R;
+  const double motor_L = robot_description_->left_motor.L;
 
   // use the cmd abstract forces, apply our dynamics model, update robot state
   double col = robot_state_.p.col;
@@ -182,21 +183,21 @@ void Server::UpdateRobotState(double dt) {
   // iterate over every line segment in the maze (all edges of all walls)
   // find the intersection of that wall with each sensor
   // if the intersection exists, and the distance is the shortest range for that sensor, replace the current range
-  robot_state_.front_m = ComputeSensorDistToWall(mouse_.sensors.front);
-  robot_state_.front_left_m = ComputeSensorDistToWall(mouse_.sensors.front_left);
-  robot_state_.front_right_m = ComputeSensorDistToWall(mouse_.sensors.front_right);
-  robot_state_.gerald_left_m = ComputeSensorDistToWall(mouse_.sensors.gerald_left);
-  robot_state_.gerald_right_m = ComputeSensorDistToWall(mouse_.sensors.gerald_right);
-  robot_state_.back_left_m = ComputeSensorDistToWall(mouse_.sensors.back_left);
-  robot_state_.back_right_m = ComputeSensorDistToWall(mouse_.sensors.back_right);
+  robot_state_.front_m = ComputeSensorDistToWall(robot_description_->sensors.front);
+  robot_state_.front_left_m = ComputeSensorDistToWall(robot_description_->sensors.front_left);
+  robot_state_.front_right_m = ComputeSensorDistToWall(robot_description_->sensors.front_right);
+  robot_state_.gerald_left_m = ComputeSensorDistToWall(robot_description_->sensors.gerald_left);
+  robot_state_.gerald_right_m = ComputeSensorDistToWall(robot_description_->sensors.gerald_right);
+  robot_state_.back_left_m = ComputeSensorDistToWall(robot_description_->sensors.back_left);
+  robot_state_.back_right_m = ComputeSensorDistToWall(robot_description_->sensors.back_right);
 
-  robot_state_.front_adc = ComputeADCValue(mouse_.sensors.front);
-  robot_state_.front_left_adc = ComputeADCValue(mouse_.sensors.front_left);
-  robot_state_.front_right_adc = ComputeADCValue(mouse_.sensors.front_right);
-  robot_state_.gerald_left_adc = ComputeADCValue(mouse_.sensors.gerald_left);
-  robot_state_.gerald_right_adc = ComputeADCValue(mouse_.sensors.gerald_right);
-  robot_state_.back_left_adc = ComputeADCValue(mouse_.sensors.back_left);
-  robot_state_.back_right_adc = ComputeADCValue(mouse_.sensors.back_right);
+  robot_state_.front_adc = ComputeADCValue(robot_description_->sensors.front);
+  robot_state_.front_left_adc = ComputeADCValue(robot_description_->sensors.front_left);
+  robot_state_.front_right_adc = ComputeADCValue(robot_description_->sensors.front_right);
+  robot_state_.gerald_left_adc = ComputeADCValue(robot_description_->sensors.gerald_left);
+  robot_state_.gerald_right_adc = ComputeADCValue(robot_description_->sensors.gerald_right);
+  robot_state_.back_left_adc = ComputeADCValue(robot_description_->sensors.back_left);
+  robot_state_.back_right_adc = ComputeADCValue(robot_description_->sensors.back_right);
 
   if (!stationary_) {
     robot_state_.p.col = new_col;
@@ -261,7 +262,7 @@ void Server::PublishWorldStats(double rtf) {
   world_statistics.time_ns = sim_time_.nsec;
   world_statistics.real_time_factor = rtf;
 
-  std::for_each(plugins_.begin(), plugins_.end(), [&](auto &plugin) { plugin.OnWorldStats(world_statistics); });
+  plugin_.OnWorldStats(world_statistics);
 }
 
 void Server::OnServerControl(const ServerControl &server_control) {
@@ -270,7 +271,7 @@ void Server::OnServerControl(const ServerControl &server_control) {
   } else if (server_control.toggle_play_pause) {
     ServerControl play_pause_msg;
     play_pause_msg.pause = !pause_;
-    std::for_each(plugins_.begin(), plugins_.end(), [&](auto &plugin) { plugin.OnServerControl(play_pause_msg); });
+    plugin_.OnServerControl(play_pause_msg);
   }
   if (server_control.stationary) {
     stationary_ = server_control.stationary.value();
@@ -322,9 +323,8 @@ void Server::OnRobotCommand(RobotCommand const &cmd) {
 }
 
 void Server::OnRobotDescription(RobotDescription const &description) {
-  mouse_ = description;
+  robot_description_ = description;
   ComputeMaxSensorRange();
-  mouse_set_ = true;
 }
 
 void Server::Join() {
@@ -393,13 +393,17 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
 void Server::ComputeMaxSensorRange() {
   double max_range = 0;
 
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.front));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.front_left));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.front_right));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.gerald_left));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.gerald_right));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.back_left));
-  max_range = std::max(max_range, ComputeSensorRange(mouse_.sensors.back_right));
+  if (!robot_description_) {
+    return;
+  }
+
+  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.front));
+  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.front_left));
+  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.front_right));
+  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.gerald_left));
+  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.gerald_right));
+  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.back_left));
+  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.back_right));
 
   max_cells_to_check_ = (unsigned int) std::ceil(toCellUnits(max_range));
 }

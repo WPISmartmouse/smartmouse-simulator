@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/msgs.h>
 #include <as5048a.h>
 
 #include <kinematic_controller/robot.h>
@@ -18,6 +19,9 @@ public:
 
   void Run(double dt_s);
 
-
   static double checkVoltage();
+
+ private:
+  AS5048A left_encoder;
+  AS5048A right_encoder;
 };

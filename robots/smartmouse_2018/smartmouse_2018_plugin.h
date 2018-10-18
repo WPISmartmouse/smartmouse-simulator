@@ -4,10 +4,9 @@
 #include <core/flood.h>
 #include <core/plugin.h>
 
-#include "commands/solve_command.h"
 #include "smartmouse_2018_robot.h"
 
-class Smartmouse2018Main : public ssim::RobotPlugin {
+class Smartmouse2018Plugin : public ssim::RobotPlugin {
 
  public:
   std::unique_ptr<Command> root_command;

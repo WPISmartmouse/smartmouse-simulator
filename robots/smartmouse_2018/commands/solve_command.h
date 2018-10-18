@@ -1,9 +1,7 @@
 #pragma once
 
 #include <commanduino/commanduino.h>
-#include "../../../src/core/include/core/solver.h"
-
-#include "smartmouse_2018_robot.h"
+#include <core/solver.h>
 
 class SolveCommand : public CommandGroup {
 public:

@@ -7,9 +7,9 @@ namespace ssim {
 
 class RobotPlugin {
  public:
-  virtual void Setup() = 0;
+  virtual void Setup() {};
 
-  virtual void Step() = 0;
+  virtual void Step() {};
 
   virtual void OnWorldStats(WorldStatistics const &msg) {};
 
@@ -30,4 +30,7 @@ class RobotPlugin {
   virtual void OnPIDSetpoints(PIDSetpoints const &msg) {};
 };
 
-}
+} // namespace ssim
+
+extern "C" ssim::RobotDescription const *get_description();
+extern "C" ssim::RobotPlugin *get_plugin();

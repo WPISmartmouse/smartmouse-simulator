@@ -1,6 +1,6 @@
 #include "smartmouse_2018_plugin.h"
 
-Smartmouse2018Main robot_main;
+Smartmouse2018Plugin robot_main;
 
 int main() {
   robot_main.Setup();

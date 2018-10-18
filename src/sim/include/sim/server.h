@@ -73,13 +73,12 @@ class Server {
   double real_time_factor_ = 1.0;
   AbstractMaze maze_;
   RobotCommand cmd_;
-  RobotDescription mouse_;
+  RobotPlugin plugin_;
   RobotSimState robot_state_;
+  std::optional<RobotDescription> robot_description_;
 
-  bool mouse_set_;
   unsigned int max_cells_to_check_;
 
-  RobotPlugin plugin_;
 
   std::thread *thread_;
 

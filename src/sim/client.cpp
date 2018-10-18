@@ -1,4 +1,5 @@
 #include <fstream>
+#include <dlfcn.h>
 #include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
 #include <QtWidgets/QAction>
@@ -22,21 +23,28 @@ Client::Client(QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindo
   // publish the initial configuration
   PhysicsConfig initial_physics_config;
   initial_physics_config.ns_of_sim_per_step = 1000000u;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPhysics(initial_physics_config); });
+  if (plugin_)
+  {
+    plugin_->OnPhysics(initial_physics_config);
+  }
 
   // publish initial config of the server
-  ServerControl initial_ServerControl;
-  initial_ServerControl.pause = false;
-  initial_ServerControl.reset_robot = true;
-  initial_ServerControl.reset_time = true;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(initial_ServerControl); });
+  ServerControl initial_server_control;
+  initial_server_control.pause = false;
+  initial_server_control.reset_robot = true;
+  initial_server_control.reset_time = true;
+  if (plugin_) {
+    plugin_->OnServerControl(initial_server_control);
+  }
 }
 
 void Client::Exit() {
   SaveSettings();
   ServerControl quit_msg;
   quit_msg.quit = true;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(quit_msg); });
+  if (plugin_) {
+    plugin_->OnServerControl(quit_msg);
+  }
   QApplication::exit(0);
 }
 
@@ -48,37 +56,37 @@ void Client::Restart() {
 void Client::TogglePlayPause() {
   ServerControl msg;
   msg.toggle_play_pause = true;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(msg); });
+  plugin_->OnServerControl(msg);
 }
 
 void Client::SetStatic() {
   ServerControl static_msg;
   static_msg.stationary = ui_->static_checkbox->isChecked();
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(static_msg); });
+  plugin_->OnServerControl(static_msg);
 }
 
 void Client::Step() {
   ServerControl step_msg;
   step_msg.step = step_count_;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(step_msg); });
+  plugin_->OnServerControl(step_msg);
 }
 
 void Client::ResetMouse() {
   ServerControl reset_msg;
   reset_msg.reset_robot = true;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(reset_msg); });
+  plugin_->OnServerControl(reset_msg);
 }
 
 void Client::ResetTime() {
   ServerControl reset_msg;
   reset_msg.reset_time = true;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(reset_msg); });
+  plugin_->OnServerControl(reset_msg);
 }
 
 void Client::RealTimeFactorChanged(double real_time_factor) {
   PhysicsConfig rtf_msg;
   rtf_msg.real_time_factor = real_time_factor;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPhysics(rtf_msg); });
+  plugin_->OnPhysics(rtf_msg);
 }
 
 void Client::StepCountChanged(int step_time_ms) {
@@ -90,7 +98,7 @@ void Client::StepCountChanged(int step_time_ms) {
 void Client::TimePerStepMsChanged(int step_time_ms) {
   PhysicsConfig time_per_step_msg;
   time_per_step_msg.ns_of_sim_per_step = step_time_ms * 1000000u;
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPhysics(time_per_step_msg); });
+  plugin_->OnPhysics(time_per_step_msg);
 }
 
 void Client::OnWorldStats(const WorldStatistics &msg) {
@@ -132,7 +140,8 @@ void Client::ShowKeyboardShortcuts() {
 }
 
 void Client::LoadNewMouse() {
-  QString file_name = QFileDialog::getOpenFileName(this, tr("Open Mouse"), mouse_files_dir_, tr("Mouse Files (*.ms)"));
+  QString file_name = QFileDialog::getOpenFileName(this, tr("Open Mouse"), mouse_files_dir_,
+                                                   tr("Mouse Library (*.so)"));
 
   if (!file_name.isEmpty()) {
     QFileInfo file_info(file_name);
@@ -141,13 +150,26 @@ void Client::LoadNewMouse() {
     settings_->setValue("gui/default_mouse_file_name", default_mouse_file_name_);
     settings_->setValue("gui/mouse_files_directory", mouse_files_dir_);
 
-    std::ifstream fs;
-    fs.open(file_info.absoluteFilePath().toStdString(), std::fstream::in);
-
-    RobotDescription robot_description_msg = Convert(fs);
-    std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobot(robot_description_msg); });
-    ui_->mouse_file_name_label->setText(file_info.fileName());
+    LoadMouse(file_info);
   }
+}
+
+void Client::LoadMouse(QFileInfo const &file_info) {
+    void *handle = dlopen(file_info.absoluteFilePath().toLatin1().data(), RTLD_NOW);
+    if (handle == NULL) {
+      std::cerr << dlerror() << std::endl;
+    }
+    using get_description_funcion_ptr = RobotDescription *(*)();
+    auto get_description_func = (get_description_funcion_ptr) dlsym(handle, "get_description");
+    const auto robot_description = get_description_func();
+
+    using get_plugin_function_ptr = RobotPlugin *(*)();
+    auto get_plugin_func = (get_plugin_function_ptr) dlsym(handle, "get_plugin");
+    const auto robot_plugin = get_plugin_func();
+
+    plugin_.emplace(*robot_plugin);
+    plugin_->OnRobot(*robot_description);
+    ui_->mouse_file_name_label->setText(file_info.fileName());
 }
 
 void Client::LoadNewMaze() {
@@ -163,30 +185,24 @@ void Client::LoadNewMaze() {
     std::ifstream fs;
     fs.open(file_info.absoluteFilePath().toStdString(), std::fstream::in);
     AbstractMaze maze(fs);
-    std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnMaze(maze); });
+    if (plugin_) {
+      plugin_->OnMaze(maze);
+    }
     ui_->maze_file_name_label->setText(file_info.fileName());
   }
 }
 
 void Client::LoadRandomMaze() {
   const AbstractMaze &maze = AbstractMaze::gen_random_legal_maze();
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnMaze(maze); });
+  if (plugin_) {
+    plugin_->OnMaze(maze);
+  }
 }
 
 void Client::LoadDefaultMouse() {
   if (!default_mouse_file_name_.isEmpty()) {
     QFileInfo file_info(default_mouse_file_name_);
-
-    std::ifstream fs;
-    std::string mouse_filename = file_info.absoluteFilePath().toStdString();
-    fs.open(mouse_filename, std::fstream::in);
-    if (fs.good()) {
-      RobotDescription mouse_msg = Convert(fs);
-      std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobot(mouse_msg); });
-      ui_->mouse_file_name_label->setText(file_info.fileName());
-    } else {
-      std::cout << "default mouse file [" << mouse_filename << "] not found\n";
-    }
+    LoadMouse(file_info);
   } else {
     std::cout << "no default mouse\n";
     // TODO: handle this case
@@ -202,7 +218,7 @@ void Client::LoadDefaultMaze() {
     fs.open(maze_filename, std::fstream::in);
     if (fs.good()) {
       const AbstractMaze maze(fs);
-      std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnMaze(maze); });
+      plugin_->OnMaze(maze);
       ui_->maze_file_name_label->setText(file_info.fileName());
     } else {
       std::cout << "default mouse file [" << maze_filename << "] not found. Loading random maze.\n";
@@ -218,7 +234,7 @@ void Client::SendRobotCmd() {
   RobotCommand cmd;
   cmd.left.abstract_force = ui_->left_f_spinbox->value();
   cmd.right.abstract_force = ui_->right_f_spinbox->value();
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnRobotCommand(cmd); });
+  plugin_->OnRobotCommand(cmd);
 }
 
 void Client::SendTeleportCmd() {
@@ -227,7 +243,7 @@ void Client::SendTeleportCmd() {
   cmd.reset_col = ui_->teleport_column_spinbox->value();
   cmd.reset_row = ui_->teleport_row_spinbox->value();
   cmd.reset_yaw = ui_->teleport_yaw_spinbox->value();
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnServerControl(cmd); });
+  plugin_->OnServerControl(cmd);
 }
 
 void Client::PublishPIDConstants() {
@@ -237,14 +253,14 @@ void Client::PublishPIDConstants() {
   msg.kD = ui_->kd_spinbox->value();
   msg.kFFOffset = ui_->kff_offset_spinbox->value();
   msg.kFFScale = ui_->kff_scale_spinbox->value();
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPIDConstants(msg); });
+  plugin_->OnPIDConstants(msg);
 }
 
 void Client::PublishPIDSetpoints() {
   PIDSetpoints msg;
   msg.left_setpoints_cups = ui_->left_setpoint_spinbox->value();
   msg.right_setpoints_cups = ui_->right_setpoint_spinbox->value();
-  std::for_each(plugins.begin(), plugins.end(), [&](auto &plugin) { plugin.OnPIDSetpoints(msg); });
+  plugin_->OnPIDSetpoints(msg);
 }
 
 void Client::ConfigureGui() {
@@ -350,4 +366,3 @@ void Client::RestoreSettings() {
 } // namespace ssim
 
 // Force MOC to run on the header file
-#include "../include/sim/moc_client.cpp"

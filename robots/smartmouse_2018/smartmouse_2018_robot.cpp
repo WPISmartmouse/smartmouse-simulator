@@ -1,8 +1,10 @@
 #include <hal/hal.h>
 
 #include "smartmouse_2018_robot.h"
+#include "smartmouse_2018_description.h"
 
-Smartmouse2018Robot::Smartmouse2018Robot() : left_encoder(LEFT_ENCODER_CS), right_encoder(RIGHT_ENCODER_CS) {}
+Smartmouse2018Robot::Smartmouse2018Robot() : left_encoder(smartmouse_2018_description.left_encoder.cs_pin),
+                                             right_encoder(smartmouse_2018_description.right_encoder.cs_pin) {}
 
 void Smartmouse2018Robot::resetToStartPose() {
   reset(); // resets row, col, and dir
@@ -15,7 +17,7 @@ void Smartmouse2018Robot::resetToStartPose() {
 
 double Smartmouse2018Robot::checkVoltage() {
   // 3.2v is max and 2.7v is min
-  int a = analogRead(BATTERY_ANALOG_PIN);
+  int a = analogRead(smartmouse_2018_description.battery_pin);
   double voltage = a / std::pow(2, 13) * 3.3;
 
   if (voltage < 2.7) {
@@ -38,4 +40,3 @@ void Smartmouse2018Robot::Setup() {
 void Smartmouse2018Robot::Run(double dt_s) {
 
 }
-

@@ -49,22 +49,4 @@ class PhysicsConfig {
   std::optional<double> real_time_factor; // desired RTF
 };
 
-class WheelDescription {
- public:
-  Eigen::Vector2d pose;
-  double radius;
-  double thickness;
-  double u_static;
-};
-
-class RobotDescription {
- public:
-  std::vector<Eigen::Vector2d> footprint;
-  WheelDescription left_wheel;
-  WheelDescription right_wheel;
-  Eigen::Vector3d cog;
-  MotorDescription motor;
-  SensorsDescription sensors;
-};
-
 } // namespace ssim

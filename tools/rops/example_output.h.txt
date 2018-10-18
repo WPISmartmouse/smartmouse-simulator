@@ -1,0 +1,16 @@
+#include <vector>
+#include <core/msgs.h>
+#include <core/math.h>
+
+class RobotDescription {
+ public:
+  std::vector<Eigen::Vector2d> footprint;
+  WheelDescription left_wheel;
+  WheelDescription right_wheel;
+  Eigen::Vector3d cog;
+  MotorDescription motor;
+  SensorsDescription sensors;
+  std::vector<LEDDescription> leds;
+  std::vector<DigitalOutputDescription> digital_outputs;
+  std::vector<DigitalInputDescription> digital_inputs;
+};

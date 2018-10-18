@@ -3,7 +3,6 @@
 #include <string>
 #include <cstdint>
 
-
 typedef uint8_t byte;
 typedef unsigned int word;
 
@@ -53,3 +52,4 @@ public:
 
 extern CoutSerial Serial;
 extern NopSerial Serial1;
+

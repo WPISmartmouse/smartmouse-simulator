@@ -6,7 +6,6 @@
 namespace ssim {
 
 /// A series of funtions to convert various things into the above messages
-RobotDescription Convert(std::ifstream &fs);
 std::array<Line2d, 16> Convert(Node const &node);
 
 } // namespace ssim

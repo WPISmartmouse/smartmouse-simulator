@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(smartmouse-simulator)
 
-# This is used by the bops tool
+# This is used by the rops tool
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-I")
 
@@ -50,4 +50,3 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 add_subdirectory(src)
 add_subdirectory(robots)
-add_subdirectory(tools)
