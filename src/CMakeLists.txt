@@ -1,3 +1,4 @@
+add_subdirectory(fmt-5.2.1)
 add_subdirectory(spdlog)
 add_subdirectory(core)
 add_subdirectory(commanduino)

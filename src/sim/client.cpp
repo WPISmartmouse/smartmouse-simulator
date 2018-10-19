@@ -161,6 +161,7 @@ void Client::LoadMouse(QFileInfo const &file_info) {
 
     plugin_.emplace(*robot_plugin);
     server_.OnRobotDescription(*robot_description);
+    server_.OnRobotPlugin(*robot_plugin);
 
     ui_->mouse_file_name_label->setText(file_info.fileName());
 }

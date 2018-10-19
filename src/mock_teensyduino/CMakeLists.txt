@@ -20,7 +20,7 @@ if (${REAL})
 else ()
     add_library(teensyduino sim/sim_hal.cpp)
     target_include_directories(teensyduino PUBLIC sim)
-    target_link_libraries(teensyduino core)
+    target_link_libraries(teensyduino core Eigen3::Eigen fmt::fmt)
 
     foreach (ARDUINO_LIB ${ARDUINO_LIBS})
         set(LIB_DIR sim/${ARDUINO_LIB})

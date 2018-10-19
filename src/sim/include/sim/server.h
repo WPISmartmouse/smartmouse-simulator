@@ -7,6 +7,7 @@
 
 #include <sim/conversions.h>
 #include <sim/time.h>
+#include <Arduino.h>
 
 namespace ssim {
 
@@ -26,6 +27,8 @@ class Server {
   void OnRobotCommand(RobotCommand const &cmd);
 
   void OnRobotDescription(RobotDescription const &description);
+
+  void OnRobotPlugin(RobotPlugin const &plugin);
 
   void OnPIDConstants(PIDConstants const &msg);
 
@@ -50,8 +53,6 @@ class Server {
 
   void ResetTime();
 
-  void PublishInternalState();
-
   void PublishWorldStats(double rtf);
 
   void ComputeMaxSensorRange();
@@ -73,8 +74,7 @@ class Server {
   double real_time_factor_ = 1.0;
   AbstractMaze maze_;
   RobotCommand cmd_;
-  RobotPlugin plugin_;
-  RobotSimState robot_state_;
+  std::optional<RobotPlugin> plugin_;
   std::optional<RobotDescription> robot_description_;
 
   std::thread *thread_;

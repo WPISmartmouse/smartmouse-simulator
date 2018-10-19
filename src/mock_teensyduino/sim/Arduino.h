@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cstdint>
+#include <core/msgs.h>
 
 typedef uint8_t byte;
 typedef unsigned int word;
@@ -53,3 +54,5 @@ public:
 extern CoutSerial Serial;
 extern NopSerial Serial1;
 
+extern ssim::RobotSimState global_sim_state;
+extern ssim::RobotDescription global_robot_description;

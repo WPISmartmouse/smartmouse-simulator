@@ -29,7 +29,7 @@ target_include_directories(client PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         ${QWT_INCLUDE_DIR})
-target_link_libraries(client sim core Qt5::Widgets ${QWT_LIBRARY} dl)
+target_link_libraries(client sim core teensyduino Qt5::Widgets ${QWT_LIBRARY} dl)
 
 add_executable(smartmouse_simulator smartmouse_simulator.cpp ${WIDGET_SRCS} simulator.qrc)
 target_include_directories(smartmouse_simulator PUBLIC

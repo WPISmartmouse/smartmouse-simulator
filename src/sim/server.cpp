@@ -97,7 +97,9 @@ void Server::Step() {
 
   UpdateRobotState(dt.Double());
 
-  plugin_.Step();
+  if (plugin_) {
+    plugin_->Step();
+  }
 
   // increment step counter
   ++steps_;
@@ -120,18 +122,18 @@ void Server::UpdateRobotState(double dt) {
   const double motor_L = robot_description_->left_motor.L;
 
   // use the cmd abstract forces, apply our dynamics model, update robot state
-  double col = robot_state_.p.col;
-  double row = robot_state_.p.row;
-  double yaw = robot_state_.p.yaw;
-  double v_col = robot_state_.v.col;
-  double v_row = robot_state_.v.row;
-  double dyawdt = robot_state_.v.yaw;
-  double tl = robot_state_.left_wheel.theta;
-  double wl = robot_state_.left_wheel.omega;
-  double il = robot_state_.left_wheel.current;
-  double tr = robot_state_.right_wheel.theta;
-  double wr = robot_state_.right_wheel.omega;
-  double ir = robot_state_.right_wheel.current;
+  double col = global_sim_state.p.col;
+  double row = global_sim_state.p.row;
+  double yaw = global_sim_state.p.yaw;
+  double v_col = global_sim_state.v.col;
+  double v_row = global_sim_state.v.row;
+  double dyawdt = global_sim_state.v.yaw;
+  double tl = global_sim_state.left_wheel.theta;
+  double wl = global_sim_state.left_wheel.omega;
+  double il = global_sim_state.left_wheel.current;
+  double tr = global_sim_state.right_wheel.theta;
+  double wr = global_sim_state.right_wheel.omega;
+  double ir = global_sim_state.right_wheel.current;
 
   double vl = radToMeters(wl);
   double vr = radToMeters(wr);
@@ -186,41 +188,42 @@ void Server::UpdateRobotState(double dt) {
   // iterate over every line segment in the maze (all edges of all walls)
   // find the intersection of that wall with each sensor
   // if the intersection exists, and the distance is the shortest range for that sensor, replace the current range
-  robot_state_.front_m = ComputeSensorDistToWall(robot_description_->sensors.front);
-  robot_state_.front_left_m = ComputeSensorDistToWall(robot_description_->sensors.front_left);
-  robot_state_.front_right_m = ComputeSensorDistToWall(robot_description_->sensors.front_right);
-  robot_state_.gerald_left_m = ComputeSensorDistToWall(robot_description_->sensors.gerald_left);
-  robot_state_.gerald_right_m = ComputeSensorDistToWall(robot_description_->sensors.gerald_right);
-  robot_state_.back_left_m = ComputeSensorDistToWall(robot_description_->sensors.back_left);
-  robot_state_.back_right_m = ComputeSensorDistToWall(robot_description_->sensors.back_right);
+  global_sim_state.front_m = ComputeSensorDistToWall(robot_description_->sensors.front);
+  global_sim_state.front_left_m = ComputeSensorDistToWall(robot_description_->sensors.front_left);
+  global_sim_state.front_right_m = ComputeSensorDistToWall(robot_description_->sensors.front_right);
+  global_sim_state.gerald_left_m = ComputeSensorDistToWall(robot_description_->sensors.gerald_left);
+  global_sim_state.gerald_right_m = ComputeSensorDistToWall(robot_description_->sensors.gerald_right);
+  global_sim_state.back_left_m = ComputeSensorDistToWall(robot_description_->sensors.back_left);
+  global_sim_state.back_right_m = ComputeSensorDistToWall(robot_description_->sensors.back_right);
 
-  robot_state_.front_adc = ComputeADCValue(robot_description_->sensors.front);
-  robot_state_.front_left_adc = ComputeADCValue(robot_description_->sensors.front_left);
-  robot_state_.front_right_adc = ComputeADCValue(robot_description_->sensors.front_right);
-  robot_state_.gerald_left_adc = ComputeADCValue(robot_description_->sensors.gerald_left);
-  robot_state_.gerald_right_adc = ComputeADCValue(robot_description_->sensors.gerald_right);
-  robot_state_.back_left_adc = ComputeADCValue(robot_description_->sensors.back_left);
-  robot_state_.back_right_adc = ComputeADCValue(robot_description_->sensors.back_right);
+  global_sim_state.front_adc = ComputeADCValue(robot_description_->sensors.front);
+  global_sim_state.front_left_adc = ComputeADCValue(robot_description_->sensors.front_left);
+  global_sim_state.front_right_adc = ComputeADCValue(robot_description_->sensors.front_right);
+  global_sim_state.gerald_left_adc = ComputeADCValue(robot_description_->sensors.gerald_left);
+  global_sim_state.gerald_right_adc = ComputeADCValue(robot_description_->sensors.gerald_right);
+  global_sim_state.back_left_adc = ComputeADCValue(robot_description_->sensors.back_left);
+  global_sim_state.back_right_adc = ComputeADCValue(robot_description_->sensors.back_right);
 
   if (!stationary_) {
-    robot_state_.p.col = new_col;
-    robot_state_.p.row = new_row;
-    robot_state_.p.yaw = new_yaw;
-    robot_state_.v.col = new_v_col;
-    robot_state_.v.row = new_v_row;
-    robot_state_.v.yaw = new_dyawdt;
-    robot_state_.a.col = new_a_col;
-    robot_state_.a.row = new_a_row;
-    robot_state_.a.yaw = new_a;
+    global_sim_state.p.col = new_col;
+    global_sim_state.p.row = new_row;
+    global_sim_state.p.yaw = new_yaw;
+    global_sim_state.v.col = new_v_col;
+    global_sim_state.v.row = new_v_row;
+    global_sim_state.v.yaw = new_dyawdt;
+    global_sim_state.a.col = new_a_col;
+    global_sim_state.a.row = new_a_row;
+    global_sim_state.a.yaw = new_a;
   }
-  robot_state_.left_wheel.theta = new_tl;
-  robot_state_.left_wheel.omega = new_wl;
-  robot_state_.left_wheel.alpha = new_al;
-  robot_state_.left_wheel.current = new_il;
-  robot_state_.right_wheel.theta = new_tr;
-  robot_state_.right_wheel.omega = new_wr;
-  robot_state_.right_wheel.alpha = new_ar;
-  robot_state_.right_wheel.current = new_ir;
+
+  global_sim_state.left_wheel.theta = new_tl;
+  global_sim_state.left_wheel.omega = new_wl;
+  global_sim_state.left_wheel.alpha = new_al;
+  global_sim_state.left_wheel.current = new_il;
+  global_sim_state.right_wheel.theta = new_tr;
+  global_sim_state.right_wheel.omega = new_wr;
+  global_sim_state.right_wheel.alpha = new_ar;
+  global_sim_state.right_wheel.current = new_ir;
 }
 
 void Server::ResetTime() {
@@ -228,34 +231,28 @@ void Server::ResetTime() {
   steps_ = 0UL;
   pause_at_steps_ = 0ul;
 
-  PublishInternalState();
   PublishWorldStats(0);
 }
 
 void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
-  robot_state_.p.col = reset_col;
-  robot_state_.p.row = reset_row;
-  robot_state_.p.yaw = reset_yaw;
-  robot_state_.v.col = 0;
-  robot_state_.v.row = 0;
-  robot_state_.v.yaw = 0;
-  robot_state_.a.col = 0;
-  robot_state_.a.row = 0;
-  robot_state_.a.yaw = 0;
-  robot_state_.left_wheel.theta = 0;
-  robot_state_.left_wheel.omega = 0;
-  robot_state_.left_wheel.current = 0;
-  robot_state_.right_wheel.theta = 0;
-  robot_state_.right_wheel.omega = 0;
-  robot_state_.right_wheel.current = 0;
+  global_sim_state.p.col = reset_col;
+  global_sim_state.p.row = reset_row;
+  global_sim_state.p.yaw = reset_yaw;
+  global_sim_state.v.col = 0;
+  global_sim_state.v.row = 0;
+  global_sim_state.v.yaw = 0;
+  global_sim_state.a.col = 0;
+  global_sim_state.a.row = 0;
+  global_sim_state.a.yaw = 0;
+  global_sim_state.left_wheel.theta = 0;
+  global_sim_state.left_wheel.omega = 0;
+  global_sim_state.left_wheel.current = 0;
+  global_sim_state.right_wheel.theta = 0;
+  global_sim_state.right_wheel.omega = 0;
+  global_sim_state.right_wheel.current = 0;
   cmd_.left.abstract_force = 0;
   cmd_.right.abstract_force = 0;
 
-  PublishInternalState();
-}
-
-void Server::PublishInternalState() {
-//  plugin_.OnRobotState(robot_state_);
 }
 
 void Server::PublishWorldStats(double rtf) {
@@ -347,19 +344,19 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
   // TODO: make a toCellUnits that is vectorized and operates in-place on sense.p
   double sensor_col = toCellUnits(sensor.p.x);
   double sensor_row = toCellUnits(sensor.p.y);
-  double robot_theta = robot_state_.p.yaw;
+  double robot_theta = global_sim_state.p.yaw;
   Eigen::Vector3d s_origin_3d{sensor_col, sensor_row, 1};
   Eigen::Matrix3d tf;
-  tf << cos(robot_theta), -sin(robot_theta), robot_state_.p.col,
-      sin(robot_theta), cos(robot_theta), robot_state_.p.row,
+  tf << cos(robot_theta), -sin(robot_theta), global_sim_state.p.col,
+      sin(robot_theta), cos(robot_theta), global_sim_state.p.row,
       0, 0, 1;
   s_origin_3d = tf * s_origin_3d;
   Eigen::Vector2d s_origin{s_origin_3d(0), s_origin_3d(1)};
   Eigen::Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
 
   // iterate over the lines of walls that are nearby
-  int row = (int) robot_state_.p.row;
-  int col = (int) robot_state_.p.col;
+  int row = (int) global_sim_state.p.row;
+  int col = (int) global_sim_state.p.col;
   unsigned int min_r = (unsigned int) std::max(0, row - (int) max_cells_to_check_);
   unsigned int max_r = std::min(SIZE, row + max_cells_to_check_);
   unsigned int min_c = (unsigned int) std::max(0, col - (int) max_cells_to_check_);
@@ -422,6 +419,10 @@ void Server::OnPIDConstants(PIDConstants const &msg) {
 
 void Server::OnPIDSetpoints(PIDSetpoints const &msg) {
 
+}
+
+void Server::OnRobotPlugin(RobotPlugin const &plugin) {
+  plugin_.emplace(plugin);
 }
 
 } // namespace ssim

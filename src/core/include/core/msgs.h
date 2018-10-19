@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <array>
+#include <map>
 #include <vector>
 
 #include <core/math.h>
@@ -102,6 +103,13 @@ struct WheelDescription {
   double u_static;
 };
 
+enum class PinMode {
+  DigitalInput,
+  DigitalOutput,
+  AnalogInput,
+  AnalogOutput,
+};
+
 struct RobotDescription {
   std::vector<Point2> footprint;
   WheelDescription left_wheel;
@@ -119,6 +127,7 @@ struct RobotDescription {
   std::vector<LEDDescription> leds;
   unsigned int battery_pin;
   unsigned int button_pin;
+  std::map<int, PinMode> pin_map;
 };
 
 struct WheelPhysicsState {
