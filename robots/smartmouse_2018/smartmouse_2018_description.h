@@ -1,175 +1,74 @@
 #pragma once
 
+#include <math.h>
+#include <core/maze.h>
 #include <core/msgs.h>
 
-const auto smartmouse_2018_description = ssim::RobotDescription{
-    .footprint = {
-        {.x = -0.035, .y = 0.035},
-        {.x = 0.040, .y =  0.035},
-        {.x = 0.055, .y =  0.015},
-        {.x = 0.055, .y =  -0.015},
-        {.x = 0.040, .y =  -0.035},
-        {.x = -0.035, .y = -0.035},
-        {.x = -0.035, .y = 0.035}
-    },
-    .left_wheel = {
-        .position = {0.0, -0.0275, 0.021},
-        .radius = 0.0145,
-        .thickness = 0.0127,
-        .u_static = 0,
-    },
-    .right_wheel = {
-        .position = {0.0, 0.0275, -0.021},
-        .radius = 0.0145,
-        .thickness = 0.0127,
-        .u_static = 0,
-    },
-    .cog = {0.0, 0.0, 0.01},
-    .left_motor = {
-        .pin_1 = 5,
-        .pin_2 = 6,
-        .u_kinetic = 8.0,
-        .u_static = 10.0,
-        .J = 0.000658,
-        .b = 0.0000012615,
-        .R = 5,
-        .L = 0.58,
-        .K = 0.0787,
-    },
-    .right_motor = {
-        .pin_1 = 8,
-        .pin_2 = 7,
-        .u_kinetic = 8.0,
-        .u_static = 10.0,
-        .J = 0.000658,
-        .b = 0.0000012615,
-        .R = 5,
-        .L = 0.58,
-        .K = 0.0787,
-    },
-    .left_encoder = {
-        .cs_pin = 9,
-        .n_bits = 14,
-    },
-    .right_encoder = {
-        .cs_pin = 9,
-        .n_bits = 14,
-    },
-    .sensors = {
-        .adc_bits = 14,
-        .front = {
-            .p = {
-                .x = 0.055,
-                .y = 0.0,
-                .theta = 0.0,
-            },
-            .min_range_m = 0,
-            .max_range_m = 0,
-            .beam_angle_rad = 0,
-            .a = 1.304576,
-            .b = 0.034583,
-            .c = 295.613524,
-            .d = 0
-        },
-        .gerald_left = {
-            .p = {
-                .x = 0.040,
-                .y = -0.022,
-                .theta = -0.785398,
-            },
-            .min_range_m = 0,
-            .max_range_m = 0,
-            .beam_angle_rad = 0,
-            .a = 1.195759,
-            .b = 0.020983,
-            .c = 531.855338,
-            .d = 0
-        },
-        .gerald_right = {
-            .p = {
-                .x = 0.040,
-                .y = 0.022,
-                .theta = 0.785398,
-            },
-            .min_range_m = 0,
-            .max_range_m = 0,
-            .beam_angle_rad = 0,
-            .a = 1.187237,
-            .b = 0.020162,
-            .c = 658.131265,
-            .d = 0
-        },
-        .front_left = {
-            .p = {
-                .x = 0.035,
-                .y = -0.026,
-                .theta = -1.3446,
-            },
-            .min_range_m = 0,
-            .max_range_m = 0,
-            .beam_angle_rad = 0,
-            .a = 1.197716,
-            .b = 0.021642,
-            .c = 370.645580,
-            .d = 0
-        },
-        .front_right = {
-            .p = {
-                .x = 0.035,
-                .y = 0.026,
-                .theta = 1.3446,
-            },
-            .min_range_m = 0,
-            .max_range_m = 0,
-            .beam_angle_rad = 0,
-            .a = 1.168262,
-            .b = 0.017652,
-            .c = 506.691267,
-            .d = 0
-        },
-        .back_left = {
-            .p = {
-                .x = -0.0256,
-                .y = -0.03,
-                .theta = -1.48353,
-            },
-            .min_range_m = 0,
-            .max_range_m = 0,
-            .beam_angle_rad = 0,
-            .a = 1.240250,
-            .b = 0.028287,
-            .c = 380.648090,
-            .d = 0
-        },
-        .back_right = {
-            .p = {
-                .x = -0.0256,
-                .y = 0.03,
-                .theta = 1.48353,
-            },
-            .min_range_m = 0,
-            .max_range_m = 0,
-            .beam_angle_rad = 0,
-            .a = 1.235639,
-            .b = 0.026170,
-            .c = 388.385273,
-            .d = 0
-        }
-    },
-    .digital_outputs = {},
-    .digital_inputs = {},
-    .analog_outputs = {},
-    .analog_inputs = {},
-    .leds = {
-        {.pin=32, .r=255, .g=0, .b=0},
-        {.pin=25, .r=0, .g=255, .b=255},
-        {.pin=26, .r=255, .g=0, .b=255},
-        {.pin=27, .r=255, .g=255, .b=0},
-        {.pin=28, .r=0, .g=255, .b=255},
-        {.pin=29, .r=255, .g=0, .b=255},
-        {.pin=30, .r=255, .g=255, .b=0},
-        {.pin=31, .r=0, .g=255, .b=255},
-    },
-    .battery_pin = 66,
-    .button_pin = 23
-};
+constexpr unsigned int BACK_LEFT_ANALOG_PIN = 33;
+constexpr unsigned int FRONT_RIGHT_ANALOG_PIN = 34;
+constexpr unsigned int FRONT_ANALOG_PIN = 35;
+constexpr unsigned int GERALD_LEFT_ANALOG_PIN = 36;
+constexpr unsigned int FRONT_LEFT_ANALOG_PIN = 37;
+constexpr unsigned int GERALD_RIGHT_ANALOG_PIN = 38;
+constexpr unsigned int BACK_RIGHT_ANALOG_PIN = 39;
+constexpr unsigned int BATTERY_ANALOG_PIN = 66;
+
+// TODO: remove these and use new SPI encoders
+constexpr unsigned int MOSI = 11;
+constexpr unsigned int LEFT_ENCODER_CS = 9;
+constexpr unsigned int RIGHT_ENCODER_CS = 10;
+
+constexpr unsigned int MOTOR_LEFT_A1 = 5;
+constexpr unsigned int MOTOR_LEFT_A2 = 6;
+constexpr unsigned int MOTOR_RIGHT_B1 = 8;
+constexpr unsigned int MOTOR_RIGHT_B2 = 7;
+
+
+constexpr unsigned int LED_1 = 25;
+constexpr unsigned int LED_2 = 26;
+constexpr unsigned int LED_3 = 27;
+constexpr unsigned int LED_4 = 28;
+constexpr unsigned int LED_5 = 29;
+constexpr unsigned int LED_6 = 30;
+constexpr unsigned int LED_7 = 31;
+constexpr unsigned int SYS_LED = 32;
+
+constexpr unsigned int FRONT_LEFT_ENABLE_PIN = 21;
+constexpr unsigned int GERALD_LEFT_ENABLE_PIN = 20;
+constexpr unsigned int GERALD_RIGHT_ENABLE_PIN = 22;
+constexpr unsigned int FRONT_RIGHT_ENABLE_PIN = 19;
+constexpr unsigned int FRONT_ENABLE_PIN = 18;
+constexpr unsigned int BACK_LEFT_ENABLE_PIN = 2;
+constexpr unsigned int BACK_RIGHT_ENABLE_PIN = 4;
+
+constexpr unsigned int BUTTON_PIN = 23;
+
+extern const ssim::SensorDescription FRONT_LEFT_SENSOR;
+extern const ssim::SensorDescription GERALD_LEFT_SENSOR;
+extern const ssim::SensorDescription GERALD_RIGHT_SENSOR;
+extern const ssim::SensorDescription FRONT_RIGHT_SENSOR;
+extern const ssim::SensorDescription FRONT_SENSOR;
+extern const ssim::SensorDescription BACK_LEFT_SENSOR;
+extern const ssim::SensorDescription BACK_RIGHT_SENSOR;
+
+constexpr double MAX_HARDWARE_SPEED_MPS = 0.90;
+constexpr double MIN_SPEED_MPS = 0.0145;
+constexpr double FRONT_WALL_THRESHOLD = 0.12;
+constexpr double SIDE_WALL_THRESHOLD = 0.20;
+constexpr double GERALD_WALL_THRESHOLD = 0.15;
+constexpr double WALL_CHANGED_THRESHOLD = 0.02;
+constexpr double USE_FRONT_WALL_FOR_POSE = 0.09;
+constexpr double ROT_TOLERANCE = 0.025;
+constexpr double TRACK_WIDTH_M = 0.053;
+constexpr double ANALOG_MAX_DIST_M = 0.20;
+constexpr double ANALOG_MIN_DIST_M = 0.015;
+constexpr double WHEEL_RAD = 0.0145;
+constexpr double MIN_ABSTRACT_FORCE = 12;
+constexpr int TICKS_PER_REVOLUTION = 16384;
+constexpr double RAD_PER_TICK = 2 * M_PI / TICKS_PER_REVOLUTION;
+
+constexpr double TRACK_WIDTH_CU = ssim::toCellUnits(TRACK_WIDTH_M);
+constexpr double MAX_HARDWARE_SPEED_CUPS = ssim::toCellUnits(MAX_HARDWARE_SPEED_MPS);
+constexpr double MIN_SPEED_CUPS = ssim::toCellUnits(MIN_SPEED_MPS);
+constexpr double ANALOG_MAX_DIST_CU = ssim::toCellUnits(ANALOG_MAX_DIST_M);
+constexpr double ANALOG_MIN_DIST_CU = ssim::toCellUnits(ANALOG_MIN_DIST_M);

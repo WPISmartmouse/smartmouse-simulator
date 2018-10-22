@@ -37,6 +37,12 @@ public:
 
   KinematicController kinematic_controller;
 
+  virtual void Setup() = 0;
+
+  virtual void Step(double dt_s) = 0;
+
+  virtual GlobalPose estimate_pose() const = 0;
+
 };
 
 } // namespace ssim

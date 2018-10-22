@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/maze.h>
-#include <core/fwd_msgs.h>
+#include <core/msgs.h>
 
 namespace ssim {
 
@@ -17,6 +17,3 @@ class RobotPlugin {
 };
 
 } // namespace ssim
-
-extern "C" ssim::RobotDescription const *get_description();
-extern "C" ssim::RobotPlugin *get_plugin();

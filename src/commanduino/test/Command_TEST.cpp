@@ -1,11 +1,15 @@
 #include <cstdlib>
-#include <hal/hal.h>
 
 #include <utility>
 
+#include <hal/util.h>
+#include <hal/hal.h>
 #include <gtest/gtest.h>
 
 #include <commanduino/commanduino.h>
+#include <core/msgs.h>
+
+ssim::RobotDescription ssim::global_robot_description = {};
 
 class MockCommand : public Command {
 public:

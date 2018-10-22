@@ -12,7 +12,7 @@ void ForwardN::initialize() {
   const double v0 = robot.kinematic_controller.getCurrentForwardSpeedCUPS();
   const double vf = ssim::kVf_cps;
   profile = new ssim::VelocityProfile(start, {goal_disp, v0, vf});
-  digitalWrite(smartmouse_2018_description.leds[4].pin, 1);
+  digitalWrite(LED_4, 1);
 }
 
 void ForwardN::execute() {
@@ -27,6 +27,6 @@ bool ForwardN::isFinished() {
 }
 
 void ForwardN::end() {
-  digitalWrite(smartmouse_2018_description.leds[4].pin, 0);
+  digitalWrite(LED_4, 0);
 }
 

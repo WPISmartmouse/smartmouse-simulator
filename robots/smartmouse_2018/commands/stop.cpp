@@ -11,7 +11,7 @@ Stop::Stop(Smartmouse2018Robot &robot, unsigned long stop_time) : Command("end")
 void Stop::initialize() {
   setTimeout(stop_time);
   robot.setSpeedCps(0, 0);
-  digitalWrite(smartmouse_2018_description.leds[7].pin, 1);
+  digitalWrite(LED_7, 1);
 }
 
 bool Stop::isFinished() {
@@ -19,5 +19,5 @@ bool Stop::isFinished() {
 }
 
 void Stop::end() {
-  digitalWrite(smartmouse_2018_description.leds[7].pin, 0);
+  digitalWrite(LED_7, 0);
 }

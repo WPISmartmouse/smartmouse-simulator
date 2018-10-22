@@ -28,21 +28,6 @@ class ServerControl {
   std::optional<bool> toggle_play_pause;
 };
 
-class PIDConstants {
- public:
-  std::optional<double> kP;
-  std::optional<double> kI;
-  std::optional<double> kD;
-  std::optional<double> kFFOffset;
-  std::optional<double> kFFScale;
-};
-
-class PIDSetpoints {
- public:
-  std::optional<double> left_setpoints_cups;
-  std::optional<double> right_setpoints_cups;
-};
-
 class PhysicsConfig {
  public:
   std::optional<uint32_t> ns_of_sim_per_step;

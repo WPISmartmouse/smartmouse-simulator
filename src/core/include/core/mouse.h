@@ -9,29 +9,6 @@
 
 namespace ssim {
 
-template<typename T>
-struct RangeData {
-  T gerald_left;
-  T gerald_right;
-  T front_left;
-  T front_right;
-  T back_left;
-  T back_right;
-  T front;
-
-  std::string to_string() {
-    std::stringstream ss;
-    ss << back_left << ", "
-       << front_left << ","
-       << gerald_left << ","
-       << front << ","
-       << gerald_right << ","
-       << front_right << ","
-       << back_right << ",";
-    return ss.str();
-  }
-};
-
 /** \brief represents a mouse
  * don't ever change the row/col of a mouse directly. This prevents it from working on the real robot
  * use forward and turnToFace to move the mouse around.

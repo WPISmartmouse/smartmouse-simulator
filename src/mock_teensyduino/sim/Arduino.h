@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdint>
 #include <core/msgs.h>
+#include <core/plugin.h>
 
 typedef uint8_t byte;
 typedef unsigned int word;
@@ -24,6 +25,8 @@ typedef unsigned int word;
 #define BIN 2
 #define HEX 16
 
+void digitalWriteFast(unsigned int pin, bool high);
+
 void digitalWrite(unsigned int pin, bool high);
 
 bool digitalRead(unsigned int pin);
@@ -31,6 +34,8 @@ bool digitalRead(unsigned int pin);
 void analogWrite(unsigned int pin, unsigned int value);
 
 unsigned int analogRead(unsigned int pin);
+
+void delayMicroseconds(unsigned long long micros);
 
 long micros();
 
@@ -53,6 +58,3 @@ public:
 
 extern CoutSerial Serial;
 extern NopSerial Serial1;
-
-extern ssim::RobotSimState global_sim_state;
-extern ssim::RobotDescription global_robot_description;

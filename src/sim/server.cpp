@@ -1,6 +1,8 @@
 #include <optional>
+#include <numeric>
 
 #include <core/math.h>
+#include <hal/hal.h>
 #include <kinematic_controller/kinematic_controller.h>
 #include <sim/ray_tracing.h>
 #include <sim/server.h>
@@ -17,7 +19,6 @@ Server::Server()
       max_cells_to_check_(0),
       pause_at_steps_(0),
       real_time_factor_(1) {
-  ResetRobot(0.5, 0.5, 0);
   Start();
 }
 
@@ -32,6 +33,10 @@ void Server::Start() {
 
 void Server::RunLoop() {
   bool done = false;
+
+  ResetRobot(0.5, 0.5, 0);
+  ComputeMaxSensorRange();
+
   while (!done) {
     done = Run();
   }
@@ -97,43 +102,37 @@ void Server::Step() {
 
   UpdateRobotState(dt.Double());
 
-  if (plugin_) {
-    plugin_->Step();
-  }
+  global_plugin->Step();
 
   // increment step counter
   ++steps_;
 }
 
 void Server::UpdateRobotState(double dt) {
-  if (!robot_description_) {
-    return;
-  }
-
   // TODO: Implement friction
   // TODO: use left/right motors seperately
-  const double u_k = robot_description_->left_motor.u_kinetic;
-  const double u_s = robot_description_->left_motor.u_static;
+  double const u_k = global_robot_description.left_motor.u_kinetic;
+  double const u_s = global_robot_description.left_motor.u_static;
 
-  const double motor_J = robot_description_->left_motor.J;
-  const double motor_b = robot_description_->left_motor.b;
-  const double motor_K = robot_description_->left_motor.K;
-  const double motor_R = robot_description_->left_motor.R;
-  const double motor_L = robot_description_->left_motor.L;
+  double const motor_J = global_robot_description.left_motor.J;
+  double const motor_b = global_robot_description.left_motor.b;
+  double const motor_K = global_robot_description.left_motor.K;
+  double const motor_R = global_robot_description.left_motor.R;
+  double const motor_L = global_robot_description.left_motor.L;
 
   // use the cmd abstract forces, apply our dynamics model, update robot state
-  double col = global_sim_state.p.col;
-  double row = global_sim_state.p.row;
-  double yaw = global_sim_state.p.yaw;
-  double v_col = global_sim_state.v.col;
-  double v_row = global_sim_state.v.row;
-  double dyawdt = global_sim_state.v.yaw;
-  double tl = global_sim_state.left_wheel.theta;
-  double wl = global_sim_state.left_wheel.omega;
-  double il = global_sim_state.left_wheel.current;
-  double tr = global_sim_state.right_wheel.theta;
-  double wr = global_sim_state.right_wheel.omega;
-  double ir = global_sim_state.right_wheel.current;
+  double col = state_.p.col;
+  double row = state_.p.row;
+  double yaw = state_.p.yaw;
+  double v_col = state_.v.col;
+  double v_row = state_.v.row;
+  double dyawdt = state_.v.yaw;
+  double tl = state_.left_wheel.theta;
+  double wl = state_.left_wheel.omega;
+  double il = state_.left_wheel.current;
+  double tr = state_.right_wheel.theta;
+  double wr = state_.right_wheel.omega;
+  double ir = state_.right_wheel.current;
 
   double vl = radToMeters(wl);
   double vr = radToMeters(wr);
@@ -156,7 +155,7 @@ void Server::UpdateRobotState(double dt) {
   double new_tl = tl + new_wl * dt + 1 / 2 * new_al * dt * dt;
   double new_tr = tr + new_wr * dt + 1 / 2 * new_ar * dt * dt;
 
-  const double kVRef = 5.0;
+  double const kVRef = 5.0;
   double voltage_l = (cmd_.left.abstract_force * kVRef) / 255.0;
   double voltage_r = (cmd_.right.abstract_force * kVRef) / 255.0;
   double new_il = il + dt * (voltage_l - motor_K * wl - motor_R * il) / motor_L;
@@ -188,42 +187,32 @@ void Server::UpdateRobotState(double dt) {
   // iterate over every line segment in the maze (all edges of all walls)
   // find the intersection of that wall with each sensor
   // if the intersection exists, and the distance is the shortest range for that sensor, replace the current range
-  global_sim_state.front_m = ComputeSensorDistToWall(robot_description_->sensors.front);
-  global_sim_state.front_left_m = ComputeSensorDistToWall(robot_description_->sensors.front_left);
-  global_sim_state.front_right_m = ComputeSensorDistToWall(robot_description_->sensors.front_right);
-  global_sim_state.gerald_left_m = ComputeSensorDistToWall(robot_description_->sensors.gerald_left);
-  global_sim_state.gerald_right_m = ComputeSensorDistToWall(robot_description_->sensors.gerald_right);
-  global_sim_state.back_left_m = ComputeSensorDistToWall(robot_description_->sensors.back_left);
-  global_sim_state.back_right_m = ComputeSensorDistToWall(robot_description_->sensors.back_right);
-
-  global_sim_state.front_adc = ComputeADCValue(robot_description_->sensors.front);
-  global_sim_state.front_left_adc = ComputeADCValue(robot_description_->sensors.front_left);
-  global_sim_state.front_right_adc = ComputeADCValue(robot_description_->sensors.front_right);
-  global_sim_state.gerald_left_adc = ComputeADCValue(robot_description_->sensors.gerald_left);
-  global_sim_state.gerald_right_adc = ComputeADCValue(robot_description_->sensors.gerald_right);
-  global_sim_state.back_left_adc = ComputeADCValue(robot_description_->sensors.back_left);
-  global_sim_state.back_right_adc = ComputeADCValue(robot_description_->sensors.back_right);
-
-  if (!stationary_) {
-    global_sim_state.p.col = new_col;
-    global_sim_state.p.row = new_row;
-    global_sim_state.p.yaw = new_yaw;
-    global_sim_state.v.col = new_v_col;
-    global_sim_state.v.row = new_v_row;
-    global_sim_state.v.yaw = new_dyawdt;
-    global_sim_state.a.col = new_a_col;
-    global_sim_state.a.row = new_a_row;
-    global_sim_state.a.yaw = new_a;
+  for (auto &sensor : global_robot_description.sensors) {
+    // take the actual distance and the angle and reverse-calculate the ADC value
+    double const d = ComputeSensorDistToWall(sensor);
+    sensor.adc_value = sensor.to_adc(d);
   }
 
-  global_sim_state.left_wheel.theta = new_tl;
-  global_sim_state.left_wheel.omega = new_wl;
-  global_sim_state.left_wheel.alpha = new_al;
-  global_sim_state.left_wheel.current = new_il;
-  global_sim_state.right_wheel.theta = new_tr;
-  global_sim_state.right_wheel.omega = new_wr;
-  global_sim_state.right_wheel.alpha = new_ar;
-  global_sim_state.right_wheel.current = new_ir;
+  if (!stationary_) {
+    state_.p.col = new_col;
+    state_.p.row = new_row;
+    state_.p.yaw = new_yaw;
+    state_.v.col = new_v_col;
+    state_.v.row = new_v_row;
+    state_.v.yaw = new_dyawdt;
+    state_.a.col = new_a_col;
+    state_.a.row = new_a_row;
+    state_.a.yaw = new_a;
+  }
+
+  state_.left_wheel.theta = new_tl;
+  state_.left_wheel.omega = new_wl;
+  state_.left_wheel.alpha = new_al;
+  state_.left_wheel.current = new_il;
+  state_.right_wheel.theta = new_tr;
+  state_.right_wheel.omega = new_wr;
+  state_.right_wheel.alpha = new_ar;
+  state_.right_wheel.current = new_ir;
 }
 
 void Server::ResetTime() {
@@ -235,24 +224,25 @@ void Server::ResetTime() {
 }
 
 void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
-  global_sim_state.p.col = reset_col;
-  global_sim_state.p.row = reset_row;
-  global_sim_state.p.yaw = reset_yaw;
-  global_sim_state.v.col = 0;
-  global_sim_state.v.row = 0;
-  global_sim_state.v.yaw = 0;
-  global_sim_state.a.col = 0;
-  global_sim_state.a.row = 0;
-  global_sim_state.a.yaw = 0;
-  global_sim_state.left_wheel.theta = 0;
-  global_sim_state.left_wheel.omega = 0;
-  global_sim_state.left_wheel.current = 0;
-  global_sim_state.right_wheel.theta = 0;
-  global_sim_state.right_wheel.omega = 0;
-  global_sim_state.right_wheel.current = 0;
+  state_.p.col = reset_col;
+  state_.p.row = reset_row;
+  state_.p.yaw = reset_yaw;
+  state_.v.col = 0;
+  state_.v.row = 0;
+  state_.v.yaw = 0;
+  state_.a.col = 0;
+  state_.a.row = 0;
+  state_.a.yaw = 0;
+  state_.left_wheel.theta = 0;
+  state_.left_wheel.omega = 0;
+  state_.left_wheel.current = 0;
+  state_.right_wheel.theta = 0;
+  state_.right_wheel.omega = 0;
+  state_.right_wheel.current = 0;
   cmd_.left.abstract_force = 0;
   cmd_.right.abstract_force = 0;
 
+  global_plugin->Setup();
 }
 
 void Server::PublishWorldStats(double rtf) {
@@ -263,7 +253,7 @@ void Server::PublishWorldStats(double rtf) {
   world_statistics.real_time_factor = rtf;
 }
 
-void Server::OnServerControl(const ServerControl &server_control) {
+void Server::OnServerControl(ServerControl const &server_control) {
   if (server_control.pause) {
     pause_ = server_control.pause.value();
   } else if (server_control.toggle_play_pause) {
@@ -296,6 +286,7 @@ void Server::OnServerControl(const ServerControl &server_control) {
     if (server_control.reset_yaw) {
       reset_yaw = server_control.reset_yaw.value();
     }
+
     ResetRobot(reset_col, reset_row, reset_yaw);
   }
 }
@@ -319,10 +310,6 @@ void Server::OnRobotCommand(RobotCommand const &cmd) {
   cmd_ = cmd;
 }
 
-void Server::OnRobotDescription(RobotDescription const &description) {
-  robot_description_ = description;
-  ComputeMaxSensorRange();
-}
 
 void Server::Join() {
   thread_->join();
@@ -332,31 +319,24 @@ unsigned int Server::getNsOfSimPerStep() const {
   return ns_of_sim_per_step_;
 }
 
-int Server::ComputeADCValue(SensorDescription sensor) {
-  // take the actual distance and the angle and reverse-calculate the ADC value
-  double d = ComputeSensorDistToWall(sensor);
-  IRModel model{sensor.a, sensor.b, sensor.c, sensor.d};
-  return model.toADC(d);
-}
-
 double Server::ComputeSensorDistToWall(SensorDescription sensor) {
-  double min_range = ANALOG_MAX_DIST_CU;
+  double min_range = sensor.max_range_m;
   // TODO: make a toCellUnits that is vectorized and operates in-place on sense.p
   double sensor_col = toCellUnits(sensor.p.x);
   double sensor_row = toCellUnits(sensor.p.y);
-  double robot_theta = global_sim_state.p.yaw;
+  double robot_theta = state_.p.yaw;
   Eigen::Vector3d s_origin_3d{sensor_col, sensor_row, 1};
   Eigen::Matrix3d tf;
-  tf << cos(robot_theta), -sin(robot_theta), global_sim_state.p.col,
-      sin(robot_theta), cos(robot_theta), global_sim_state.p.row,
+  tf << cos(robot_theta), -sin(robot_theta), state_.p.col,
+      sin(robot_theta), cos(robot_theta), state_.p.row,
       0, 0, 1;
   s_origin_3d = tf * s_origin_3d;
   Eigen::Vector2d s_origin{s_origin_3d(0), s_origin_3d(1)};
   Eigen::Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
 
   // iterate over the lines of walls that are nearby
-  int row = (int) global_sim_state.p.row;
-  int col = (int) global_sim_state.p.col;
+  int row = (int) state_.p.row;
+  int col = (int) state_.p.col;
   unsigned int min_r = (unsigned int) std::max(0, row - (int) max_cells_to_check_);
   unsigned int max_r = std::min(SIZE, row + max_cells_to_check_);
   unsigned int min_c = (unsigned int) std::max(0, col - (int) max_cells_to_check_);
@@ -371,7 +351,7 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
       }
 
       auto lines = Convert(*n);
-      for (const auto &line : lines) {
+      for (auto const &line : lines) {
         auto range = RayTracing::distance_to_wall(line, s_origin, s_direction);
         if (range && *range < min_range) {
           min_range = *range;
@@ -380,27 +360,17 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
     }
   }
 
-  if (min_range < ANALOG_MIN_DIST_CU) {
-    min_range = ANALOG_MIN_DIST_CU;
-  }
+  min_range = std::max(min_range, sensor.min_range_m);
 
   return toMeters(min_range);
 }
 
 void Server::ComputeMaxSensorRange() {
-  double max_range = 0;
-
-  if (!robot_description_) {
-    return;
-  }
-
-  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.front));
-  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.front_left));
-  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.front_right));
-  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.gerald_left));
-  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.gerald_right));
-  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.back_left));
-  max_range = std::max(max_range, ComputeSensorRange(robot_description_->sensors.back_right));
+  auto const max_range = std::accumulate(global_robot_description.sensors.cbegin(), global_robot_description.sensors.cend(), 0.0,
+                                         [&](double range, SensorDescription const &sensor) { return std::max(range,
+                                                                                                              ComputeSensorRange(
+                                                                                                                  sensor));
+                                         });
 
   max_cells_to_check_ = (unsigned int) std::ceil(toCellUnits(max_range));
 }
@@ -408,8 +378,8 @@ void Server::ComputeMaxSensorRange() {
 double Server::ComputeSensorRange(const SensorDescription sensor) {
   double sensor_x = sensor.p.x;
   double sensor_y = sensor.p.x;
-  double range_x = sensor_x + cos(sensor.p.theta) * ANALOG_MAX_DIST_M;
-  double range_y = sensor_y + sin(sensor.p.theta) * ANALOG_MAX_DIST_M;
+  double range_x = sensor_x + cos(sensor.p.theta) * sensor.max_range_m;
+  double range_y = sensor_y + sin(sensor.p.theta) * sensor.max_range_m;
   return std::hypot(range_x, range_y);
 }
 
@@ -419,10 +389,6 @@ void Server::OnPIDConstants(PIDConstants const &msg) {
 
 void Server::OnPIDSetpoints(PIDSetpoints const &msg) {
 
-}
-
-void Server::OnRobotPlugin(RobotPlugin const &plugin) {
-  plugin_.emplace(plugin);
 }
 
 } // namespace ssim

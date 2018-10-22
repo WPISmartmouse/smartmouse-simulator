@@ -12,7 +12,7 @@ void ForwardToCenter::initialize() {
   const double v0 = robot.kinematic_controller.getCurrentForwardSpeedCUPS();
   const double vf = 0.0;
   profile = new ssim::VelocityProfile(start, {goal_disp, v0, vf});
-  digitalWrite(smartmouse_2018_description.leds[3].pin, 1);
+  digitalWrite(LED_3, 1);
 }
 
 void ForwardToCenter::execute() {
@@ -34,5 +34,5 @@ bool ForwardToCenter::isFinished() {
 }
 
 void ForwardToCenter::end() {
-  digitalWrite(smartmouse_2018_description.leds[3].pin, 0);
+  digitalWrite(LED_3, 0);
 }

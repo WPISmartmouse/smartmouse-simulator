@@ -11,7 +11,7 @@ void Finish::initialize() {
   robot.setSpeedCps(0, 0);
   setTimeout(2000);
   t = getTime();
-  pin_id = smartmouse_2018_description.leds[1].pin;
+  pin_id = LED_1;
   on = true;
 }
 
@@ -26,8 +26,8 @@ void Finish::execute() {
     } else {
       digitalWrite(pin_id, 0);
       pin_id++;
-      if (pin_id > smartmouse_2018_description.leds[1].pin) {
-        pin_id = smartmouse_2018_description.leds[2].pin;
+      if (pin_id > LED_1) {
+        pin_id = LED_2;
       }
     }
   }

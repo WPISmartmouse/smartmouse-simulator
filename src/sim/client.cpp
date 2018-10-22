@@ -1,5 +1,4 @@
 #include <fstream>
-#include <dlfcn.h>
 #include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
 #include <QtWidgets/QAction>
@@ -147,22 +146,6 @@ void Client::LoadNewMouse() {
 }
 
 void Client::LoadMouse(QFileInfo const &file_info) {
-    void *handle = dlopen(file_info.absoluteFilePath().toLatin1().data(), RTLD_NOW);
-    if (handle == NULL) {
-      std::cerr << dlerror() << std::endl;
-    }
-    using get_description_funcion_ptr = RobotDescription *(*)();
-    auto get_description_func = (get_description_funcion_ptr) dlsym(handle, "get_description");
-    const auto robot_description = get_description_func();
-
-    using get_server_function_ptr = RobotPlugin *(*)();
-    auto get_server_func = (get_server_function_ptr) dlsym(handle, "get_plugin");
-    const auto robot_plugin = get_server_func();
-
-    plugin_.emplace(*robot_plugin);
-    server_.OnRobotDescription(*robot_description);
-    server_.OnRobotPlugin(*robot_plugin);
-
     ui_->mouse_file_name_label->setText(file_info.fileName());
 }
 
@@ -297,11 +280,6 @@ void Client::ConfigureGui() {
   connect(ui_->teleport_button, &QPushButton::clicked, this, &Client::SendTeleportCmd);
   connect(ui_->publish_constants_button, &QPushButton::clicked, this, &Client::PublishPIDConstants);
   connect(ui_->publish_setpoints_button, &QPushButton::clicked, this, &Client::PublishPIDSetpoints);
-
-  QFile styleFile(":/style.qss");
-  styleFile.open(QFile::ReadOnly);
-  QString style(styleFile.readAll());
-  this->setStyleSheet(style);
 }
 
 void Client::closeEvent(QCloseEvent *event) {

@@ -1,3 +1,5 @@
+#include <smartmouse_2018_description.h>
+
 #include "commands/turn.h"
 #include "commands/turn_in_place.h"
 #include "commands/forward.h"
@@ -15,7 +17,7 @@ void Turn::initialize() {
     add<TurnInPlace>(robot, dir);
     add<Forward>(robot);
   } else if (robot.getDir() != dir) {
-    if (ssim::WALL_SMASH) {
+    if (robot.wall_smash) {
       add<WallSmash>(robot);
       add<TurnInPlace>(robot, dir);
       add<Forward>(robot);

@@ -9,7 +9,7 @@ Backup::Backup(Smartmouse2018Robot &robot) : Command("Backup"), robot(robot) {}
 
 void Backup::initialize() {
   setTimeout(300);
-  digitalWrite(smartmouse_2018_description.leds[6].pin, 1);
+  digitalWrite(LED_6, 1);
 }
 
 void Backup::execute() {
@@ -22,6 +22,6 @@ bool Backup::isFinished() {
 
 void Backup::end() {
   robot.reset_fwd_to_center();
-  digitalWrite(smartmouse_2018_description.leds[6].pin, 0);
+  digitalWrite(LED_6, 0);
 }
 

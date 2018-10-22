@@ -1,4 +1,4 @@
-#include <hal/hal.h>
+#include <hal/util.h>
 
 #include <commands/solve_maze.h>
 #include <commands/forward_n.h>

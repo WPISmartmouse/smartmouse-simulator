@@ -3,7 +3,7 @@
 #include <array>
 #include <limits>
 
-#include "direction.h"
+#include <core/direction.h>
 
 namespace ssim {
 

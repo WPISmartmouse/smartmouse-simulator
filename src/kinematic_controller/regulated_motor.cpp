@@ -3,8 +3,9 @@
 #include <core/mouse.h>
 #include <core/math.h>
 
-#include <kinematic_controller/robot_config.h>
 #include <kinematic_controller/regulated_motor.h>
+#include <hal/util.h>
+#include <hal/hal.h>
 
 namespace ssim {
 
@@ -30,7 +31,7 @@ RegulatedMotor::RegulatedMotor()
 bool RegulatedMotor::isStopped() {
   bool stopped =
       fabs(radToMeters(velocity_rps)) <= 0.001
-      && fabs(abstract_force) <= MIN_ABSTRACT_FORCE;
+      && fabs(abstract_force) <= global_robot_description.min_abstract_force;
   return stopped;
 }
 
@@ -73,9 +74,9 @@ void RegulatedMotor::setAccelerationCpss(double acceleration_cellpss) {
 void RegulatedMotor::setSetpointCps(double setpoint_cups) {
   double s = 0.0;
   if (setpoint_cups > 0.0) {
-    s = std::max(std::min(setpoint_cups, MAX_SPEED_CUPS), MIN_SPEED_CUPS);
+    s = std::max(std::min(setpoint_cups, global_robot_description.max_speed_cups), global_robot_description.min_speed_cups);
   } else if (setpoint_cups < 0.0) {
-    s = std::min(std::max(setpoint_cups, -MAX_SPEED_CUPS), -MIN_SPEED_CUPS);
+    s = std::min(std::max(setpoint_cups, -global_robot_description.max_speed_cups), -global_robot_description.min_speed_cups);
   }
   this->setpoint_rps = cellsToRad(s);
 }

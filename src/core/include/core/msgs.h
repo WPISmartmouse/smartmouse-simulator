@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <variant>
+#include <string>
 #include <array>
 #include <map>
 #include <vector>
@@ -32,102 +34,110 @@ struct XYTheta {
   double theta;
 };
 
-struct SensorDescription {
-  XYTheta p;
-  double min_range_m;
-  double max_range_m;
-  double beam_angle_rad;
-  double a;
-  double b;
-  double c;
-  double d;
-};
 
-struct SensorsDescription {
-  unsigned int adc_bits;
-  SensorDescription front;
-  SensorDescription gerald_left;
-  SensorDescription gerald_right;
-  SensorDescription front_left;
-  SensorDescription front_right;
-  SensorDescription back_left;
-  SensorDescription back_right;
+struct SensorDescription {
+/**
+ * We model our sensors as follows:
+ *
+ * distance in meters = a - (adc - c - adc_offset)^b;
+ */
+  XYTheta const p;
+  double const min_range_m;
+  double const max_range_m;
+  double const beam_angle_rad;
+  double const a;
+  double const b;
+  double const c;
+  double calibration_offset;
+  double const calibration_distance;
+  unsigned int const adc_bits;
+  unsigned int adc_value;
+
+  // We don't use the adc_value in our class because on real hardware that won't be set!
+  double to_meters(double adc_value) const;
+  double to_adc(double meters) const;
+  void calibrate(int adc_reading);
 };
 
 struct DigitalInputDescription {
-  unsigned int pin;
+  bool state;
 };
 
 struct DigitalOutputDescription {
-  unsigned int pin;
+  bool state;
 };
 
 struct AnalogInputDescription {
-  unsigned int pin;
-  unsigned int n_bits;
+  unsigned int const n_bits;
+  unsigned int adc_value;
 };
 
 struct AnalogOutputDescription {
-  unsigned int pin;
-  unsigned int n_bits;
+  unsigned int const n_bits;
+  unsigned int adc_value;
 };
 
 struct EncoderDescription {
-  unsigned int cs_pin;
-  unsigned int n_bits;
+  unsigned int const n_bits;
+  unsigned int ticks;
 };
 
 struct LEDDescription {
-  unsigned int pin = 0;
-  int r = 0;
-  int g = 0;
-  int b = 0;
+  int const r;
+  int const g;
+  int const b;
+  bool state;
+};
+
+enum class MotorPinType {
+  A,
+  B
+};
+
+struct MotorPinDescription {
+  MotorPinType const motor_pin_type;
+  unsigned int value;
 };
 
 struct MotorDescription {
-  double pin_1;
-  double pin_2;
-  double u_kinetic;
-  double u_static;
-  double J;
-  double b;
-  double R;
-  double L;
-  double K;
+  double const u_kinetic;
+  double const u_static;
+  double const J;
+  double const b;
+  double const R;
+  double const L;
+  double const K;
 };
 
-struct WheelDescription {
-  Point3 position;
-  double radius;
-  double thickness;
-  double u_static;
+struct WheelsDescription {
+  Point3 const left_wheel_position;
+  Point3 const right_wheel_position;
+  double const radius;
+  double const thickness;
+  double const u_static;
 };
 
-enum class PinMode {
-  DigitalInput,
-  DigitalOutput,
-  AnalogInput,
-  AnalogOutput,
-};
+using PinVariant = std::variant<AnalogInputDescription,
+    AnalogOutputDescription,
+    DigitalInputDescription,
+    DigitalOutputDescription,
+    LEDDescription,
+    MotorPinDescription>;
 
 struct RobotDescription {
-  std::vector<Point2> footprint;
-  WheelDescription left_wheel;
-  WheelDescription right_wheel;
-  Point3 cog;
+  std::vector<Point2> const footprint;
+  WheelsDescription const wheels;
+  Point3 const cog;
   MotorDescription left_motor;
   MotorDescription right_motor;
   EncoderDescription left_encoder;
   EncoderDescription right_encoder;
-  SensorsDescription sensors;
-  std::vector<DigitalOutputDescription> digital_outputs;
-  std::vector<DigitalInputDescription> digital_inputs;
-  std::vector<AnalogOutputDescription> analog_outputs;
-  std::vector<AnalogInputDescription> analog_inputs;
-  std::vector<LEDDescription> leds;
-  unsigned int battery_pin;
-  unsigned int button_pin;
-  std::map<int, PinMode> pin_map;
+  std::vector<SensorDescription> sensors;
+  std::map<int, PinVariant> pin_map;
+  double const track_width_cu;
+  double const min_abstract_force;
+  double const min_speed_cups;
+  double const max_speed_cups;
 };
 
 struct WheelPhysicsState {
@@ -143,20 +153,6 @@ struct RobotSimState {
   RowColYaw p; // meters
   RowColYaw v; // meters/second
   RowColYaw a; // meters/second^2
-  int32_t front_left_adc;
-  int32_t front_right_adc;
-  int32_t gerald_left_adc;
-  int32_t gerald_right_adc;
-  int32_t back_left_adc;
-  int32_t back_right_adc;
-  int32_t front_adc;
-  double front_left_m;
-  double front_right_m;
-  double gerald_left_m;
-  double gerald_right_m;
-  double back_left_m;
-  double back_right_m;
-  double front_m;
 };
 
 struct Command {
@@ -173,6 +169,21 @@ struct WorldStatistics {
   int32_t time_s = 0;
   int32_t time_ns = 0;
   double real_time_factor = 0.0; // RTF acutally acheived
+};
+
+class PIDConstants {
+ public:
+  std::optional<double> kP;
+  std::optional<double> kI;
+  std::optional<double> kD;
+  std::optional<double> kFFOffset;
+  std::optional<double> kFFScale;
+};
+
+class PIDSetpoints {
+ public:
+  std::optional<double> left_setpoints_cups;
+  std::optional<double> right_setpoints_cups;
 };
 
 } // namespace ssim

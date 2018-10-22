@@ -1,25 +1,29 @@
 #pragma once
 
 #include <tuple>
+#include <vector>
 #include <utility>
 
 #include <core/mouse.h>
+#include <core/msgs.h>
 #include <core/pose.h>
 
 #include <kinematic_controller/regulated_motor.h>
-#include <kinematic_controller/robot_config.h>
 #include <kinematic_controller/trajectory_planner.h>
 
 namespace ssim {
 
-constexpr std::pair<double, double> from_sensors_to_wall(SensorPose s1,
-                                                         SensorPose s2,
+// Forward declare the robot class
+class Robot;
+
+constexpr std::pair<double, double> from_sensors_to_wall(XYTheta s1,
+                                                         XYTheta s2,
                                                          double s1_dist_m,
                                                          double s2_dist_m) {
-  const double d1x = cos(s1.angle) * s1_dist_m + s1.x;
-  const double d1y = sin(s1.angle) * s1_dist_m + s1.y;
-  const double d2x = cos(s2.angle) * s2_dist_m + s2.x;
-  const double d2y = sin(s2.angle) * s2_dist_m + s2.y;
+  const double d1x = cos(s1.theta) * s1_dist_m + s1.x;
+  const double d1y = sin(s1.theta) * s1_dist_m + s1.y;
+  const double d2x = cos(s2.theta) * s2_dist_m + s2.x;
+  const double d2y = sin(s2.theta) * s2_dist_m + s2.y;
   const double yaw = -atan2(d2y - d1y, d2x - d1x);
   // distance from point to line:
   // https://en.wikipedia.org/w/index.php?title=Distance_from_a_point_to_a_line&oldid=828284744
@@ -29,18 +33,18 @@ constexpr std::pair<double, double> from_sensors_to_wall(SensorPose s1,
   return {dist, yaw};
 };
 
-const std::pair<double, double> from_sensors_to_left_wall(SensorPose s1,
-                                                          SensorPose s2,
+const std::pair<double, double> from_sensors_to_left_wall(XYTheta s1,
+                                                          XYTheta s2,
                                                           double s1_dist_m,
                                                           double s2_dist_m);
 
-const std::pair<double, double> from_sensors_to_right_wall(SensorPose s1,
-                                                           SensorPose s2,
+const std::pair<double, double> from_sensors_to_right_wall(XYTheta s1,
+                                                           XYTheta s2,
                                                            double s1_dist_m,
                                                            double s2_dist_m);
 
 class KinematicController {
-public:
+ public:
   static const double kPWall;
   static const double kDWall;
   static const double kPYaw;
@@ -51,9 +55,7 @@ public:
 
   void planTraj(Waypoints waypoints);
 
-  std::tuple<double, double, bool> estimate_pose(RangeData<double> range_data, const Mouse &mouse);
-
-  GlobalPose getGlobalPose();
+  GlobalPose getGlobalPose() const;
 
   LocalPose getLocalPose(const Mouse &mouse);
 
@@ -69,8 +71,7 @@ public:
 
   void reset_yaw_to(double new_yaw);
 
-  std::pair<double, double>
-  run(double dt_s, double left_angle_rad, double right_angle_rad, RangeData<double> range_data, const Mouse &mouse);
+  std::pair<double, double> run(double dt_s, double left_angle_rad, double right_angle_rad, const Robot &robot);
 
   void setAccelerationCpss(double acceleration_mpss);
 
@@ -83,21 +84,13 @@ public:
   RegulatedMotor left_motor;
   RegulatedMotor right_motor;
 
-  bool enable_sensor_pose_estimate = true;
   bool enabled = true;
   bool kinematics_enabled = true;
-  bool sense_left_wall = false;
-  bool sense_right_wall = false;
 
-private:
+ private:
   bool initialized = false;
-  bool ignoring_left = false;
-  bool ignoring_right = false;
 
   GlobalPose current_pose_estimate_cu;
-  static const double kDropSafety;
-  double acceleration_cellpss;
-  double dt_s;
 };
 
 } // namespace ssim

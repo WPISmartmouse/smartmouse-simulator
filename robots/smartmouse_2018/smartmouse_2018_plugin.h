@@ -9,8 +9,6 @@
 class Smartmouse2018Plugin : public ssim::RobotPlugin {
 
  public:
-  Smartmouse2018Plugin();
-  
   std::unique_ptr<Command> root_command;
   Smartmouse2018Robot robot;
   long last_t_us = millis();

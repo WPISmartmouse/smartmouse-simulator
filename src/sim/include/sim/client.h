@@ -105,8 +105,6 @@ class Client : public QMainWindow {
   Ui::MainWindow *ui_;
   QShortcut *shortcut;
   Server &server_;
-
-  std::optional<RobotPlugin> plugin_;
 };
 
 } // namespace ssim

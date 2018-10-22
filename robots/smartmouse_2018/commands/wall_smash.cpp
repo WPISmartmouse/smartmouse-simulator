@@ -7,7 +7,7 @@ WallSmash::WallSmash(Smartmouse2018Robot &robot) : Command("WallSmash"), robot(r
 
 void WallSmash::initialize() {
   setTimeout(1000);
-  digitalWrite(smartmouse_2018_description.leds[5].pin, 1);
+  digitalWrite(LED_5, 1);
 }
 
 void WallSmash::execute() {
@@ -19,6 +19,6 @@ bool WallSmash::isFinished() {
 }
 
 void WallSmash::end() {
-  digitalWrite(smartmouse_2018_description.leds[5].pin, 0);
+  digitalWrite(LED_5, 0);
 }
 

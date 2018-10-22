@@ -1,23 +1,21 @@
 #include <cstdarg>
 #include <vector>
-#include <cstring>
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #include <core/mouse.h>
-
-#include <hal/hal.h>
+#include <hal/util.h>
 
 namespace ssim {
 
-void println(const std::string &str) {
-  Serial.println(str.c_str());
-  Serial1.println(str.c_str());
+void println(std::string const &str) {
+  Serial.println(str);
+  Serial1.println(str);
 }
 
-void print(const std::string &str) {
-  Serial.print(str.c_str());
-  Serial1.print(str.c_str());
+void print(std::string const &str) {
+  Serial.print(str);
+  Serial1.print(str);
 }
 
 void print(const char *fmt, ...) {

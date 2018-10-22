@@ -63,6 +63,10 @@ void ArcTurn::initialize() {
     default:
       exit(0);
   }
+
+  slow_arc_speed = speed_scale * (robot.max_speed_cups / (ssim::HALF_UNIT_DIST + (TRACK_WIDTH_CU / 2))) *
+                   (ssim::HALF_UNIT_DIST - (TRACK_WIDTH_CU / 2));
+  fast_arc_speed = speed_scale * (robot.max_speed_cups);
 }
 
 void ArcTurn::execute() {
@@ -82,8 +86,8 @@ void ArcTurn::execute() {
   double arc_error = (ssim::HALF_UNIT_DIST / pose_dist(curPose, vtc_x, vtc_y)) - 1;
   double corr = (ang_error * ang_weight) + (arc_error * arc_weight);
 
-  double fast_speed = FAST_ARC_SPEED * ((corr * -kp_turn) + 1);
-  double slow_speed = SLOW_ARC_SPEED * ((corr * kp_turn) + 1);
+  double fast_speed = fast_arc_speed * ((corr * -kp_turn) + 1);
+  double slow_speed = slow_arc_speed * ((corr * kp_turn) + 1);
 
   if (right_of_dir(curDir) == dir) {
     robot.setSpeedCps(fast_speed, slow_speed);

@@ -1,7 +1,9 @@
 #include <algorithm>
+#include <math.h>
 
 #include <kinematic_controller/velocity_profile_timing.h>
-#include <kinematic_controller/robot_config.h>
+#include <hal/hal.h>
+#include <hal/util.h>
 
 namespace ssim {
 
@@ -50,7 +52,7 @@ VelocityProfileTiming::VelocityProfileTiming(double d, double v_0, double v_f)
       v_3(0),
       v_4(0) {
   double v_m_theoretical = compute_v_m(v_0, v_f, a_m, j_m, d);
-  v_m = std::min(v_m_theoretical, MAX_SPEED_CUPS);
+  v_m = std::min(v_m_theoretical, global_robot_description.max_speed_cups);
 
   if (v_f > v_0) {
     auto three_phase_start_profile_d = three_phase_profile_d(v_0, v_f);
@@ -65,8 +67,8 @@ VelocityProfileTiming::VelocityProfileTiming(double d, double v_0, double v_f)
   t_2 = t_1 + (v_2 - v_1) / a_m;
   t_m1 = t_2 + t_1;
 
-  if (v_m_theoretical > MAX_SPEED_CUPS) {
-    t_m2 = t_m1 + (d - profile_distance(v_0, v_f, a_m, j_m, MAX_SPEED_CUPS)) / MAX_SPEED_CUPS;
+  if (v_m_theoretical > global_robot_description.max_speed_cups) {
+    t_m2 = t_m1 + (d - profile_distance(v_0, v_f, a_m, j_m, global_robot_description.max_speed_cups)) / global_robot_description.max_speed_cups;
   } else {
     t_m2 = t_m1;
   }
