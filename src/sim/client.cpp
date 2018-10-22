@@ -131,24 +131,6 @@ void Client::ShowKeyboardShortcuts() {
                                  QUrl::TolerantMode));
 }
 
-void Client::LoadNewMouse() {
-  QString file_name = QFileDialog::getOpenFileName(this, tr("Open Mouse"), mouse_files_dir_);
-
-  if (!file_name.isEmpty()) {
-    QFileInfo file_info(file_name);
-    mouse_files_dir_ = file_info.dir().absolutePath();
-    default_mouse_file_name_ = file_name;
-    settings_->setValue("gui/default_mouse_file_name", default_mouse_file_name_);
-    settings_->setValue("gui/mouse_files_directory", mouse_files_dir_);
-
-    LoadMouse(file_info);
-  }
-}
-
-void Client::LoadMouse(QFileInfo const &file_info) {
-    ui_->mouse_file_name_label->setText(file_info.fileName());
-}
-
 void Client::LoadNewMaze() {
   QString file_name = QFileDialog::getOpenFileName(this, tr("Open Maze"), maze_files_dir_, tr("Maze Files (*.mz)"));
 
@@ -163,6 +145,7 @@ void Client::LoadNewMaze() {
     fs.open(file_info.absoluteFilePath().toStdString(), std::fstream::in);
     AbstractMaze maze(fs);
     server_.OnMaze(maze);
+    maze_widget_.OnMaze(maze);
     ui_->maze_file_name_label->setText(file_info.fileName());
   }
 }
@@ -170,16 +153,7 @@ void Client::LoadNewMaze() {
 void Client::LoadRandomMaze() {
   const AbstractMaze &maze = AbstractMaze::gen_random_legal_maze();
   server_.OnMaze(maze);
-}
-
-void Client::LoadDefaultMouse() {
-  if (!default_mouse_file_name_.isEmpty()) {
-    QFileInfo file_info(default_mouse_file_name_);
-    LoadMouse(file_info);
-  } else {
-    std::cout << "no default mouse\n";
-    // TODO: handle this case
-  }
+  maze_widget_.OnMaze(maze);
 }
 
 void Client::LoadDefaultMaze() {
@@ -192,9 +166,10 @@ void Client::LoadDefaultMaze() {
     if (fs.good()) {
       const AbstractMaze maze(fs);
       server_.OnMaze(maze);
+      maze_widget_.OnMaze(maze);
       ui_->maze_file_name_label->setText(file_info.fileName());
     } else {
-      std::cout << "default mouse file [" << maze_filename << "] not found. Loading random maze.\n";
+      std::cout << "default maze file [" << maze_filename << "] not found. Loading random maze.\n";
       LoadRandomMaze();
     }
   } else {
@@ -237,10 +212,10 @@ void Client::PublishPIDSetpoints() {
 }
 
 void Client::ConfigureGui() {
-//  maze_widget_ = new MazeWidget();
-//  ui_->gui_tabs->addTab(maze_widget_, maze_widget_->GetTabName());
-//  state_widget_ = new StateWidget();
-//  ui_->main_splitter->addWidget(state_widget_);
+  maze_widget_ = new MazeWidget();
+  ui_->gui_tabs->addTab(maze_widget_, maze_widget_->GetTabName());
+  state_widget_ = new StateWidget();
+  ui_->main_splitter->addWidget(state_widget_);
   ui_->info_tabs->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   ui_->info_tabs->setMaximumWidth(300);
 
@@ -248,9 +223,7 @@ void Client::ConfigureGui() {
   connect(shortcut, &QShortcut::activated, this, &Client::TogglePlayPause);
 
   connect(ui_->load_maze_button, &QPushButton::clicked, this, &Client::LoadNewMaze);
-  connect(ui_->load_mouse_button, &QPushButton::clicked, this, &Client::LoadNewMouse);
   connect(ui_->random_maze_button, &QPushButton::clicked, this, &Client::LoadRandomMaze);
-  connect(ui_->refresh_mouse_button, &QPushButton::clicked, this, &Client::LoadDefaultMouse);
   connect(ui_->actionExit, &QAction::triggered, this, &Client::Exit);
   connect(ui_->actionRestart, &QAction::triggered, this, &Client::Restart);
   connect(ui_->actionReset_Mouse, &QAction::triggered, this, &Client::ResetMouse);
@@ -316,10 +289,6 @@ void Client::RestoreSettings() {
   maze_files_dir_ = settings_->value("gui/maze_files_directory").toString();
   default_maze_file_name_ = settings_->value("gui/default_maze_file_name").toString();
   LoadDefaultMaze();
-
-  mouse_files_dir_ = settings_->value("gui/mouse_files_directory").toString();
-  default_mouse_file_name_ = settings_->value("gui/default_mouse_file_name").toString();
-  LoadDefaultMouse();
 
   ui_->static_checkbox->setChecked(settings_->value("gui/static_").toBool());
 

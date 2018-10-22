@@ -7,6 +7,8 @@
 #include <QtWidgets/QShortcut>
 #include <QtCore/QFileInfo>
 
+#include <sim/widgets/maze_widget.h>
+#include <sim/widgets/state_widget.h>
 #include <core/plugin.h>
 #include <sim/server.h>
 #include <sim/conversions.h>
@@ -47,10 +49,6 @@ class Client : public QMainWindow {
 
   void LoadNewMaze();
 
-  void LoadNewMouse();
-
-  void LoadMouse(QFileInfo const &file_info);
-
   void ShowSourceCode();
 
   void ShowKeyboardShortcuts();
@@ -84,8 +82,6 @@ class Client : public QMainWindow {
 
   void LoadRandomMaze();
 
-  void LoadDefaultMouse();
-
   void RestoreSettings();
 
   void SaveSettings();
@@ -99,10 +95,10 @@ class Client : public QMainWindow {
   unsigned int step_count_ = 1u;
   QSettings *settings_;
   QString maze_files_dir_;
-  QString mouse_files_dir_;
   QString default_maze_file_name_;
-  QString default_mouse_file_name_;
   Ui::MainWindow *ui_;
+  MazeWidget maze_widget_;
+  StateWidget state_widget_;
   QShortcut *shortcut;
   Server &server_;
 };

@@ -4,13 +4,13 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 # Find the QtWidgets library
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Charts REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 # Find QWT
-#find_path(QWT_INCLUDE_DIR NAMES qwt.h PATHS /usr/local/qwt-6.1.3/include)
-#find_library(QWT_LIBRARY NAMES qwt-qt5 qwt PATHS /usr/local/qwt-6.1.3/lib)
+find_path(QWT_INCLUDE_DIR NAMES qwt.h PATHS /usr/include/qwt)
+find_library(QWT_LIBRARY NAMES qwt-qt5 PATHS /usr/lib/)
 
 add_library(sim ray_tracing.cpp time.cpp conversions.cpp)
 target_include_directories(sim PUBLIC
@@ -24,15 +24,20 @@ target_include_directories(server PUBLIC
         $<INSTALL_INTERFACE:include>)
 target_link_libraries(server sim core hal kinematic_controller Threads::Threads)
 
-add_library(client client.cpp include/sim/client.h)
+file(GLOB WIDGET_SRCS widgets/*.cpp)
+
+add_library(client client.cpp ${WIDGET_SRCS})
 target_include_directories(client PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         ${QWT_INCLUDE_DIR})
 target_link_libraries(client sim core hal Qt5::Widgets ${QWT_LIBRARY} dl)
 
-add_library(smartmouse_simulator smartmouse_simulator.cpp ${WIDGET_SRCS} simulator.qrc)
+add_library(smartmouse_simulator smartmouse_simulator.cpp simulator.qrc)
 target_include_directories(smartmouse_simulator PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
 target_link_libraries(smartmouse_simulator client server core)
+
+file(GLOB WIDGET_SRCS widgets/*.cpp)
+
