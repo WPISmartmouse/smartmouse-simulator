@@ -1,5 +1,7 @@
 workspace.xml
+*.info
 cmake-build-debug
 *build*
 *.swp
 venv
+gcov_output
