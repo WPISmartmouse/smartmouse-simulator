@@ -242,7 +242,25 @@ def test_conf(args, root, conf):
         if not success:
             return False
 
+    # Run ctest
     cmd = ["ctest", "--output-on-failure"]
+    result = subprocess.run(cmd, cwd=cwd)
+    if result.returncode:
+        print(colorama.Fore.RED, end='')
+        print("Command failed: {} in directory {}".format(cmd, cwd))
+        print(colorama.Fore.RESET, end='')
+        return False
+
+    # Run lcov and generate HTML reports
+    cmd = ["lcov", "-c", "--directory", cwd, "--output-file", "main_coverage.info"]
+    result = subprocess.run(cmd, cwd=cwd)
+    if result.returncode:
+        print(colorama.Fore.RED, end='')
+        print("Command failed: {} in directory {}".format(cmd, cwd))
+        print(colorama.Fore.RESET, end='')
+        return False
+
+    cmd = ["genhtml", "main_coverage.info", "--output-directory", "gcov_output"]
     result = subprocess.run(cmd, cwd=cwd)
     if result.returncode:
         print(colorama.Fore.RED, end='')

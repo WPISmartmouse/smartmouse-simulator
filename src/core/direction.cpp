@@ -1,10 +1,6 @@
 #include <core/direction.h>
 #include <core/math.h>
 
-#if !defined M_PI
-#define M_PI 3.14159265358979
-#endif
-
 namespace ssim {
 
 char opposite_direction(char c) {
