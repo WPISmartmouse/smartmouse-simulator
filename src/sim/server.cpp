@@ -1,4 +1,5 @@
 #include <optional>
+#include <chrono>
 #include <numeric>
 
 #include <core/math.h>
@@ -9,16 +10,9 @@
 
 namespace ssim {
 
-Server::Server()
-    : sim_time_(Time::Zero),
-      steps_(0ul),
-      pause_(true),
-      stationary_(false),
-      quit_(false),
-      ns_of_sim_per_step_(1000000u),
-      max_cells_to_check_(0),
-      pause_at_steps_(0),
-      real_time_factor_(1) {
+using namespace std::chrono_literals;
+
+Server::Server() {
   Start();
 }
 
@@ -44,14 +38,13 @@ void Server::RunLoop() {
 
 bool Server::Run() {
   // Handle stepping forward in time
-  auto update_rate = Time(0, ns_of_sim_per_step_);
-  auto start_step_time = Time::GetWallTime();
-  auto desired_step_time = update_rate / real_time_factor_;
-  auto desired_end_time = start_step_time + desired_step_time;
+  auto start_step_time = std::chrono::steady_clock::now();
+  auto desired_step_time_ns = ns_of_sim_per_step_ / real_time_factor_;
+  auto desired_end_time = start_step_time + desired_step_time_ns;
 
   // special case when update_rate is zero, like on startup.
-  if (desired_step_time == 0) {
-    Time::MSleep(1);
+  if (desired_step_time_ns.count() == 0.0) {
+    std::this_thread::sleep_for(1ms);
     return false;
   }
 
@@ -62,34 +55,25 @@ bool Server::Run() {
   if (pause_at_steps_ > 0 && pause_at_steps_ == steps_) {
     pause_at_steps_ = 0;
     pause_ = true;
-    Time::MSleep(1);
+    std::this_thread::sleep_for(1ms);
     return false;
   }
 
   if (pause_) {
-    Time::MSleep(1);
+    std::this_thread::sleep_for(1ms);
     return false;
   }
-
-  // Dequeue all the pending function calls and execute them
-//  while (!queue_.empty()) {
-//    queue_.pop_front()();
-//  }
 
   // Update the world and step the robot controller
   Step();
 
   // Sleep
-  auto end_step_time = Time::GetWallTime();
-  if (end_step_time > desired_end_time) {
-    // FIXME: do proper logging control
-    // std::cout << "step took too long. Skipping sleep." << std::endl;
-  } else {
-    auto sleep_time = desired_end_time - end_step_time;
-    Time::Sleep(sleep_time);
+  auto end_step_time = std::chrono::steady_clock::now();
+  auto sleep_time = desired_end_time - end_step_time;
+  if (sleep_time.count() > 0) {
+    std::this_thread::sleep_for(sleep_time);
   }
 
-  // auto actual_end_step_time = Time::GetWallTime();
   // double rtf = update_rate.Double() / (actual_end_step_time - start_step_time).Double();
 
   return false;
@@ -97,10 +81,10 @@ bool Server::Run() {
 
 void Server::Step() {
   // update sim time
-  auto dt = Time(0, ns_of_sim_per_step_);
-  sim_time_ += dt;
+  global_robot_description.system_clock.sim_time += ns_of_sim_per_step_;
 
-  UpdateRobotState(dt.Double());
+  const auto dt_s = std::chrono::duration_cast<std::chrono::duration<double>>(ns_of_sim_per_step_).count();
+  UpdateRobotState(dt_s);
 
   global_plugin->Step();
 
@@ -216,11 +200,8 @@ void Server::UpdateRobotState(double dt) {
 }
 
 void Server::ResetTime() {
-  sim_time_ = Time::Zero;
   steps_ = 0UL;
   pause_at_steps_ = 0ul;
-
-  PublishWorldStats(0);
 }
 
 void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
@@ -243,14 +224,6 @@ void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
   cmd_.right.abstract_force = 0;
 
   global_plugin->Setup();
-}
-
-void Server::PublishWorldStats(double rtf) {
-  WorldStatistics world_statistics;
-  world_statistics.step = steps_;
-  world_statistics.time_s = sim_time_.sec;
-  world_statistics.time_ns = sim_time_.nsec;
-  world_statistics.real_time_factor = rtf;
 }
 
 void Server::OnServerControl(ServerControl const &server_control) {
@@ -293,7 +266,7 @@ void Server::OnServerControl(ServerControl const &server_control) {
 
 void Server::OnPhysics(PhysicsConfig const &config) {
   if (config.ns_of_sim_per_step) {
-    ns_of_sim_per_step_ = config.ns_of_sim_per_step.value();
+    ns_of_sim_per_step_ = std::chrono::nanoseconds(config.ns_of_sim_per_step.value());
   }
   if (config.real_time_factor) {
     if (config.real_time_factor >= 1e-3 && config.real_time_factor <= 10) {
@@ -313,10 +286,6 @@ void Server::OnRobotCommand(RobotCommand const &cmd) {
 
 void Server::Join() {
   thread_->join();
-}
-
-unsigned int Server::getNsOfSimPerStep() const {
-  return ns_of_sim_per_step_;
 }
 
 double Server::ComputeSensorDistToWall(SensorDescription sensor) {
@@ -366,10 +335,12 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
 }
 
 void Server::ComputeMaxSensorRange() {
-  auto const max_range = std::accumulate(global_robot_description.sensors.cbegin(), global_robot_description.sensors.cend(), 0.0,
-                                         [&](double range, SensorDescription const &sensor) { return std::max(range,
-                                                                                                              ComputeSensorRange(
-                                                                                                                  sensor));
+  auto const max_range = std::accumulate(global_robot_description.sensors.cbegin(),
+                                         global_robot_description.sensors.cend(), 0.0,
+                                         [&](double range, SensorDescription const &sensor) {
+                                           return std::max(range,
+                                                           ComputeSensorRange(
+                                                               sensor));
                                          });
 
   max_cells_to_check_ = (unsigned int) std::ceil(toCellUnits(max_range));

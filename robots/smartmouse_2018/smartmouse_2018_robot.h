@@ -37,6 +37,8 @@ class Smartmouse2018Robot : public ssim::Robot {
 
   Smartmouse2018Robot();
 
+  ~Smartmouse2018Robot() = default;
+
   ssim::SensorReading checkWalls() override;
 
   void Setup() override;

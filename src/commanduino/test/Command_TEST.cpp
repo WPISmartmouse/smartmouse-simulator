@@ -1,5 +1,5 @@
+#include <chrono>
 #include <cstdlib>
-
 #include <utility>
 
 #include <hal/util.h>
@@ -12,7 +12,7 @@
 ssim::RobotDescription ssim::global_robot_description = {};
 
 class MockCommand : public Command {
-public:
+ public:
   bool mock_is_initialized = false;
 
   MockCommand() : Command("Mock Command") {}
@@ -27,6 +27,21 @@ public:
   bool isFinished() override {
     ssim::print("isFinished MockCommand %p \n", this);
     return true;
+  }
+};
+
+class MockTimedCommand : public Command {
+public:
+  MockTimedCommand() : Command("Mock Command") {}
+
+  ~MockTimedCommand() override = default;
+
+  void initialize() override {
+    setTimeout(1);
+  }
+
+  bool isFinished() override {
+    return isTimedOut();
   }
 };
 

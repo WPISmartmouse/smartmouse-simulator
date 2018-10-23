@@ -3,6 +3,7 @@
 
 #include <hal/util.h>
 #include <hal/hal.h>
+#include <chrono>
 #include "Arduino.h"
 
 void digitalWrite(unsigned int pin, bool high) {
@@ -46,9 +47,11 @@ void delayMicroseconds(unsigned long long micros) {
   // TODO: sleep
 }
 
-long millis() {
-  // TODO: get simulation time in millis
-  return 0;
+unsigned long millis() {
+  using ul_milli = std::chrono::duration<unsigned long, std::milli>;
+  const auto millis = std::chrono::duration_cast<ul_milli>(
+      ssim::global_robot_description.system_clock.sim_time);
+  return millis.count();
 }
 
 void digitalWriteFast(unsigned int pin, bool high) {

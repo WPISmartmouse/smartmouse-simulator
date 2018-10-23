@@ -39,7 +39,7 @@ void delayMicroseconds(unsigned long long micros);
 
 long micros();
 
-long millis();
+unsigned long millis();
 
 void pinMode(unsigned int pin, unsigned int mode);
 

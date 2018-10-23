@@ -6,7 +6,6 @@
 #include <core/plugin.h>
 
 #include <sim/conversions.h>
-#include <sim/time.h>
 
 namespace ssim {
 
@@ -40,15 +39,11 @@ class Server {
 
   void Join();
 
-  unsigned int getNsOfSimPerStep() const;
-
   void UpdateRobotState(double dt);
 
   void ResetRobot(double reset_col, double reset_row, double reset_yaw);
 
   void ResetTime();
-
-  void PublishWorldStats(double rtf);
 
   void ComputeMaxSensorRange();
 
@@ -56,13 +51,12 @@ class Server {
 
   double ComputeSensorDistToWall(SensorDescription sensor);
 
-  Time sim_time_;
   unsigned long steps_ = 0UL;
   bool pause_ = true;
-  bool stationary_;
+  bool stationary_ = false;
   bool quit_ = false;
-  unsigned int ns_of_sim_per_step_ = 1000000u;
-  unsigned int max_cells_to_check_;
+  std::chrono::nanoseconds ns_of_sim_per_step_{1000000};
+  unsigned int max_cells_to_check_ = 0;
   unsigned long pause_at_steps_ = 0ul;
   double real_time_factor_ = 1.0;
   AbstractMaze maze_;

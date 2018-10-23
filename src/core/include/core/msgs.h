@@ -1,10 +1,11 @@
 #pragma once
 
-#include <cstdint>
-#include <variant>
-#include <string>
 #include <array>
+#include <chrono>
+#include <cstdint>
 #include <map>
+#include <string>
+#include <variant>
 #include <vector>
 
 #include <core/math.h>
@@ -12,26 +13,26 @@
 namespace ssim {
 
 struct Point2 {
-  double x;
-  double y;
+  double x = 0;
+  double y = 0;
 };
 
 struct Point3 {
-  double x;
-  double y;
-  double z;
+  double x = 0;
+  double y = 0;
+  double z = 0;
 };
 
 struct RowColYaw {
-  double row;
-  double col;
-  double yaw;
+  double row = 0;
+  double col = 0;
+  double yaw = 0;
 };
 
 struct XYTheta {
-  double x;
-  double y;
-  double theta;
+  double x = 0;
+  double y = 0;
+  double theta = 0;
 };
 
 
@@ -42,16 +43,16 @@ struct SensorDescription {
  * distance in meters = a - (adc - c - adc_offset)^b;
  */
   XYTheta const p;
-  double const min_range_m;
-  double const max_range_m;
-  double const beam_angle_rad;
-  double const a;
-  double const b;
-  double const c;
-  double calibration_offset;
-  double const calibration_distance;
-  unsigned int const adc_bits;
-  unsigned int adc_value;
+  double const min_range_m = 0;
+  double const max_range_m = 0;
+  double const beam_angle_rad = 0;
+  double const a = 0;
+  double const b = 0;
+  double const c = 0;
+  double calibration_offset = 0;
+  double const calibration_distance = 0;
+  unsigned int const adc_bits = 0;
+  unsigned int adc_value = 0;
 
   // We don't use the adc_value in our class because on real hardware that won't be set!
   double to_meters(double adc_value) const;
@@ -60,33 +61,33 @@ struct SensorDescription {
 };
 
 struct DigitalInputDescription {
-  bool state;
+  bool state = false;
 };
 
 struct DigitalOutputDescription {
-  bool state;
+  bool state = false;
 };
 
 struct AnalogInputDescription {
-  unsigned int const n_bits;
-  unsigned int adc_value;
+  unsigned int const n_bits = 0;
+  unsigned int adc_value = 0;
 };
 
 struct AnalogOutputDescription {
-  unsigned int const n_bits;
-  unsigned int adc_value;
+  unsigned int const n_bits = 0;
+  unsigned int adc_value = 0;
 };
 
 struct EncoderDescription {
-  unsigned int const n_bits;
-  unsigned int ticks;
+  unsigned int const n_bits = 0;
+  unsigned int ticks = 0;
 };
 
 struct LEDDescription {
-  int const r;
-  int const g;
-  int const b;
-  bool state;
+  int const r = 0;
+  int const g = 0;
+  int const b = 0;
+  bool state = false;
 };
 
 enum class MotorPinType {
@@ -96,25 +97,29 @@ enum class MotorPinType {
 
 struct MotorPinDescription {
   MotorPinType const motor_pin_type;
-  unsigned int value;
+  unsigned int value = 0;
 };
 
 struct MotorDescription {
-  double const u_kinetic;
-  double const u_static;
-  double const J;
-  double const b;
-  double const R;
-  double const L;
-  double const K;
+  double const u_kinetic = 0;
+  double const u_static = 0;
+  double const J = 0;
+  double const b = 0;
+  double const R = 0;
+  double const L = 0;
+  double const K = 0;
 };
 
 struct WheelsDescription {
   Point3 const left_wheel_position;
   Point3 const right_wheel_position;
-  double const radius;
-  double const thickness;
-  double const u_static;
+  double const radius = 0;
+  double const thickness = 0;
+  double const u_static = 0;
+};
+
+struct SystemClock {
+  std::chrono::nanoseconds sim_time;
 };
 
 using PinVariant = std::variant<AnalogInputDescription,
@@ -134,17 +139,18 @@ struct RobotDescription {
   EncoderDescription right_encoder;
   std::vector<SensorDescription> sensors;
   std::map<int, PinVariant> pin_map;
-  double const track_width_cu;
-  double const min_abstract_force;
-  double const min_speed_cups;
-  double const max_speed_cups;
+  double const track_width_cu = 0;
+  double const min_abstract_force = 0;
+  double const min_speed_cups = 0;
+  double const max_speed_cups = 0;
+  SystemClock system_clock;
 };
 
 struct WheelPhysicsState {
-  double theta; // radians
-  double omega; // radians/second
-  double alpha;
-  double current; // amperes
+  double theta; // radian = 0s
+  double omega; // radians/secon = 0d
+  double alpha = 0;
+  double current; // ampere = 0s
 };
 
 struct RobotSimState {
