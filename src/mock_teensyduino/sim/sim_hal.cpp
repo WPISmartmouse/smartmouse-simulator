@@ -1,9 +1,10 @@
+#include <chrono>
 #include <iostream>
-#include <fmt/format.h>
+#include <thread>
 
+#include <fmt/format.h>
 #include <hal/util.h>
 #include <hal/hal.h>
-#include <chrono>
 #include "Arduino.h"
 
 void digitalWrite(unsigned int pin, bool high) {
@@ -20,7 +21,6 @@ void analogWrite(unsigned int pin, unsigned int value) {
 }
 
 unsigned int analogRead(unsigned int pin) {
-  // TODO: implement me
   const auto it = ssim::global_robot_description.pin_map.find(pin);
   if (it == ssim::global_robot_description.pin_map.cend()) {
     throw std::runtime_error{fmt::format("pin {} is not in the pin map.", pin)};
@@ -39,12 +39,14 @@ void pinMode(unsigned int pin, unsigned int mode) {
 }
 
 long micros() {
-  // TODO: get simulation time in micros
-  return 0;
+  using ul_micro = std::chrono::duration<unsigned long, std::micro>;
+  const auto micros = std::chrono::duration_cast<ul_micro>(
+      ssim::global_robot_description.system_clock.sim_time);
+  return micros.count();
 }
 
 void delayMicroseconds(unsigned long long micros) {
-  // TODO: sleep
+  std::this_thread::sleep_for(std::chrono::microseconds(micros));
 }
 
 unsigned long millis() {
