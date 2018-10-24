@@ -27,7 +27,7 @@ Node *Node::neighbor(Direction const dir) const {
     case Direction::W:
       return neighbors[3];
     default:
-      return nullptr;
+      throw std::invalid_argument("neighbor requested in an invalid direction");
   }
 }
 

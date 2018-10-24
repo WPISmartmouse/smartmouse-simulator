@@ -22,8 +22,6 @@ public:
 
   explicit Mouse(AbstractMaze maze);
 
-  Mouse(AbstractMaze maze, unsigned int starting_row, unsigned int starting_col);
-
   virtual ~Mouse() = default;
 
   void reset();

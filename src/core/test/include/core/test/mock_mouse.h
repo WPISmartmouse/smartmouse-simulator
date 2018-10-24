@@ -7,5 +7,6 @@ public:
   ssim::SensorReading checkWalls() override;
   MockMouse() = default;
   ~MockMouse() override = default;
+  void reset_to(unsigned int r, unsigned int c);
   explicit MockMouse(ssim::AbstractMaze &maze);
 };

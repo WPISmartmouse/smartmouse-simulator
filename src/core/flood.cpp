@@ -1,3 +1,5 @@
+#include <exception>
+
 #include <core/flood.h>
 
 namespace ssim {
@@ -52,7 +54,7 @@ motion_primitive_t Flood::planNextStep() {
   // This will results in the longest path where we know there are no walls
   route_t nextPath = all_wall_maze.truncate(mouse->getRow(), mouse->getCol(), mouse->getDir(), no_wall_path);
   if (nextPath.empty()) {
-    return motion_primitive_t{0, Direction::INVALID};
+    throw std::length_error("Plan length was zero because the first step in the path was deemed impossible.");
   } else {
     return nextPath.at(0);
   }
@@ -76,12 +78,14 @@ bool Flood::isFinished() {
   unsigned int r = mouse->getRow();
   unsigned int c = mouse->getCol();
   unsigned int const C = SIZE / 2;
-  if (goal == Solver::Goal::CENTER) {
-    return !solvable || ((r >= C - 1 && r <= C) && (c >= C - 1 && c <= C));
-  } else if (goal == Solver::Goal::START) {
-    return !solvable || (r == 0 && c == 0);
-  } else {
-    return false;
+  switch (goal)
+  {
+    case Solver::Goal::CENTER:
+      return !solvable || ((r >= C - 1 && r <= C) && (c >= C - 1 && c <= C));
+    case Solver::Goal::START:
+      return !solvable || (r == 0 && c == 0);
+    default:
+      throw std::invalid_argument("The Flood solver does not support the requested goal");
   }
 }
 

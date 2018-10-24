@@ -5,6 +5,30 @@
 
 #include "include/core/test/mock_mouse.h"
 
+TEST(FloodTest, invalid) {
+  auto ssim_env = std::getenv("SSIM");
+
+  EXPECT_TRUE(ssim_env);
+
+  auto project_root = std::string(ssim_env);
+  std::ifstream fs(project_root + "/mazes/tests/impossible.mz");
+  ssim::AbstractMaze maze(fs);
+
+  MockMouse mouse(maze);
+  ssim::Flood flood(&mouse);
+
+  flood.setup();
+  flood.setGoal(ssim::Flood::Goal::START);
+  auto route = flood.solve();
+  EXPECT_EQ(route.size(), 0u);
+
+  mouse.reset_to(1, 0);
+  flood.setup();
+  flood.setGoal(ssim::Flood::Goal::CENTER);
+
+  EXPECT_EQ(route.size(), 0u);
+}
+
 TEST(FloodTest, Maze2017) {
   auto ssim_env = std::getenv("SSIM");
 

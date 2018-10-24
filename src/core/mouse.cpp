@@ -8,10 +8,6 @@ namespace ssim {
 
 Mouse::Mouse(AbstractMaze maze) : maze(maze) {}
 
-Mouse::Mouse(AbstractMaze maze, unsigned int starting_row, unsigned int starting_col) : maze(maze), row(starting_row),
-                                                                                         col(starting_col),
-                                                                                         dir(Direction::E) {}
-
 void Mouse::reset() {
   row = 0;
   col = 0;

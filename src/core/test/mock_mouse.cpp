@@ -3,6 +3,12 @@
 MockMouse::MockMouse(ssim::AbstractMaze &maze) : Mouse(maze) {
 }
 
+void MockMouse::reset_to(unsigned int const r, unsigned int const c) {
+  reset();
+  this->row = r;
+  this->col = c;
+}
+
 ssim::SensorReading MockMouse::checkWalls() {
   ssim::Node *n;
   auto valid = maze.get_node(&n, getRow(), getCol());
