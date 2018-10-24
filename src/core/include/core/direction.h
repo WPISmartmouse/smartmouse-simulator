@@ -30,9 +30,7 @@ Direction int_to_dir(int i);
 /**
  * \brief increments the direction in the order N, E, S, W, N, ...
  */
-Direction operator++(Direction &dir, int);
-
-Direction operator--(Direction &dir, int);
+const Direction operator++(Direction &dir, int);
 
 /**
  * \brief returns the opposite direction of the input direction

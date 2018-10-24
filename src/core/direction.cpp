@@ -49,9 +49,6 @@ Direction right_of_dir(Direction dir) {
 }
 
 Direction int_to_dir(int i) {
-  if (i < 0 || i > 3) {
-    return Direction::INVALID;
-  }
   switch (i) {
     case 0:
       return Direction::N;
@@ -66,29 +63,7 @@ Direction int_to_dir(int i) {
   }
 }
 
-Direction operator--(Direction &dir, int) {
-  switch (dir) {
-    case Direction::N:
-      dir = Direction::W;
-      break;
-    case Direction::E:
-      dir = Direction::N;
-      break;
-    case Direction::S:
-      dir = Direction::E;
-      break;
-    case Direction::W:
-      dir = Direction::S;
-      break;
-    case Direction::Last:
-      dir = Direction::W;
-    default:
-      dir = Direction::INVALID;
-  }
-  return dir;
-}
-
-Direction operator++(Direction &dir, int) {
+const Direction operator++(Direction &dir, int) {
   switch (dir) {
     case Direction::N:
       dir = Direction::E;
@@ -109,11 +84,11 @@ Direction operator++(Direction &dir, int) {
 }
 
 char yaw_to_char(double yaw) {
-  if (-M_PI_4 < yaw && yaw < M_PI_4) {
+  if (-M_PI_4 < yaw && yaw <= M_PI_4) {
     return 'E';
-  } else if (M_PI_4 < yaw && yaw < 3 * M_PI_4) {
+  } else if (M_PI_4 < yaw && yaw <= 3 * M_PI_4) {
     return 'S';
-  } else if (-3 * M_PI_4 < yaw && yaw < -M_PI_4) {
+  } else if (-3 * M_PI_4 < yaw && yaw <= -M_PI_4) {
     return 'N';
   } else {
     return 'W';
@@ -121,11 +96,11 @@ char yaw_to_char(double yaw) {
 }
 
 Direction yaw_to_dir(double yaw) {
-  if (-M_PI_4 < yaw && yaw < M_PI_4) {
+  if (-M_PI_4 < yaw && yaw <= M_PI_4) {
     return Direction::E;
-  } else if (M_PI_4 < yaw && yaw < 3 * M_PI_4) {
+  } else if (M_PI_4 < yaw && yaw <= 3 * M_PI_4) {
     return Direction::S;
-  } else if (-3 * M_PI_4 < yaw && yaw < -M_PI_4) {
+  } else if (-3 * M_PI_4 < yaw && yaw <= -M_PI_4) {
     return Direction::N;
   } else {
     return Direction::W;
