@@ -8,7 +8,7 @@
 TEST(FloodTest, Maze2017) {
   auto ssim_env = std::getenv("SSIM");
 
-  ASSERT_TRUE(ssim_env);
+  EXPECT_TRUE(ssim_env);
 
   auto project_root = std::string(ssim_env);
   std::ifstream fs(project_root + "/mazes/tests/2017.mz");
@@ -20,23 +20,36 @@ TEST(FloodTest, Maze2017) {
   flood.setup();
   auto route = flood.solve();
 
-  ASSERT_TRUE(flood.isSolvable());
-  auto constexpr expected_route_str = "3E1S3E1N1E2S4E1N2W1N3E1S2E1S1W1S2E3S1W1N2W2N7W1N2W1S2W2S1E1N4E1S1W1S1E1S2W1S2"
-                                      "W1S2E1S1E2N1E1S2E3S4W1N1W2S1E2S5E4N1E1S1E1N1E3S1E6N2W1N1W3N2W2S1E2S1W";
-  ASSERT_EQ(ssim::route_to_string(route), expected_route_str);
+  // On the first run through we will get a suboptimal path
+  EXPECT_TRUE(flood.isSolvable());
 
+  // We find a better path
+  mouse.reset();
+  route = flood.solve();
+
+  EXPECT_TRUE(flood.isSolvable());
+
+  // We now find the optimal path
+  mouse.reset();
+  route = flood.solve();
+
+  EXPECT_TRUE(flood.isSolvable());
+  auto constexpr expected_route_str = "3E1S3E1N1E2S4E1N2W1N3E1S2E1S1W1S2E4S1W1S3W1N1W3N2W2S1E2S1W";
+  EXPECT_EQ(ssim::route_to_string(route), expected_route_str);
+
+  // Without resetting, go in reverse!
   flood.setGoal(ssim::Flood::Goal::START);
   route = flood.solve();
 
-  ASSERT_TRUE(flood.isSolvable());
-  auto constexpr expected_route_reverse_str = "3E1S3E1N1E2S4E1N2W1N3E1S2E1S1W1S2E4S1W1S3W1N1W3N2W2S1E2S1W";
-  ASSERT_EQ(ssim::route_to_string(route), expected_route_reverse_str);
+  EXPECT_TRUE(flood.isSolvable());
+  auto constexpr expected_route_reverse_str = "1E2N1W2N2E3S1E1S3E1N1E4N2W1N1E1N2W1N3W1S2E1S4W2N1W1S3W1N3W";
+  EXPECT_EQ(ssim::route_to_string(route), expected_route_reverse_str);
 }
 
 TEST(FloodTest, Maze2016) {
   auto ssim_env = std::getenv("SSIM");
 
-  ASSERT_TRUE(ssim_env);
+  EXPECT_TRUE(ssim_env);
 
   auto project_root = std::string(ssim_env);
   std::ifstream fs(project_root + "/mazes/tests/2016.mz");
@@ -47,17 +60,25 @@ TEST(FloodTest, Maze2016) {
 
   flood.setup();
   auto route = flood.solve();
+  flood.setGoal(ssim::Flood::Goal::START);
+  route = flood.solve();
+  flood.setGoal(ssim::Flood::Goal::CENTER);
+  route = flood.solve();
+  flood.setGoal(ssim::Flood::Goal::START);
+  route = flood.solve();
+  flood.setGoal(ssim::Flood::Goal::CENTER);
+  route = flood.solve();
 
-  ASSERT_TRUE(flood.isSolvable());
-  auto constexpr expected_route_str = "2E2S3E1N2E1S1E2S1E1S1E1N1E1S1E1S1E1N1E2S3W2S1W2N1W1S1W";
-  ASSERT_EQ(ssim::route_to_string(route), expected_route_str);
+  EXPECT_TRUE(flood.isSolvable());
+  auto constexpr expected_route_str = "2E2S1E1S1E1S1W1S1W2S4E1N3E2S1W";
+  EXPECT_EQ(ssim::route_to_string(route), expected_route_str);
 
   flood.setGoal(ssim::Flood::Goal::START);
   route = flood.solve();
 
-  ASSERT_TRUE(flood.isSolvable());
-  auto constexpr expected_route_reverse_str = "2E2S3E1N2E3S1W1S2W1S1W1S3E1N3E2S1W";
-  ASSERT_EQ(ssim::route_to_string(route), expected_route_reverse_str);
+  EXPECT_TRUE(flood.isSolvable());
+  auto constexpr expected_route_reverse_str = "1E2N3W1S4W2N1E1N1E1N1W1N1W2N2W";
+  EXPECT_EQ(ssim::route_to_string(route), expected_route_reverse_str);
 }
 
 TEST(FloodTest, RandomMaze) {
@@ -70,10 +91,10 @@ TEST(FloodTest, RandomMaze) {
     flood.setup();
     auto route = flood.solve();
 
-    ASSERT_TRUE(flood.isSolvable());
+    EXPECT_TRUE(flood.isSolvable());
 
     // The shortest possible route is directly E then S
     // which contains the same number of steps as the maze size
-    ASSERT_GE(ssim::expanded_route_length(route), ssim::SIZE);
+    EXPECT_GE(ssim::expanded_route_length(route), ssim::SIZE);
   }
 }

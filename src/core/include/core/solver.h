@@ -21,7 +21,7 @@ public:
 
   virtual route_t solve() = 0;
 
-  virtual void teardown() = 0;
+  virtual void teardown() {};
 
   virtual void setGoal(Goal goal) = 0;
 

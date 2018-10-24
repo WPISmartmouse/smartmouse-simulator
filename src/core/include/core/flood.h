@@ -18,17 +18,15 @@ public:
 
   explicit Flood(Mouse *mouse);
 
-  virtual void setup() override;
+  void setup() override;
 
-  virtual motion_primitive_t planNextStep() override;
+  motion_primitive_t planNextStep() override;
 
-  virtual route_t solve() override;
+  route_t solve() override;
 
-  virtual void teardown() override;
+  bool isFinished() override;
 
-  virtual bool isFinished() override;
-
-  virtual void setGoal(Solver::Goal goal) override;
+  void setGoal(Solver::Goal goal) override;
 
   bool done;
 

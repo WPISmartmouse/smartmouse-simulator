@@ -59,7 +59,7 @@ AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
 }
 #endif
 
-int AbstractMaze::get_node(Node **const out, const unsigned int row, const unsigned int col) const {
+int AbstractMaze::get_node(Node ** const out, const unsigned int row, const unsigned int col) const {
   if (col < 0 || col >= SIZE || row < 0 || row >= SIZE) {
     return Node::OUT_OF_BOUNDS;
   }

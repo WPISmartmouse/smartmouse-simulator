@@ -35,7 +35,7 @@ struct motion_primitive_t {
   }
 };
 
-typedef std::vector<motion_primitive_t> route_t;
+using route_t = std::vector<motion_primitive_t>;
 
 std::string route_to_string(route_t const &route);
 
@@ -65,16 +65,12 @@ double constexpr toCellUnits(double meters) noexcept {
 
 double constexpr WALL_THICKNESS_CU = toCellUnits(WALL_THICKNESS_M);
 double constexpr HALF_WALL_THICKNESS_CU = toCellUnits(HALF_WALL_THICKNESS_M);
-double constexpr SIZE_CU = toCellUnits(SIZE_M);
 
 class AbstractMaze {
 
-public:
+ public:
 
   bool solved;
-  route_t fastest_route;
-  route_t fastest_theoretical_route;
-  route_t path_to_next_goal;
 
   /** \brief allocates and initializes a node
    * allocates a maze of the given size and sets all links in graph to be null. Naturally, it's column major.
@@ -84,7 +80,9 @@ public:
   AbstractMaze(AbstractMaze const &m);
 
 #ifndef REAL
+
   AbstractMaze(std::ifstream &fs);
+
 #endif
 
   ~AbstractMaze();
@@ -135,7 +133,7 @@ public:
    * \param dir the direction of the neighbor you want
    * \return 0 on success, OUT_OF_BOUNDS, or -1 on NULL
    */
-  int get_node_in_direction(Node ** const out, unsigned int row, unsigned int col, Direction dir) const;
+  int get_node_in_direction(Node **const out, unsigned int row, unsigned int col, Direction dir) const;
 
   /** \brief add all the neighbors
    */
