@@ -25,7 +25,7 @@ class Client : public QMainWindow {
  public:
   static const int kRestartCode = 1337;
 
-  Client(Server &server, QMainWindow *parent = nullptr);
+  explicit Client(Server &server, QMainWindow *parent = nullptr);
 
   void closeEvent(QCloseEvent *event) override;
 
@@ -97,8 +97,8 @@ class Client : public QMainWindow {
   QString maze_files_dir_;
   QString default_maze_file_name_;
   Ui::MainWindow *ui_;
-  MazeWidget maze_widget_;
-  StateWidget state_widget_;
+  MazeWidget *maze_widget_;
+  StateWidget *state_widget_;
   QShortcut *shortcut;
   Server &server_;
 };

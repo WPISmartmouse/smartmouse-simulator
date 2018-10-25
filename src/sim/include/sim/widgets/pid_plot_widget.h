@@ -1,11 +1,10 @@
 #pragma once
 
-#include <list>
-
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_scale_draw.h>
 
+#include <core/msgs.h>
 #include <sim/widgets/abstract_tab.h>
 #include <sim/widgets/pid_series_data.h>
 
@@ -16,11 +15,13 @@ class PidPlotWidget;
 
 namespace ssim {
 
+class Client;
+
 class PIDPlotWidget : public QWidget, public AbstractTab {
  Q_OBJECT
 
  public:
-  PIDPlotWidget();
+  explicit PIDPlotWidget(Client &client);
 
   void Clear();
 
@@ -28,7 +29,9 @@ class PIDPlotWidget : public QWidget, public AbstractTab {
 
   const QString GetTabName() override;
 
-  void PIDCallback(const smartmouse::msgs::DebugState &msg);
+  void PIDSetpointsCallback(const ssim::PIDSetpoints &msg);
+
+  void PIDConstantsCallback(const ssim::PIDConstants &msg);
 
  signals:
 
@@ -52,6 +55,7 @@ class PIDPlotWidget : public QWidget, public AbstractTab {
   PlotSeriesData *right_setpoint_;
   PlotSeriesData *right_actual_;
   const unsigned int capacity_;
+  Client &client_;
 };
 
 } // namespace ssim

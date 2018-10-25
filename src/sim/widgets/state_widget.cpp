@@ -1,12 +1,13 @@
 #include <sstream>
 #include <QtWidgets/QHBoxLayout>
-#include <sim/lib/SimMouse.h>
-#include <sim/simulator/lib/common/TopicNames.h>
-#include <sim/simulator/lib/widgets/StateWidget.h>
+
+#include <sim/widgets/state_widget.h>
 
 #include "ui_statewidget.h"
 
-StateWidget::StateWidget() : AbstractTab(), ui_(new Ui::state_widget) {
+namespace ssim {
+
+StateWidget::StateWidget(Client &client) : AbstractTab(), client_(client), ui_(new Ui::StateWidget) {
   ui_->setupUi(this);
 
   pid_widget_ = new PIDPlotWidget();
@@ -15,10 +16,6 @@ StateWidget::StateWidget() : AbstractTab(), ui_(new Ui::state_widget) {
   ui_->charts_tabs->addTab(pid_widget_, pid_widget_->GetTabName());
   ui_->charts_tabs->addTab(control_widget_, control_widget_->GetTabName());
   ui_->charts_tabs->addTab(sensor_widget_, sensor_widget_->GetTabName());
-
-  this->node_.Subscribe(TopicNames::kRobotSimState, &StateWidget::StateCallback, this);
-  this->node_.Subscribe(TopicNames::kDebugState, &StateWidget::DebugStateCallback, this);
-  this->node_.Subscribe(TopicNames::kRobotCommand, &StateWidget::RobotCommandCallback, this);
 
   connect(this, SIGNAL(SetLeftVelocity(QString)), ui_->left_velocity_edit,
           SLOT(setText(QString)), Qt::QueuedConnection);
@@ -65,9 +62,6 @@ void StateWidget::DebugStateCallback(const smartmouse::msgs::DebugState &msg) {
 
 void StateWidget::StateCallback(const smartmouse::msgs::RobotSimState &msg) {
   auto p = msg.p();
-  true_row = p.row();
-  true_col = p.col();
-  true_yaw = p.yaw();
   this->SetLeftVelocity(QString::asprintf("%0.3f c/s", smartmouse::kc::radToCU(msg.left_wheel().omega())));
   this->SetRightVelocity(QString::asprintf("%0.3f c/s", smartmouse::kc::radToCU(msg.right_wheel().omega())));
   this->SetLeftAcceleration(QString::asprintf("%0.3f c/s^2", smartmouse::kc::radToCU(msg.left_wheel().alpha())));
@@ -96,3 +90,5 @@ void StateWidget::RobotCommandCallback(const smartmouse::msgs::RobotCommand &msg
 const QString StateWidget::GetTabName() {
   return QString("State Widget");
 }
+
+} // namespace ssim

@@ -4,14 +4,12 @@
 #include <QtWidgets/QBoxLayout>
 #include <qwt_plot_renderer.h>
 
-#include <sim/simulator/lib/widgets/PIDPlotWidget.h>
-#include <sim/simulator/lib/common/TopicNames.h>
-#include <sim/simulator/msgs/msgs.h>
-#include <sim/simulator/lib/common/sim_util.h>
-
+#include <sim/widgets/pid_plot_widget.h>
 #include "ui_pidwidget.h"
 
-PIDPlotWidget::PIDPlotWidget() : ui_(new Ui::pid_plot_widget()), capacity_(1000) {
+namespace ssim {
+
+PIDPlotWidget::PIDPlotWidget(Cleitn &client) : ui_(new Ui::PIDPlotWidget()), capacity_(1000), client_(client) {
   ui_->setupUi(this);
 
   left_setpoint_ = new PlotSeriesData("Left Setpoint", Qt::black, capacity_);
@@ -110,3 +108,5 @@ void PIDPlotWidget::Screenshot() {
   grab().save(QString::fromStdString(ss.str()), "png", -1);
   QwtPlotRenderer renderer;
 }
+
+} // namespace ssim

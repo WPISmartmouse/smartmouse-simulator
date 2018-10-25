@@ -9,6 +9,8 @@
 #include <QtWidgets/QPushButton>
 #include <QtCore/QMutex>
 
+namespace ssim {
+
 class PlotSeriesData : public QwtArraySeriesData<QPointF> {
 
  public:
@@ -32,3 +34,6 @@ class PlotSeriesData : public QwtArraySeriesData<QPointF> {
   int num_points_to_remove_;
   QwtPlotCurve *curve;
 };
+
+} // namespace ssim
+

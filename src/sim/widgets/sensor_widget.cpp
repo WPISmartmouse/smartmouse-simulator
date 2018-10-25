@@ -1,13 +1,11 @@
-#include <sim/simulator/lib/widgets/SensorWidget.h>
-#include <sim/simulator/lib/common/TopicNames.h>
+#include <sim/widgets/sensor_widget.h>
 
 #include "ui_sensorwidget.h"
 
-SensorWidget::SensorWidget() : AbstractTab(), ui_(new Ui::sensor_widget) {
-  ui_->setupUi(this);
-  this->node_.Subscribe(TopicNames::kRobotSimState, &SensorWidget::RobotSimStateCallback, this);
-  this->node_.Subscribe(TopicNames::kDebugState, &SensorWidget::DebugStateCallback, this);
+namespace ssim {
 
+SensorWidget::SensorWidget() : AbstractTab(), ui_(new Ui::SensorWidget) {
+  ui_->setupUi(this);
   connect(this, SIGNAL(SetTrueBackLeft(QString)), ui_->true_back_left_edit, SLOT(setText(QString)), Qt::QueuedConnection);
   connect(this, SIGNAL(SetTrueFrontLeft(QString)), ui_->true_front_left_edit, SLOT(setText(QString)), Qt::QueuedConnection);
   connect(this, SIGNAL(SetTrueGeraldLeft(QString)), ui_->true_gerald_left_edit, SLOT(setText(QString)), Qt::QueuedConnection);
@@ -29,7 +27,7 @@ const QString SensorWidget::GetTabName() {
   return QString("Range Sensors");
 }
 
-void SensorWidget::RobotSimStateCallback(const smartmouse::msgs::RobotSimState &msg) {
+void SensorWidget::RobotSimStateCallback(const ssim::RobotSimState &msg) {
   SetTrueBackLeft(QString::number(msg.back_left_m()));
   SetTrueFrontLeft(QString::number(msg.front_left_m()));
   SetTrueGeraldLeft(QString::number(msg.gerald_left_m()));
@@ -47,4 +45,5 @@ void SensorWidget::DebugStateCallback(const smartmouse::msgs::DebugState &msg) {
   SetEstimatedBackRight(QString::number(msg.back_right_m()));
   SetEstimatedFrontRight(QString::number(msg.front_right_m()));
   SetEstimatedGeraldRight(QString::number(msg.gerald_right_m()));
+}
 }

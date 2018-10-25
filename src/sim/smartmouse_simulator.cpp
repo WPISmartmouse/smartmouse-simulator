@@ -8,10 +8,6 @@
 #include <sim/server.h>
 #include <sim/client.h>
 
-void PrintVersionInfo() {
-  printf("smartmouse_simulator v1.0.0\n");
-}
-
 int main(int argc, char *argv[]) {
   int return_code = 0;
   std::unique_ptr<ssim::Client> client;

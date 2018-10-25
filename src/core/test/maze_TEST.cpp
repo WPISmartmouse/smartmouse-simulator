@@ -5,8 +5,6 @@
 
 TEST(MazeTest, insert_motion_primitive_back) {
   ssim::route_t route;
-  ssim::motion_primitive_t N1{.n=1, .d=ssim::Direction::N};
-  ssim::motion_primitive_t S2{.n=2, .d=ssim::Direction::S};
   ssim::motion_primitive_t E1{.n=1, .d=ssim::Direction::E};
   ssim::motion_primitive_t W2{.n=2, .d=ssim::Direction::W};
 

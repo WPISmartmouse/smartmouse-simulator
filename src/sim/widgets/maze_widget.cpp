@@ -2,8 +2,9 @@
 
 #include <QtGui/QPainter>
 
-#include <sim/simulator/lib/widgets/MazeWidget.h>
-#include <lib/common/TopicNames.h>
+#include <sim/widgets/maze_widget.h>
+
+namespace ssim {
 
 const int MazeWidget::kPaddingPx = 24;
 const QBrush MazeWidget::kRobotBrush = QBrush(QColor("#F57C00"));
@@ -11,14 +12,8 @@ QBrush MazeWidget::kWallBrush = QBrush(Qt::red);
 
 MazeWidget::maze_widget() : AbstractTab(), mouse_set_(false) {
   setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::MinimumExpanding);
-  node_.Subscribe(TopicNames::kMaze, &MazeWidget::OnMaze, this);
-  node_.Subscribe(TopicNames::kRobotDescription, &MazeWidget::OnRobotDescription, this);
-  node_.Subscribe(TopicNames::kRobotSimState, &MazeWidget::OnRobotSimState, this);
 
-  QObject::connect(this,
-                   &MazeWidget::MyUpdate,
-                   this,
-                   static_cast<void (QWidget::*)()>(&QWidget::update), Qt::QueuedConnection);
+  QObject::connect(this, &MazeWidget::MyUpdate, this, static_cast<void (QWidget::*)()>(&QWidget::update), Qt::QueuedConnection);
 }
 
 void MazeWidget::paintEvent(QPaintEvent *event) {
@@ -29,7 +24,7 @@ void MazeWidget::paintEvent(QPaintEvent *event) {
     QRect g = this->geometry();
 
     int w = std::min(g.width(), g.height()) - kPaddingPx;
-    double cell_units_to_pixels = w / smartmouse::maze::SIZE_CU;
+    double cell_units_to_pixels = w / ssim::SIZE_CU;
 
     int origin_col = (g.width() - w) / 2;
     int origin_row = (g.height() - w) / 2;
@@ -124,7 +119,7 @@ void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
 
 void MazeWidget::PaintWalls(QPainter &painter, QTransform tf) {
   for (unsigned int row = 0; row < smartmouse::maze::SIZE; row++) {
-    for (unsigned int col= 0; col < smartmouse::maze::SIZE; col++) {
+    for (unsigned int col = 0; col < smartmouse::maze::SIZE; col++) {
       for (auto wall : maze_walls_[row][col]) {
         double c1 = wall.c1();
         double r1 = wall.r1();
@@ -146,19 +141,21 @@ const QString MazeWidget::GetTabName() {
   return QString("Maze View");
 }
 
-void MazeWidget::OnMaze(const smartmouse::msgs::Maze &msg) {
+void MazeWidget::OnMaze(const ssim::abstract_maze &msg) {
   smartmouse::msgs::Convert(msg, maze_walls_);
   emit MyUpdate();
 }
 
-void MazeWidget::OnRobotDescription(const smartmouse::msgs::RobotDescription &msg) {
+void MazeWidget::OnRobotDescription(const ssim::RobotDescription &msg) {
   mouse_ = msg;
   mouse_set_ = true;
   emit MyUpdate();
 }
 
-void MazeWidget::OnRobotSimState(const smartmouse::msgs::RobotSimState &msg) {
+void MazeWidget::OnRobotSimState(const ssim::RobotSimState &msg) {
   robot_state_ = msg;
 
   emit MyUpdate();
 }
+
+} // namespace ssim

@@ -212,9 +212,9 @@ void Client::PublishPIDSetpoints() {
 }
 
 void Client::ConfigureGui() {
-  maze_widget_ = new MazeWidget();
+  maze_widget_ = new MazeWidget(this);
   ui_->gui_tabs->addTab(maze_widget_, maze_widget_->GetTabName());
-  state_widget_ = new StateWidget();
+  state_widget_ = new StateWidget(this);
   ui_->main_splitter->addWidget(state_widget_);
   ui_->info_tabs->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   ui_->info_tabs->setMaximumWidth(300);

@@ -8,6 +8,7 @@
 #include <QtCharts/QChartView>
 #include <QtWidgets/QLabel>
 
+#include <core/msgs.h>
 #include <sim/widgets/abstract_tab.h>
 #include <sim/widgets/pid_plot_widget.h>
 #include <sim/widgets/control_plot_widget.h>
@@ -19,11 +20,13 @@ class StateWidget;
 
 namespace ssim {
 
+class Client;
+
 class StateWidget : public QWidget, public AbstractTab {
  Q_OBJECT
 
  public:
-  StateWidget();
+  explicit StateWidget(Client &client);
 
   const QString GetTabName() override;
 
@@ -71,18 +74,15 @@ class StateWidget : public QWidget, public AbstractTab {
 
  private:
 
-  void RobotCommandCallback(const smartmouse::msgs::RobotCommand &msg);
+  void RobotCommandCallback(const ssim::RobotCommand &msg);
 
-  void DebugStateCallback(const smartmouse::msgs::DebugState &msg);
-
-  void StateCallback(const smartmouse::msgs::RobotSimState &msg);
-
-  double true_col, true_row, true_yaw;
+  void StateCallback(const ssim::RobotSimState &msg);
 
   Ui::StateWidget *ui_;
   PIDPlotWidget *pid_widget_;
   ControlPlotWidget *control_widget_;
   SensorWidget *sensor_widget_;
+  Client & client_;
 };
 
 } // namespace ssim

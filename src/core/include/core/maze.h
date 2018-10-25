@@ -65,10 +65,13 @@ double constexpr toCellUnits(double meters) noexcept {
 
 double constexpr WALL_THICKNESS_CU = toCellUnits(WALL_THICKNESS_M);
 double constexpr HALF_WALL_THICKNESS_CU = toCellUnits(HALF_WALL_THICKNESS_M);
+double constexpr SIZE_CU = toCellUnits(SIZE_M);
 
 class AbstractMaze {
 
  public:
+
+  route_t fastest_route;
 
   bool solved;
 

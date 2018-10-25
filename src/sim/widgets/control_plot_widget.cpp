@@ -1,15 +1,15 @@
-#include <sim/simulator/lib/widgets/ControlPlotWidget.h>
-#include <sim/simulator/lib/common/TopicNames.h>
-#include <msgs/msgs.h>
-#include <QtWidgets/QBoxLayout>
-#include <QtCore/QDir>
-#include <lib/common/sim_util.h>
 #include <sstream>
+
+#include <QtWidgets/QPushButton>
+#include <QtCore/QDir>
 #include <qwt_plot_renderer.h>
 
+#include <sim/widgets/control_plot_widget.h>
 #include "ui_controlwidget.h"
 
-ControlPlotWidget::ControlPlotWidget() : ui_(new Ui::control_plot_widget()), capacity_(1000) {
+namespace ssim {
+
+ControlPlotWidget::ControlPlotWidget(Client &client) : ui_(new Ui::ControlPlotWidget()), capacity_(1000), client_(client) {
   ui_->setupUi(this);
 
   left_actual_ = new PlotSeriesData("Left Actual", Qt::red, capacity_);
@@ -26,8 +26,6 @@ ControlPlotWidget::ControlPlotWidget() : ui_(new Ui::control_plot_widget()), cap
   plot_->axisScaleDraw(QwtPlot::xBottom)->enableComponent(QwtAbstractScaleDraw::Labels, false);
   plot_->setAxisTitle(QwtPlot::xBottom, "Time (seconds)");
   plot_->setAxisTitle(QwtPlot::yLeft, "Abstract Force");
-
-  this->node_.Subscribe(TopicNames::kRobotCommand, &ControlPlotWidget::ControlCallback, this);
 
   ui_->master_layout->addWidget(plot_);
 
@@ -81,3 +79,5 @@ void ControlPlotWidget::Screenshot() {
   grab().save(QString::fromStdString(ss.str()), "png", -1);
   QwtPlotRenderer renderer;
 }
+
+} // namespace ssim

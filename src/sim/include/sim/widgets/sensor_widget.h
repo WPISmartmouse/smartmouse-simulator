@@ -9,17 +9,15 @@ class SensorWidget;
 
 namespace ssim {
 
+class Client;
+
 class SensorWidget : public QWidget, public AbstractTab {
  Q_OBJECT
 
  public:
-  SensorWidget();
+  explicit SensorWidget(Client &client);
 
   const QString GetTabName() override;
-
-  void RobotSimStateCallback(const smartmouse::msgs::RobotSimState &msg);
-
-  void DebugStateCallback(const smartmouse::msgs::DebugState &msg);
 
  signals:
 
@@ -53,6 +51,7 @@ class SensorWidget : public QWidget, public AbstractTab {
 
  private:
   Ui::SensorWidget *ui_;
+  Client &client_;
 };
 
 } // namespace ssim

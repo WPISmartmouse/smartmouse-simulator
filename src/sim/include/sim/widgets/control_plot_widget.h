@@ -1,12 +1,10 @@
 #pragma once
 
-#include <list>
-
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_scale_draw.h>
-#include <QtWidgets/QPushButton>
 
+#include <core/msgs.h>
 #include <sim/widgets/abstract_tab.h>
 #include <sim/widgets/pid_series_data.h>
 
@@ -17,11 +15,13 @@ class control_plot_widget;
 
 namespace ssim {
 
+class Client;
+
 class ControlPlotWidget : public QWidget, public AbstractTab {
  Q_OBJECT
 
  public:
-  ControlPlotWidget();
+  explicit ControlPlotWidget(Client &client);
 
   void Clear();
 
@@ -29,7 +29,7 @@ class ControlPlotWidget : public QWidget, public AbstractTab {
 
   const QString GetTabName() override;
 
-  void ControlCallback(const smartmouse::msgs::RobotCommand &msg);
+  void ControlCallback(const ssim::RobotCommand &msg);
 
  signals:
 
@@ -47,6 +47,7 @@ class ControlPlotWidget : public QWidget, public AbstractTab {
   PlotSeriesData *left_actual_;
   PlotSeriesData *right_actual_;
   const unsigned int capacity_;
+  Client &client_;
 };
 
 } // namespace ssim

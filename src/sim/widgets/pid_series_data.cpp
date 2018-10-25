@@ -1,7 +1,10 @@
-#include <sim/simulator/lib/widgets/PlotSeriesData.h>
 #include <QtWidgets/QBoxLayout>
 
+#include <sim/widgets/pid_series_data.h>
+
 #include "ui_pidwidget.h"
+
+namespace ssim {
 
 PlotSeriesData::PlotSeriesData(std::string label, QColor color, const unsigned int capacity)
     : capacity_(capacity), num_points_to_remove_(1) {
@@ -71,3 +74,5 @@ size_t PlotSeriesData::size() const {
   size_t s = d_samples.size();
   return s;
 }
+
+} // namesapce ssim
