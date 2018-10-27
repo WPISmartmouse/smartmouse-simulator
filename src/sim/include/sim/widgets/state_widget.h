@@ -26,9 +26,15 @@ class StateWidget : public QWidget, public AbstractTab {
  Q_OBJECT
 
  public:
-  explicit StateWidget(Client &client);
+  explicit StateWidget(QWidget *parent);
 
   const QString GetTabName() override;
+
+  public slots:
+
+  void RobotCommandCallback(RobotCommand msg);
+
+  void OnRobotSimState(RobotSimState msg);
 
  signals:
 
@@ -74,15 +80,10 @@ class StateWidget : public QWidget, public AbstractTab {
 
  private:
 
-  void RobotCommandCallback(const ssim::RobotCommand &msg);
-
-  void StateCallback(const ssim::RobotSimState &msg);
-
   Ui::StateWidget *ui_;
   PIDPlotWidget *pid_widget_;
   ControlPlotWidget *control_widget_;
   SensorWidget *sensor_widget_;
-  Client & client_;
 };
 
 } // namespace ssim

@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <sstream>
 
 #include <QtCore/QDir>
@@ -9,7 +10,7 @@
 
 namespace ssim {
 
-PIDPlotWidget::PIDPlotWidget(Cleitn &client) : ui_(new Ui::PIDPlotWidget()), capacity_(1000), client_(client) {
+PIDPlotWidget::PIDPlotWidget() : ui_(new Ui::PIDPlotWidget()), capacity_(1000) {
   ui_->setupUi(this);
 
   left_setpoint_ = new PlotSeriesData("Left Setpoint", Qt::black, capacity_);
@@ -32,8 +33,6 @@ PIDPlotWidget::PIDPlotWidget(Cleitn &client) : ui_(new Ui::PIDPlotWidget()), cap
   plot_->setAxisTitle(QwtPlot::xBottom, "Time (seconds)");
   plot_->setAxisTitle(QwtPlot::yLeft, "Speed cell/second");
 
-  this->node_.Subscribe(TopicNames::kDebugState, &PIDPlotWidget::PIDCallback, this);
-
   ui_->master_layout->addWidget(plot_);
 
   connect(ui_->clear_button, &QPushButton::clicked, this, &PIDPlotWidget::Clear);
@@ -49,16 +48,17 @@ const QString PIDPlotWidget::GetTabName() {
   return QString("PID");
 }
 
-void PIDPlotWidget::PIDCallback(const smartmouse::msgs::DebugState &msg) {
-  double t = smartmouse::msgs::ConvertSec(msg.stamp());
-
-  left_setpoint_->Append(t, msg.left_cps_setpoint());
-  left_actual_->Append(t, msg.left_cps_actual());
-  right_setpoint_->Append(t, msg.right_cps_setpoint());
-  right_actual_->Append(t, msg.right_cps_actual());
-
-  emit Replot();
-}
+//void PIDPlotWidget::PIDCallback(const ssim::PIDSetpoints &msg) {
+  // FIXME:
+//  double t = 0;
+//
+//  left_setpoint_->Append(t, msg.left_setpoints_cups);
+//  left_actual_->Append(t, msg.left_cps_actual);
+//  right_setpoint_->Append(t, msg.right_cps_setpoint);
+//  right_actual_->Append(t, msg.right_cps_actual);
+//
+//  emit Replot();
+//}
 
 void PIDPlotWidget::LeftChecked() {
   if (ui_->left_checkbox->isChecked()) {
@@ -102,7 +102,9 @@ void PIDPlotWidget::Clear() {
 void PIDPlotWidget::Screenshot() {
   std::stringstream ss;
   ss << QDir::homePath().toStdString() << "/pid_screenshot_";
-  ss << smartmouse::simulator::date_str();
+  const auto t = std::time(nullptr);
+  const auto tm = *std::localtime(&t);
+  ss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S") << std::endl;
   ss << ".png";
 
   grab().save(QString::fromStdString(ss.str()), "png", -1);
@@ -110,3 +112,6 @@ void PIDPlotWidget::Screenshot() {
 }
 
 } // namespace ssim
+
+// Force MOC to run on the header file
+#include <sim/widgets/moc_pid_plot_widget.cpp>

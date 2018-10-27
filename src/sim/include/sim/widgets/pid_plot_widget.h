@@ -9,19 +9,16 @@
 #include <sim/widgets/pid_series_data.h>
 
 namespace Ui {
-
-class PidPlotWidget;
+class PIDPlotWidget;
 }
 
 namespace ssim {
-
-class Client;
 
 class PIDPlotWidget : public QWidget, public AbstractTab {
  Q_OBJECT
 
  public:
-  explicit PIDPlotWidget(Client &client);
+  explicit PIDPlotWidget();
 
   void Clear();
 
@@ -48,14 +45,13 @@ class PIDPlotWidget : public QWidget, public AbstractTab {
   void RightSetpointChecked();
 
  private:
-  Ui::PidPlotWidget *ui_;
+  Ui::PIDPlotWidget *ui_;
   QwtPlot *plot_;
   PlotSeriesData *left_setpoint_;
   PlotSeriesData *left_actual_;
   PlotSeriesData *right_setpoint_;
   PlotSeriesData *right_actual_;
   const unsigned int capacity_;
-  Client &client_;
 };
 
 } // namespace ssim

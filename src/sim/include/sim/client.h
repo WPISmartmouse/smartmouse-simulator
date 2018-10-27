@@ -25,7 +25,7 @@ class Client : public QMainWindow {
  public:
   static const int kRestartCode = 1337;
 
-  explicit Client(Server &server, QMainWindow *parent = nullptr);
+  explicit Client(Server *server, QMainWindow *parent = nullptr);
 
   void closeEvent(QCloseEvent *event) override;
 
@@ -37,6 +37,30 @@ class Client : public QMainWindow {
 
   void Restart();
 
+  void LoadNewMaze();
+
+  void LoadRandomMaze();
+
+  void ShowSourceCode();
+
+  void ShowKeyboardShortcuts();
+
+  void ShowWiki();
+
+  void SendRobotCmd();
+
+  void SendTeleportCmd();
+
+  void RealTimeFactorChanged(double real_time_factor);
+
+  void StepCountChanged(int step_time_ms);
+
+  void TimePerStepMsChanged(int step_time_ms);
+
+  void PIDConstantsSpinboxChanged();
+
+  void PIDSetpointsSpinboxChanged();
+
   void TogglePlayPause();
 
   void SetStatic();
@@ -47,50 +71,34 @@ class Client : public QMainWindow {
 
   void Step();
 
-  void LoadNewMaze();
-
-  void ShowSourceCode();
-
-  void ShowKeyboardShortcuts();
-
-  void ShowWiki();
-
-  void RealTimeFactorChanged(double real_time_factor);
-
-  void StepCountChanged(int step_time_ms);
-
-  void TimePerStepMsChanged(int step_time_ms);
-
-  void SendRobotCmd();
-
-  void SendTeleportCmd();
-
-  void PublishPIDConstants();
-
-  void PublishPIDSetpoints();
-
  signals:
+
+  void PhysicsChanged(PhysicsConfig msg);
+
+  void MazeChanged(AbstractMaze msg);
+
+  void ServerChanged(ServerControl msg);
+
+  void RobotCommandChanged(RobotCommand msg);
+
+  void PIDConstantsChanged(PIDConstants msg);
+
+  void PIDSetpointsChanged(PIDSetpoints msg);
 
   void SetRealTime(QString str);
 
   void SetTime(QString str);
+
+  void OnWorldStats(WorldStatistics msg);
 
  private:
   void ConfigureGui();
 
   void LoadDefaultMaze();
 
-  void LoadRandomMaze();
-
   void RestoreSettings();
 
   void SaveSettings();
-
-  void OnWorldStats(WorldStatistics const &msg);
-
-  void OnPhysics(PhysicsConfig const &msg);
-
-  void OnServerControl(ServerControl const &msg);
 
   unsigned int step_count_ = 1u;
   QSettings *settings_;
@@ -100,7 +108,6 @@ class Client : public QMainWindow {
   MazeWidget *maze_widget_;
   StateWidget *state_widget_;
   QShortcut *shortcut;
-  Server &server_;
 };
 
 } // namespace ssim

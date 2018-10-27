@@ -1,3 +1,6 @@
+#include <ctime>
+#include <iostream>
+#include <iomanip>
 #include <sstream>
 
 #include <QtWidgets/QPushButton>
@@ -9,7 +12,7 @@
 
 namespace ssim {
 
-ControlPlotWidget::ControlPlotWidget(Client &client) : ui_(new Ui::ControlPlotWidget()), capacity_(1000), client_(client) {
+ControlPlotWidget::ControlPlotWidget() : ui_(new Ui::ControlPlotWidget()), capacity_(1000) {
   ui_->setupUi(this);
 
   left_actual_ = new PlotSeriesData("Left Actual", Qt::red, capacity_);
@@ -33,18 +36,18 @@ ControlPlotWidget::ControlPlotWidget(Client &client) : ui_(new Ui::ControlPlotWi
   connect(ui_->left_checkbox, &QCheckBox::stateChanged, this, &ControlPlotWidget::LeftChecked);
   connect(ui_->right_checkbox, &QCheckBox::stateChanged, this, &ControlPlotWidget::RightChecked);
   connect(ui_->screenshot_button, &QPushButton::clicked, this, &ControlPlotWidget::Screenshot);
-  connect(this, &ControlPlotWidget::Replot, plot_, &QwtPlot::replot, Qt::QueuedConnection);
+  connect(this, &ControlPlotWidget::Replot, plot_, &QwtPlot::replot);
 }
 
 const QString ControlPlotWidget::GetTabName() {
   return QString("Control");
 }
 
-void ControlPlotWidget::ControlCallback(const smartmouse::msgs::RobotCommand &msg) {
-  double t = smartmouse::msgs::ConvertSec(msg.stamp());
-
-  left_actual_->Append(t, msg.left().abstract_force());
-  right_actual_->Append(t, msg.right().abstract_force());
+void ControlPlotWidget::ControlCallback(const RobotCommand msg) {
+  // FIXME:
+  double t = 0;
+  left_actual_->Append(t, msg.left.abstract_force);
+  right_actual_->Append(t, msg.right.abstract_force);
 
   emit Replot();
 }
@@ -73,7 +76,9 @@ void ControlPlotWidget::Clear() {
 void ControlPlotWidget::Screenshot() {
   std::stringstream ss;
   ss << QDir::homePath().toStdString() << "/pid_screenshot_";
-  ss << smartmouse::simulator::date_str();
+  const auto t = std::time(nullptr);
+  const auto tm = *std::localtime(&t);
+  ss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S") << std::endl;
   ss << ".png";
 
   grab().save(QString::fromStdString(ss.str()), "png", -1);
@@ -81,3 +86,6 @@ void ControlPlotWidget::Screenshot() {
 }
 
 } // namespace ssim
+
+// Force MOC to run on the header file
+#include <sim/widgets/moc_control_plot_widget.cpp>

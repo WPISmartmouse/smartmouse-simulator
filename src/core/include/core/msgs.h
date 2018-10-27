@@ -35,6 +35,13 @@ struct XYTheta {
   double theta = 0;
 };
 
+struct WallCoordinates {
+  double r1 = 0;
+  double c1 = 0;
+  double r2 = 0;
+  double c2 = 0;
+};
+
 
 struct SensorDescription {
 /**
@@ -56,7 +63,7 @@ struct SensorDescription {
 
   // We don't use the adc_value in our class because on real hardware that won't be set!
   double to_meters(double adc_value) const;
-  double to_adc(double meters) const;
+  unsigned int to_adc(double meters) const;
   void calibrate(int adc_reading);
 };
 
@@ -172,9 +179,8 @@ struct RobotCommand {
 
 struct WorldStatistics {
   unsigned long step = 0;
-  int32_t time_s = 0;
-  int32_t time_ns = 0;
-  double real_time_factor = 0.0; // RTF acutally acheived
+  std::chrono::nanoseconds sim_time = {};
+  double real_time_factor = 0.0; // RTF acutally achieved
 };
 
 class PIDConstants {

@@ -1,45 +1,41 @@
 #pragma once
 
-#include <thread>
+#include <QtCore/QThread>
 
 #include <core/maze.h>
 #include <core/plugin.h>
-
 #include <sim/conversions.h>
 
 namespace ssim {
 
-class Server {
+class Server : public QThread {
+  Q_OBJECT
 
- public:
-  Server();
+ public slots:
+  void run() override;
 
-  ~Server();
+  void OnServerControl(ServerControl server_control);
 
-  void OnServerControl(ServerControl const &server_control);
+  void OnPhysics(PhysicsConfig config);
 
-  void OnPhysics(PhysicsConfig const &config);
+  void OnMaze(AbstractMaze maze);
 
-  void OnMaze(AbstractMaze const &maze);
+  void OnRobotCommand(RobotCommand cmd);
 
-  void OnRobotCommand(RobotCommand const &cmd);
+  void OnPIDConstants(PIDConstants msg);
 
-  void OnPIDConstants(PIDConstants const &msg);
+  void OnPIDSetpoints(PIDSetpoints msg);
 
-  void OnPIDSetpoints(PIDSetpoints const &msg);
+ signals:
+
+  void UpdateState(RobotSimState state);
+
+  void UpdateWorldStats(WorldStatistics world_stats);
 
  private:
-  void Start();
-
-  void RunLoop();
-
-  bool Run();
-
   void Step();
 
-  void Join();
-
-  void UpdateRobotState(double dt);
+  void SimulateStep(double dt);
 
   void ResetRobot(double reset_col, double reset_row, double reset_yaw);
 
@@ -62,8 +58,6 @@ class Server {
   AbstractMaze maze_;
   RobotCommand cmd_;
   RobotSimState state_;
-
-  std::thread *thread_;
 };
 
 } // namespace ssim

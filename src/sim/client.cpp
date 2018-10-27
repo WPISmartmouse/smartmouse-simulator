@@ -1,3 +1,4 @@
+#include <iostream>
 #include <fstream>
 #include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
@@ -13,30 +14,33 @@
 
 namespace ssim {
 
-Client::Client(Server &server, QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindow), server_(server) {
+Client::Client(Server * const server, QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindow) {
   ui_->setupUi(this);
 
   ConfigureGui();
   RestoreSettings();
 
+  connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics);
+  connect(this, &Client::ServerChanged, server, &Server::OnServerControl);
+
   // publish the initial configuration
   PhysicsConfig initial_physics_config;
   initial_physics_config.ns_of_sim_per_step = 1000000u;
-  server_.OnPhysics(initial_physics_config);
+  emit PhysicsChanged(initial_physics_config);
 
   // publish initial config of the server
   ServerControl initial_server_control;
   initial_server_control.pause = false;
   initial_server_control.reset_robot = true;
   initial_server_control.reset_time = true;
-  server_.OnServerControl(initial_server_control);
+  emit ServerChanged(initial_server_control);
 }
 
 void Client::Exit() {
   SaveSettings();
   ServerControl quit_msg;
   quit_msg.quit = true;
-  server_.OnServerControl(quit_msg);
+  emit ServerChanged(quit_msg);
   QApplication::exit(0);
 }
 
@@ -48,37 +52,37 @@ void Client::Restart() {
 void Client::TogglePlayPause() {
   ServerControl msg;
   msg.toggle_play_pause = true;
-  server_.OnServerControl(msg);
+  emit ServerChanged(msg);
 }
 
 void Client::SetStatic() {
   ServerControl static_msg;
   static_msg.stationary = ui_->static_checkbox->isChecked();
-  server_.OnServerControl(static_msg);
+  emit ServerChanged(static_msg);
 }
 
 void Client::Step() {
   ServerControl step_msg;
   step_msg.step = step_count_;
-  server_.OnServerControl(step_msg);
+  emit ServerChanged(step_msg);
 }
 
 void Client::ResetMouse() {
   ServerControl reset_msg;
   reset_msg.reset_robot = true;
-  server_.OnServerControl(reset_msg);
+  emit ServerChanged(reset_msg);
 }
 
 void Client::ResetTime() {
   ServerControl reset_msg;
   reset_msg.reset_time = true;
-  server_.OnServerControl(reset_msg);
+  emit ServerChanged(reset_msg);
 }
 
 void Client::RealTimeFactorChanged(double real_time_factor) {
   PhysicsConfig rtf_msg;
   rtf_msg.real_time_factor = real_time_factor;
-  server_.OnPhysics(rtf_msg);
+  emit PhysicsChanged(rtf_msg);
 }
 
 void Client::StepCountChanged(int step_time_ms) {
@@ -90,32 +94,7 @@ void Client::StepCountChanged(int step_time_ms) {
 void Client::TimePerStepMsChanged(int step_time_ms) {
   PhysicsConfig time_per_step_msg;
   time_per_step_msg.ns_of_sim_per_step = step_time_ms * 1000000u;
-  server_.OnPhysics(time_per_step_msg);
-}
-
-void Client::OnWorldStats(const WorldStatistics &msg) {
-  Time time(msg.time_s, msg.time_ns);
-  emit SetRealTime(QString::number(msg.real_time_factor, 'f', 4));
-  emit SetTime(QString::fromStdString(time.FormattedString()));
-}
-
-void Client::OnPhysics(const PhysicsConfig &msg) {
-  if (msg.ns_of_sim_per_step) {
-    ui_->ms_per_step_spinner->setValue(msg.ns_of_sim_per_step.value() / 1000000);
-  }
-  if (msg.real_time_factor) {
-    ui_->real_time_factor_spinner->setValue(msg.real_time_factor.value());
-  }
-}
-
-void Client::OnServerControl(const ServerControl &msg) {
-  if (msg.pause) {
-    if (msg.pause.value()) {
-      ui_->play_button->setText("Play");
-    } else {
-      ui_->play_button->setText("Pause");
-    }
-  }
+  emit PhysicsChanged(time_per_step_msg);
 }
 
 void Client::ShowWiki() {
@@ -144,16 +123,14 @@ void Client::LoadNewMaze() {
     std::ifstream fs;
     fs.open(file_info.absoluteFilePath().toStdString(), std::fstream::in);
     AbstractMaze maze(fs);
-    server_.OnMaze(maze);
-    maze_widget_.OnMaze(maze);
+    emit MazeChanged(maze);
     ui_->maze_file_name_label->setText(file_info.fileName());
   }
 }
 
 void Client::LoadRandomMaze() {
   const AbstractMaze &maze = AbstractMaze::gen_random_legal_maze();
-  server_.OnMaze(maze);
-  maze_widget_.OnMaze(maze);
+  emit MazeChanged(maze);
 }
 
 void Client::LoadDefaultMaze() {
@@ -165,8 +142,7 @@ void Client::LoadDefaultMaze() {
     fs.open(maze_filename, std::fstream::in);
     if (fs.good()) {
       const AbstractMaze maze(fs);
-      server_.OnMaze(maze);
-      maze_widget_.OnMaze(maze);
+      emit MazeChanged(maze);
       ui_->maze_file_name_label->setText(file_info.fileName());
     } else {
       std::cout << "default maze file [" << maze_filename << "] not found. Loading random maze.\n";
@@ -182,7 +158,7 @@ void Client::SendRobotCmd() {
   RobotCommand cmd;
   cmd.left.abstract_force = ui_->left_f_spinbox->value();
   cmd.right.abstract_force = ui_->right_f_spinbox->value();
-  server_.OnRobotCommand(cmd);
+  emit RobotCommandChanged(cmd);
 }
 
 void Client::SendTeleportCmd() {
@@ -191,24 +167,24 @@ void Client::SendTeleportCmd() {
   cmd.reset_col = ui_->teleport_column_spinbox->value();
   cmd.reset_row = ui_->teleport_row_spinbox->value();
   cmd.reset_yaw = ui_->teleport_yaw_spinbox->value();
-  server_.OnServerControl(cmd);
+  emit ServerChanged(cmd);
 }
 
-void Client::PublishPIDConstants() {
+void Client::PIDConstantsSpinboxChanged() {
   PIDConstants msg;
   msg.kP = ui_->kp_spinbox->value();
   msg.kI = ui_->ki_spinbox->value();
   msg.kD = ui_->kd_spinbox->value();
   msg.kFFOffset = ui_->kff_offset_spinbox->value();
   msg.kFFScale = ui_->kff_scale_spinbox->value();
-  server_.OnPIDConstants(msg);
+  emit PIDConstantsChanged(msg);
 }
 
-void Client::PublishPIDSetpoints() {
+void Client::PIDSetpointsSpinboxChanged() {
   PIDSetpoints msg;
   msg.left_setpoints_cups = ui_->left_setpoint_spinbox->value();
   msg.right_setpoints_cups = ui_->right_setpoint_spinbox->value();
-  server_.OnPIDSetpoints(msg);
+  emit PIDSetpointsChanged(msg);
 }
 
 void Client::ConfigureGui() {
@@ -251,8 +227,8 @@ void Client::ConfigureGui() {
   QObject::connect(this, &Client::SetTime, ui_->time_value_label, &QLabel::setText);
   connect(ui_->send_command_button, &QPushButton::clicked, this, &Client::SendRobotCmd);
   connect(ui_->teleport_button, &QPushButton::clicked, this, &Client::SendTeleportCmd);
-  connect(ui_->publish_constants_button, &QPushButton::clicked, this, &Client::PublishPIDConstants);
-  connect(ui_->publish_setpoints_button, &QPushButton::clicked, this, &Client::PublishPIDSetpoints);
+  connect(ui_->publish_constants_button, &QPushButton::clicked, this, &Client::PIDConstantsSpinboxChanged);
+  connect(ui_->publish_setpoints_button, &QPushButton::clicked, this, &Client::PIDSetpointsSpinboxChanged);
 }
 
 void Client::closeEvent(QCloseEvent *event) {
@@ -303,3 +279,4 @@ void Client::RestoreSettings() {
 } // namespace ssim
 
 // Force MOC to run on the header file
+#include <sim/moc_client.cpp>

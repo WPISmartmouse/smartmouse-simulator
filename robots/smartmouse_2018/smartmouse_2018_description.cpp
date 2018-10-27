@@ -141,9 +141,10 @@ ssim::RobotDescription ssim::global_robot_description {
         GERALD_RIGHT_SENSOR
     },
     .pin_map = {
-        {23, ssim::PinVariant{ssim::DigitalInputDescription{}}},
-        {25, ssim::PinVariant{ssim::LEDDescription{.r=255, .g=0, .b=0}}},
-        {66, ssim::PinVariant{ssim::AnalogInputDescription{}}},
+        {BUTTON_PIN, ssim::PinVariant{ssim::DigitalInputDescription{}}},
+        {LED_1, ssim::PinVariant{ssim::LEDDescription{.r=255, .g=0, .b=0}}},
+        {BATTERY_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{}}},
+        {MOTOR_LEFT_A1, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}}
     },
     .track_width_cu = TRACK_WIDTH_CU,
     .min_abstract_force = MIN_ABSTRACT_FORCE,

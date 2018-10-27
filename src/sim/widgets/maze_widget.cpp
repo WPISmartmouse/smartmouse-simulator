@@ -1,8 +1,7 @@
-#include <iostream>
-
 #include <QtGui/QPainter>
 
 #include <sim/widgets/maze_widget.h>
+#include <hal/hal.h>
 
 namespace ssim {
 
@@ -10,10 +9,48 @@ const int MazeWidget::kPaddingPx = 24;
 const QBrush MazeWidget::kRobotBrush = QBrush(QColor("#F57C00"));
 QBrush MazeWidget::kWallBrush = QBrush(Qt::red);
 
-MazeWidget::maze_widget() : AbstractTab(), mouse_set_(false) {
-  setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::MinimumExpanding);
+WallCoordinates WallToCoordinates(double const r, double const c, Direction const dir) {
+  double c1 = 0, r1 = 0, c2 = 0, r2 = 0;
+  switch (dir) {
+    case Direction::N: {
+      c1 = c - HALF_WALL_THICKNESS_CU;
+      r1 = r - HALF_WALL_THICKNESS_CU;
+      c2 = c + 1 + HALF_WALL_THICKNESS_CU;
+      r2 = r + HALF_WALL_THICKNESS_CU;
+      break;
+    }
+    case Direction::S: {
+      c1 = c - HALF_WALL_THICKNESS_CU;
+      r1 = r + 1 - HALF_WALL_THICKNESS_CU;
+      c2 = c + 1 + HALF_WALL_THICKNESS_CU;
+      r2 = r + 1 + HALF_WALL_THICKNESS_CU;
+      break;
+    }
+    case Direction::E: {
+      c1 = c + 1 - HALF_WALL_THICKNESS_CU;
+      r1 = r - HALF_WALL_THICKNESS_CU;
+      c2 = c + 1 + HALF_WALL_THICKNESS_CU;
+      r2 = r + 1 + HALF_WALL_THICKNESS_CU;
+      break;
+    }
+    case Direction::W: {
+      c1 = c - HALF_WALL_THICKNESS_CU;
+      r1 = r - HALF_WALL_THICKNESS_CU;
+      c2 = c + HALF_WALL_THICKNESS_CU;
+      r2 = r + 1 + HALF_WALL_THICKNESS_CU;
+      break;
+    }
+    default: {
+      throw std::runtime_error("Invalid Direction");
+    }
+  }
 
-  QObject::connect(this, &MazeWidget::MyUpdate, this, static_cast<void (QWidget::*)()>(&QWidget::update), Qt::QueuedConnection);
+  return {c1, r1, c2, r2};
+}
+
+
+MazeWidget::MazeWidget(QWidget *parent) : QWidget(parent), AbstractTab(), mouse_set_(false) {
+  setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::MinimumExpanding);
 }
 
 void MazeWidget::paintEvent(QPaintEvent *event) {
@@ -23,27 +60,27 @@ void MazeWidget::paintEvent(QPaintEvent *event) {
 
     QRect g = this->geometry();
 
-    int w = std::min(g.width(), g.height()) - kPaddingPx;
-    double cell_units_to_pixels = w / ssim::SIZE_CU;
+    int const w = std::min(g.width(), g.height()) - kPaddingPx;
+    double const cell_units_to_pixels = w / ssim::SIZE_CU;
 
-    int origin_col = (g.width() - w) / 2;
-    int origin_row = (g.height() - w) / 2;
+    int const origin_col = (g.width() - w) / 2;
+    int const origin_row = (g.height() - w) / 2;
 
     tf.translate(origin_col, origin_row);
     tf = tf.scale(cell_units_to_pixels, cell_units_to_pixels);
   }
 
   // draw the background
-  QRectF base = QRectF(0, 0, smartmouse::maze::SIZE_CU, smartmouse::maze::SIZE_CU);
+  QRectF const base = QRectF(0, 0, ssim::SIZE_CU, ssim::SIZE_CU);
   painter.fillRect(tf.mapRect(base), QApplication::palette().background());
 
   // Draw the thin-line grid over the whole maze
-  for (unsigned int i = 0; i <= smartmouse::maze::SIZE; i++) {
-    QLineF h_line(0, i, smartmouse::maze::SIZE_CU, i);
+  for (unsigned int i = 0; i <= ssim::SIZE; i++) {
+    QLineF const h_line(0, i, ssim::SIZE_CU, i);
     painter.setPen(QApplication::palette().light().color());
     painter.drawLine(tf.map(h_line));
 
-    QLineF v_line(i, 0, i, smartmouse::maze::SIZE_CU);
+    QLineF const v_line(i, 0, i, ssim::SIZE_CU);
     painter.drawLine(tf.map(v_line));
   }
 
@@ -58,80 +95,70 @@ void MazeWidget::paintEvent(QPaintEvent *event) {
 
 void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
   QPainterPath footprint;
-  for (auto pt : mouse_.footprint()) {
-    footprint.lineTo(pt.x(), pt.y());
+  for (auto pt : global_robot_description.footprint) {
+    footprint.lineTo(pt.x, pt.y);
   }
 
-  auto left_wheel = mouse_.left_wheel();
-  auto right_wheel = mouse_.right_wheel();
-  double lwx = left_wheel.pose().x();
-  double lwy = left_wheel.pose().y();
-  double rwx = right_wheel.pose().x();
-  double rwy = right_wheel.pose().y();
-  double lr = left_wheel.radius();
-  double lt = left_wheel.thickness();
-  double rr = right_wheel.radius();
-  double rt = right_wheel.thickness();
+  auto const &left_wheel_pose = global_robot_description.wheels.left_wheel_position;
+  auto const &right_wheel_pose = global_robot_description.wheels.right_wheel_position;
+  double const lwx = left_wheel_pose.x;
+  double const lwy = left_wheel_pose.y;
+  double const rwx = right_wheel_pose.x;
+  double const rwy = right_wheel_pose.y;
+  double const radius = global_robot_description.wheels.radius;
+  double const thickness = global_robot_description.wheels.thickness;
 
   QPainterPath left_wheel_path;
-  left_wheel_path.moveTo(lwx - lr, lwy - lt / 2);
-  left_wheel_path.lineTo(lwx - lr, lwy + lt / 2);
-  left_wheel_path.lineTo(lwx + lr, lwy + lt / 2);
-  left_wheel_path.lineTo(lwx + lr, lwy - lt / 2);
+  left_wheel_path.moveTo(lwx - radius, lwy - thickness / 2);
+  left_wheel_path.lineTo(lwx - radius, lwy + thickness / 2);
+  left_wheel_path.lineTo(lwx + radius, lwy + thickness / 2);
+  left_wheel_path.lineTo(lwx + radius, lwy - thickness / 2);
 
   QPainterPath right_wheel_path;
-  right_wheel_path.moveTo(rwx - rr, rwy - rt / 2);
-  right_wheel_path.lineTo(rwx - rr, rwy + rt / 2);
-  right_wheel_path.lineTo(rwx + rr, rwy + rt / 2);
-  right_wheel_path.lineTo(rwx + rr, rwy - rt / 2);
+  right_wheel_path.moveTo(rwx - radius, rwy - thickness / 2);
+  right_wheel_path.lineTo(rwx - radius, rwy + thickness / 2);
+  right_wheel_path.lineTo(rwx + radius, rwy + thickness / 2);
+  right_wheel_path.lineTo(rwx + radius, rwy - thickness / 2);
 
-  tf.translate(robot_state_.p().col(), robot_state_.p().row());
-  tf.rotateRadians(robot_state_.p().yaw(), Qt::ZAxis);
-  tf.scale(1 / smartmouse::maze::UNIT_DIST_M, 1 / smartmouse::maze::UNIT_DIST_M);
+  tf.translate(robot_sim_state_.p.col, robot_sim_state_.p.row);
+  tf.rotateRadians(robot_sim_state_.p.yaw, Qt::ZAxis);
+  tf.scale(1 / ssim::UNIT_DIST_M, 1 / ssim::UNIT_DIST_M);
 
   painter.setPen(QPen(Qt::black));
   painter.fillPath(tf.map(footprint), kRobotBrush);
   painter.fillPath(tf.map(left_wheel_path), QBrush(Qt::black));
   painter.fillPath(tf.map(right_wheel_path), QBrush(Qt::black));
 
-  std::vector<std::pair<smartmouse::msgs::XYTheta, double>> sensor_poses;
-  sensor_poses.push_back({mouse_.sensors().front().p(), robot_state_.front_m()});
-  sensor_poses.push_back({mouse_.sensors().front_left().p(), robot_state_.front_left_m()});
-  sensor_poses.push_back({mouse_.sensors().front_right().p(), robot_state_.front_right_m()});
-  sensor_poses.push_back({mouse_.sensors().back_left().p(), robot_state_.back_left_m()});
-  sensor_poses.push_back({mouse_.sensors().back_right().p(), robot_state_.back_right_m()});
-  sensor_poses.push_back({mouse_.sensors().gerald_left().p(), robot_state_.gerald_left_m()});
-  sensor_poses.push_back({mouse_.sensors().gerald_right().p(), robot_state_.gerald_right_m()});
-
-  for (auto pair : sensor_poses) {
-    auto sensor_pose = pair.first;
-    double sensor_range = pair.second;
+  for (auto sensor : global_robot_description.sensors) {
+    auto const sensor_pose = sensor.p;
+    // FIXME: This really should not be here
+    double const sensor_range = sensor.to_meters(sensor.adc_value);
     QTransform line_tf(tf);
-    line_tf.translate(sensor_pose.x(), sensor_pose.y());
-    line_tf.rotateRadians(sensor_pose.theta(), Qt::ZAxis);
+    line_tf.translate(sensor_pose.x, sensor_pose.y);
+    line_tf.rotateRadians(sensor_pose.theta, Qt::ZAxis);
 
     // draw the ray to the wall
-    QLineF line(0, 0, sensor_range, 0);
+    QLineF const line(0, 0, sensor_range, 0);
     painter.setPen(QPen(Qt::black));
     painter.drawLine(line_tf.map(line));
   }
 }
 
 void MazeWidget::PaintWalls(QPainter &painter, QTransform tf) {
-  for (unsigned int row = 0; row < smartmouse::maze::SIZE; row++) {
-    for (unsigned int col = 0; col < smartmouse::maze::SIZE; col++) {
-      for (auto wall : maze_walls_[row][col]) {
-        double c1 = wall.c1();
-        double r1 = wall.r1();
-        double c2 = wall.c2();
-        double r2 = wall.r2();
-        QPainterPath wall_path;
-        wall_path.moveTo(c1, r1);
-        wall_path.lineTo(c2, r1);
-        wall_path.lineTo(c2, r2);
-        wall_path.lineTo(c1, r2);
-        wall_path.lineTo(c1, r1);
-        painter.fillPath(tf.map(wall_path), kWallBrush);
+  for (unsigned int row = 0; row < ssim::SIZE; row++) {
+    for (unsigned int col = 0; col < ssim::SIZE; col++) {
+      Node const *n = maze_.nodes[row][col];
+      for (auto d = Direction::First; d < Direction::Last; d++) {
+        if (n->wall(d)) {
+          auto wall = WallToCoordinates(row, col, d);
+          QPainterPath wall_path;
+          wall_path.moveTo(wall.c1, wall.r1);
+          wall_path.lineTo(wall.c2, wall.r1);
+          wall_path.lineTo(wall.c2, wall.r2);
+          wall_path.lineTo(wall.c1, wall.r2);
+          wall_path.lineTo(wall.c1, wall.r1);
+          painter.fillPath(tf.map(wall_path), kWallBrush);
+        }
       }
     }
   }
@@ -141,21 +168,15 @@ const QString MazeWidget::GetTabName() {
   return QString("Maze View");
 }
 
-void MazeWidget::OnMaze(const ssim::abstract_maze &msg) {
-  smartmouse::msgs::Convert(msg, maze_walls_);
-  emit MyUpdate();
+void MazeWidget::OnMaze(ssim::AbstractMaze const &maze) {
+  maze_ = maze;
 }
 
-void MazeWidget::OnRobotDescription(const ssim::RobotDescription &msg) {
-  mouse_ = msg;
-  mouse_set_ = true;
-  emit MyUpdate();
-}
-
-void MazeWidget::OnRobotSimState(const ssim::RobotSimState &msg) {
-  robot_state_ = msg;
-
-  emit MyUpdate();
+void MazeWidget::OnRobotSimState(ssim::RobotSimState const &state) {
+  robot_sim_state_ = state;
 }
 
 } // namespace ssim
+
+// Force MOC to run on the header file
+#include <sim/widgets/moc_maze_widget.cpp>

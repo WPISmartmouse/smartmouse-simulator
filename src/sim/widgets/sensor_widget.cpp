@@ -1,3 +1,4 @@
+#include <core/msgs.h>
 #include <sim/widgets/sensor_widget.h>
 
 #include "ui_sensorwidget.h"
@@ -27,23 +28,27 @@ const QString SensorWidget::GetTabName() {
   return QString("Range Sensors");
 }
 
-void SensorWidget::RobotSimStateCallback(const ssim::RobotSimState &msg) {
-  SetTrueBackLeft(QString::number(msg.back_left_m()));
-  SetTrueFrontLeft(QString::number(msg.front_left_m()));
-  SetTrueGeraldLeft(QString::number(msg.gerald_left_m()));
-  SetTrueFront(QString::number(msg.front_m()));
-  SetTrueBackRight(QString::number(msg.back_right_m()));
-  SetTrueFrontRight(QString::number(msg.front_right_m()));
-  SetTrueGeraldRight(QString::number(msg.gerald_right_m()));
+//void SensorWidget::RobotSimStateCallback(const ssim::RobotSimState &msg) {
+//  for (auto const & sensor : msg.sensors)
+//  SetTrueBackLeft(QString::number(msg.back_left_m));
+//  SetTrueFrontLeft(QString::number(msg.front_left_m));
+//  SetTrueGeraldLeft(QString::number(msg.gerald_left_m));
+//  SetTrueFront(QString::number(msg.front_m));
+//  SetTrueBackRight(QString::number(msg.back_right_m));
+//  SetTrueFrontRight(QString::number(msg.front_right_m));
+//  SetTrueGeraldRight(QString::number(msg.gerald_right_m));
+//}
+
+//void SensorWidget::DebugStateCallback(const smartmouse::msgs::DebugState &msg) {
+//  SetEstimatedBackLeft(QString::number(msg.back_left_m));
+//  SetEstimatedFrontLeft(QString::number(msg.front_left_m));
+//  SetEstimatedGeraldLeft(QString::number(msg.gerald_left_m));
+//  SetEstimatedFront(QString::number(msg.front_m));
+//  SetEstimatedBackRight(QString::number(msg.back_right_m));
+//  SetEstimatedFrontRight(QString::number(msg.front_right_m));
+//  SetEstimatedGeraldRight(QString::number(msg.gerald_right_m));
+//}
 }
 
-void SensorWidget::DebugStateCallback(const smartmouse::msgs::DebugState &msg) {
-  SetEstimatedBackLeft(QString::number(msg.back_left_m()));
-  SetEstimatedFrontLeft(QString::number(msg.front_left_m()));
-  SetEstimatedGeraldLeft(QString::number(msg.gerald_left_m()));
-  SetEstimatedFront(QString::number(msg.front_m()));
-  SetEstimatedBackRight(QString::number(msg.back_right_m()));
-  SetEstimatedFrontRight(QString::number(msg.front_right_m()));
-  SetEstimatedGeraldRight(QString::number(msg.gerald_right_m()));
-}
-}
+// Force MOC to run on the header file
+#include <sim/widgets/moc_sensor_widget.cpp>

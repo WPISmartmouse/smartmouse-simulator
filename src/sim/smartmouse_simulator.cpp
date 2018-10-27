@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     ssim::Server server;
 
     QApplication app(argc, argv);
-    client = std::make_unique<ssim::Client>(server);
+    client = std::make_unique<ssim::Client>(&server);
     client->setWindowTitle("Smartmouse Simulator");
     client->showMaximized();
     // Runs until the application is exited

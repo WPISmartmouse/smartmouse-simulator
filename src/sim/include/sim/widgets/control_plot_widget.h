@@ -10,18 +10,16 @@
 
 namespace Ui {
 
-class control_plot_widget;
+class ControlPlotWidget;
 }
 
 namespace ssim {
-
-class Client;
 
 class ControlPlotWidget : public QWidget, public AbstractTab {
  Q_OBJECT
 
  public:
-  explicit ControlPlotWidget(Client &client);
+  explicit ControlPlotWidget();
 
   void Clear();
 
@@ -29,7 +27,7 @@ class ControlPlotWidget : public QWidget, public AbstractTab {
 
   const QString GetTabName() override;
 
-  void ControlCallback(const ssim::RobotCommand &msg);
+  void ControlCallback(const RobotCommand msg);
 
  signals:
 
@@ -42,12 +40,11 @@ class ControlPlotWidget : public QWidget, public AbstractTab {
   void RightChecked();
 
  private:
-  Ui::control_plot_widget *ui_;
+  Ui::ControlPlotWidget *ui_;
   QwtPlot *plot_;
   PlotSeriesData *left_actual_;
   PlotSeriesData *right_actual_;
   const unsigned int capacity_;
-  Client &client_;
 };
 
 } // namespace ssim

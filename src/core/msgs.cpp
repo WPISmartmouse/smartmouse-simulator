@@ -2,7 +2,7 @@
 
 namespace ssim {
 
-double SensorDescription::to_adc(double meters) const {
+unsigned int SensorDescription::to_adc(double meters) const {
   return static_cast<unsigned int>(pow(a - meters, 1 / b) + c + calibration_offset);
 }
 

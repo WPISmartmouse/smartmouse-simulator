@@ -11,88 +11,80 @@
 namespace ssim {
 
 using namespace std::chrono_literals;
+using ul_micros = std::chrono::duration<unsigned long, std::micro>;
+using dbl_s = std::chrono::duration<double>;
 
-Server::Server() {
-  Start();
-}
-
-Server::~Server() {
-  quit_ = true;
-  Join();
-}
-
-void Server::Start() {
-  thread_ = new std::thread(std::bind(&Server::RunLoop, this));
-}
-
-void Server::RunLoop() {
-  bool done = false;
-
+void Server::run() {
   ResetRobot(0.5, 0.5, 0);
   ComputeMaxSensorRange();
 
-  while (!done) {
-    done = Run();
+  while (true) {
+    // Handle stepping forward in time
+    auto const start_step_time = std::chrono::steady_clock::now();
+    auto const desired_step_time_ns = ns_of_sim_per_step_ / real_time_factor_;
+    auto const desired_end_time = start_step_time + desired_step_time_ns;
+
+    // special case when update_rate is zero, like on startup.
+    if (desired_step_time_ns.count() == 0.0) {
+      msleep(1);
+      continue;
+    }
+
+    if (quit_) {
+      break;
+    }
+
+    if (pause_at_steps_ > 0 && pause_at_steps_ == steps_) {
+      pause_at_steps_ = 0;
+      pause_ = true;
+      msleep(1);
+      continue;
+    }
+
+    if (pause_) {
+      msleep(1);
+      continue;
+    }
+
+    // Update the world and step the robot controller
+    Step();
+
+    // Sleep
+    auto const end_step_time = std::chrono::steady_clock::now();
+    auto const sleep_time = desired_end_time - end_step_time;
+    auto const sleep_time_us = std::chrono::duration_cast<ul_micros>(sleep_time).count();
+    if (sleep_time_us > 0) {
+      usleep(sleep_time_us);
+    }
+
+    auto const actual_end_step_time = std::chrono::steady_clock::now();
+    double rtf = std::chrono::duration_cast<dbl_s>(actual_end_step_time - start_step_time).count();
+    ssim::WorldStatistics world_stats;
+    world_stats.sim_time = std::chrono::nanoseconds(ns_of_sim_per_step_ * steps_);
+    world_stats.real_time_factor = rtf;
+    emit UpdateWorldStats(world_stats);
   }
-}
-
-bool Server::Run() {
-  // Handle stepping forward in time
-  auto start_step_time = std::chrono::steady_clock::now();
-  auto desired_step_time_ns = ns_of_sim_per_step_ / real_time_factor_;
-  auto desired_end_time = start_step_time + desired_step_time_ns;
-
-  // special case when update_rate is zero, like on startup.
-  if (desired_step_time_ns.count() == 0.0) {
-    std::this_thread::sleep_for(1ms);
-    return false;
-  }
-
-  if (quit_) {
-    return true;
-  }
-
-  if (pause_at_steps_ > 0 && pause_at_steps_ == steps_) {
-    pause_at_steps_ = 0;
-    pause_ = true;
-    std::this_thread::sleep_for(1ms);
-    return false;
-  }
-
-  if (pause_) {
-    std::this_thread::sleep_for(1ms);
-    return false;
-  }
-
-  // Update the world and step the robot controller
-  Step();
-
-  // Sleep
-  auto end_step_time = std::chrono::steady_clock::now();
-  auto sleep_time = desired_end_time - end_step_time;
-  if (sleep_time.count() > 0) {
-    std::this_thread::sleep_for(sleep_time);
-  }
-
-  // double rtf = update_rate.Double() / (actual_end_step_time - start_step_time).Double();
-
-  return false;
 }
 
 void Server::Step() {
   // update sim time
   global_robot_description.system_clock.sim_time += ns_of_sim_per_step_;
 
-  const auto dt_s = std::chrono::duration_cast<std::chrono::duration<double>>(ns_of_sim_per_step_).count();
-  UpdateRobotState(dt_s);
+  // perform physics simulation
+  const auto dt_s = std::chrono::duration_cast<dbl_s>(ns_of_sim_per_step_).count();
+  SimulateStep(dt_s);
 
+  // run the robot code
   global_plugin->Step();
+
+  // emit the information to the client
+  emit UpdateState(state_);
 
   // increment step counter
   ++steps_;
 }
 
-void Server::UpdateRobotState(double dt) {
+void Server::SimulateStep(double dt) {
   // TODO: Implement friction
   // TODO: use left/right motors seperately
   double const u_k = global_robot_description.left_motor.u_kinetic;
@@ -136,8 +128,8 @@ void Server::UpdateRobotState(double dt) {
 
   double new_wl = wl + new_al * dt;
   double new_wr = wr + new_ar * dt;
-  double new_tl = tl + new_wl * dt + 1 / 2 * new_al * dt * dt;
-  double new_tr = tr + new_wr * dt + 1 / 2 * new_ar * dt * dt;
+  double new_tl = tl + new_wl * dt + 0.5 * new_al * dt * dt;
+  double new_tr = tr + new_wr * dt + 0.5 * new_ar * dt * dt;
 
   double const kVRef = 5.0;
   double voltage_l = (cmd_.left.abstract_force * kVRef) / 255.0;
@@ -226,12 +218,11 @@ void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
   global_plugin->Setup();
 }
 
-void Server::OnServerControl(ServerControl const &server_control) {
+void Server::OnServerControl(ServerControl const server_control) {
   if (server_control.pause) {
     pause_ = server_control.pause.value();
   } else if (server_control.toggle_play_pause) {
-    ServerControl play_pause_msg;
-    play_pause_msg.pause = !pause_;
+    pause_ = !pause_;
   }
   if (server_control.stationary) {
     stationary_ = server_control.stationary.value();
@@ -264,7 +255,7 @@ void Server::OnServerControl(ServerControl const &server_control) {
   }
 }
 
-void Server::OnPhysics(PhysicsConfig const &config) {
+void Server::OnPhysics(PhysicsConfig const config) {
   if (config.ns_of_sim_per_step) {
     ns_of_sim_per_step_ = std::chrono::nanoseconds(config.ns_of_sim_per_step.value());
   }
@@ -275,17 +266,12 @@ void Server::OnPhysics(PhysicsConfig const &config) {
   }
 }
 
-void Server::OnMaze(AbstractMaze const &maze) {
+void Server::OnMaze(AbstractMaze const maze) {
   maze_ = maze;
 }
 
-void Server::OnRobotCommand(RobotCommand const &cmd) {
+void Server::OnRobotCommand(RobotCommand const cmd) {
   cmd_ = cmd;
-}
-
-
-void Server::Join() {
-  thread_->join();
 }
 
 double Server::ComputeSensorDistToWall(SensorDescription sensor) {
@@ -296,9 +282,7 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
   double robot_theta = state_.p.yaw;
   Eigen::Vector3d s_origin_3d{sensor_col, sensor_row, 1};
   Eigen::Matrix3d tf;
-  tf << cos(robot_theta), -sin(robot_theta), state_.p.col,
-      sin(robot_theta), cos(robot_theta), state_.p.row,
-      0, 0, 1;
+  tf << cos(robot_theta), -sin(robot_theta), state_.p.col, sin(robot_theta), cos(robot_theta), state_.p.row, 0, 0, 1;
   s_origin_3d = tf * s_origin_3d;
   Eigen::Vector2d s_origin{s_origin_3d(0), s_origin_3d(1)};
   Eigen::Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
@@ -354,12 +338,15 @@ double Server::ComputeSensorRange(const SensorDescription sensor) {
   return std::hypot(range_x, range_y);
 }
 
-void Server::OnPIDConstants(PIDConstants const &msg) {
+void Server::OnPIDConstants(PIDConstants const msg) {
 
 }
 
-void Server::OnPIDSetpoints(PIDSetpoints const &msg) {
+void Server::OnPIDSetpoints(PIDSetpoints const msg) {
 
 }
 
 } // namespace ssim
+
+// Force MOC to run on the header file
+#include <sim/moc_server.cpp>

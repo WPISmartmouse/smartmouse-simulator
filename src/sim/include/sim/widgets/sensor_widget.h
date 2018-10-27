@@ -9,13 +9,11 @@ class SensorWidget;
 
 namespace ssim {
 
-class Client;
-
 class SensorWidget : public QWidget, public AbstractTab {
  Q_OBJECT
 
  public:
-  explicit SensorWidget(Client &client);
+  explicit SensorWidget();
 
   const QString GetTabName() override;
 
@@ -51,7 +49,6 @@ class SensorWidget : public QWidget, public AbstractTab {
 
  private:
   Ui::SensorWidget *ui_;
-  Client &client_;
 };
 
 } // namespace ssim

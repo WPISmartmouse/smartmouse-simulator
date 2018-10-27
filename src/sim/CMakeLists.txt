@@ -5,8 +5,6 @@ set(CMAKE_AUTORCC ON)
 
 # Find the QtWidgets library
 find_package(Qt5 COMPONENTS Core Widgets Charts REQUIRED)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
 
 # Find QWT
 find_path(QWT_INCLUDE_DIR NAMES qwt.h PATHS /usr/include/qwt)
@@ -22,7 +20,7 @@ add_library(server server.cpp)
 target_include_directories(server PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
-target_link_libraries(server sim core hal kinematic_controller Threads::Threads)
+target_link_libraries(server sim core hal kinematic_controller Qt5::Core)
 
 file(GLOB WIDGET_SRCS widgets/*.cpp)
 

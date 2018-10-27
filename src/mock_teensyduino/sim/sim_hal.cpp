@@ -17,7 +17,25 @@ bool digitalRead(unsigned int pin) {
 }
 
 void analogWrite(unsigned int pin, unsigned int value) {
-  // TODO: implement me
+  const auto it = ssim::global_robot_description.pin_map.find(pin);
+  if (it == ssim::global_robot_description.pin_map.cend()) {
+    throw std::runtime_error{fmt::format("pin {} is not in the pin map.", pin)};
+  }
+
+  const auto analog_output = std::get_if<ssim::AnalogOutputDescription>(&it->second);
+  const auto motor_pin = std::get_if<ssim::MotorPinDescription>(&it->second);
+  if (analog_output)
+  {
+    analog_output->adc_value = value;
+  }
+  else if (motor_pin)
+  {
+    motor_pin->value = value;
+  }
+  else
+  {
+    throw std::runtime_error{fmt::format("pin {0} is not an AnalogInput or a MotorPinDescription", pin)};
+  }
 }
 
 unsigned int analogRead(unsigned int pin) {
