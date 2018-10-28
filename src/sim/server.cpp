@@ -4,6 +4,7 @@
 
 #include <core/math.h>
 #include <hal/hal.h>
+#include <hal/util.h>
 #include <kinematic_controller/kinematic_controller.h>
 #include <sim/ray_tracing.h>
 #include <sim/server.h>

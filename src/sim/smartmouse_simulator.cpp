@@ -10,14 +10,14 @@
 
 int main(int argc, char *argv[]) {
   int return_code = 0;
-  std::unique_ptr<ssim::Client> client;
 
   do {
+
     // Start physics thread
     ssim::Server server;
 
     QApplication app(argc, argv);
-    client = std::make_unique<ssim::Client>(&server);
+    auto client = std::make_unique<ssim::Client>(&server);
     client->setWindowTitle("Smartmouse Simulator");
     client->showMaximized();
     // Runs until the application is exited

@@ -2,6 +2,7 @@
 
 #include <sim/widgets/maze_widget.h>
 #include <hal/hal.h>
+#include <hal/util.h>
 
 namespace ssim {
 
@@ -49,7 +50,7 @@ WallCoordinates WallToCoordinates(double const r, double const c, Direction cons
 }
 
 
-MazeWidget::MazeWidget(QWidget *parent) : QWidget(parent), AbstractTab(), mouse_set_(false) {
+MazeWidget::MazeWidget(QWidget *parent) : QWidget(parent), AbstractTab() {
   setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::MinimumExpanding);
 }
 
@@ -61,7 +62,7 @@ void MazeWidget::paintEvent(QPaintEvent *event) {
     QRect g = this->geometry();
 
     int const w = std::min(g.width(), g.height()) - kPaddingPx;
-    double const cell_units_to_pixels = w / ssim::SIZE_CU;
+    double const cell_units_to_pixels = w / SIZE_CU;
 
     int const origin_col = (g.width() - w) / 2;
     int const origin_row = (g.height() - w) / 2;
@@ -71,26 +72,21 @@ void MazeWidget::paintEvent(QPaintEvent *event) {
   }
 
   // draw the background
-  QRectF const base = QRectF(0, 0, ssim::SIZE_CU, ssim::SIZE_CU);
+  QRectF const base = QRectF(0, 0, SIZE_CU, SIZE_CU);
   painter.fillRect(tf.mapRect(base), QApplication::palette().background());
 
   // Draw the thin-line grid over the whole maze
-  for (unsigned int i = 0; i <= ssim::SIZE; i++) {
-    QLineF const h_line(0, i, ssim::SIZE_CU, i);
+  for (unsigned int i = 0; i <= SIZE; i++) {
+    QLineF const h_line(0, i, SIZE_CU, i);
     painter.setPen(QApplication::palette().light().color());
     painter.drawLine(tf.map(h_line));
 
-    QLineF const v_line(i, 0, i, ssim::SIZE_CU);
+    QLineF const v_line(i, 0, i, SIZE_CU);
     painter.drawLine(tf.map(v_line));
   }
 
-  // Draw all the walls
-  PaintWalls(painter, tf);
-
-  // Draw the mouse
-  if (mouse_set_) {
-    PaintMouse(painter, tf);
-  }
+//  PaintWalls(painter, tf);
+  PaintMouse(painter, tf);
 }
 
 void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
@@ -122,7 +118,7 @@ void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
 
   tf.translate(robot_sim_state_.p.col, robot_sim_state_.p.row);
   tf.rotateRadians(robot_sim_state_.p.yaw, Qt::ZAxis);
-  tf.scale(1 / ssim::UNIT_DIST_M, 1 / ssim::UNIT_DIST_M);
+  tf.scale(1 / UNIT_DIST_M, 1 / UNIT_DIST_M);
 
   painter.setPen(QPen(Qt::black));
   painter.fillPath(tf.map(footprint), kRobotBrush);
@@ -145,8 +141,8 @@ void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
 }
 
 void MazeWidget::PaintWalls(QPainter &painter, QTransform tf) {
-  for (unsigned int row = 0; row < ssim::SIZE; row++) {
-    for (unsigned int col = 0; col < ssim::SIZE; col++) {
+  for (unsigned int row = 0; row < SIZE; row++) {
+    for (unsigned int col = 0; col < SIZE; col++) {
       Node const *n = maze_.nodes[row][col];
       for (auto d = Direction::First; d < Direction::Last; d++) {
         if (n->wall(d)) {
@@ -168,12 +164,16 @@ const QString MazeWidget::GetTabName() {
   return QString("Maze View");
 }
 
-void MazeWidget::OnMaze(ssim::AbstractMaze const &maze) {
+void MazeWidget::OnMaze(AbstractMaze maze) {
   maze_ = maze;
+
+  emit update();
 }
 
-void MazeWidget::OnRobotSimState(ssim::RobotSimState const &state) {
+void MazeWidget::OnRobotSimState(RobotSimState state) {
   robot_sim_state_ = state;
+
+  emit update();
 }
 
 } // namespace ssim

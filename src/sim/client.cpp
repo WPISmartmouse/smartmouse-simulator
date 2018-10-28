@@ -1,14 +1,16 @@
 #include <iostream>
 #include <fstream>
+
 #include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QSpinBox>
-
-#include <sim/server.h>
-#include <sim/client.h>
 #include <QFileDialog>
 #include <QCloseEvent>
+
+#include <hal/util.h>
+#include <sim/server.h>
+#include <sim/client.h>
 
 #include "ui_mainwindow.h"
 
@@ -22,6 +24,8 @@ Client::Client(Server * const server, QMainWindow *parent) : QMainWindow(parent)
 
   connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics);
   connect(this, &Client::ServerChanged, server, &Server::OnServerControl);
+  connect(this, &Client::MazeChanged, server, &Server::OnMaze);
+  connect(this, &Client::MazeChanged, maze_widget_, &MazeWidget::OnMaze);
 
   // publish the initial configuration
   PhysicsConfig initial_physics_config;

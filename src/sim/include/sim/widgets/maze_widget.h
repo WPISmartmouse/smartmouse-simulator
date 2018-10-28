@@ -17,9 +17,9 @@ class MazeWidget : public QWidget, public AbstractTab {
  public:
   explicit MazeWidget(QWidget *parent);
 
-  void OnMaze(ssim::AbstractMaze const &msg);
+  void OnMaze(AbstractMaze msg);
 
-  void OnRobotSimState(ssim::RobotSimState const &msg);
+  void OnRobotSimState(RobotSimState msg);
 
   void paintEvent(QPaintEvent *event);
 
@@ -34,9 +34,8 @@ class MazeWidget : public QWidget, public AbstractTab {
   static const QBrush kRobotBrush;
   static QBrush kWallBrush;
 
-  ssim::RobotSimState robot_sim_state_;
-  ssim::AbstractMaze maze_;
-  bool mouse_set_;
+  RobotSimState robot_sim_state_;
+  AbstractMaze maze_;
 };
 
 } // namespace ssim
