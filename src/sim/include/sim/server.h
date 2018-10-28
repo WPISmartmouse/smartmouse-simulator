@@ -28,9 +28,9 @@ class Server : public QThread {
 
  signals:
 
-  void UpdateState(RobotSimState state);
+  void RobotSimStateChanged(RobotSimState state);
 
-  void UpdateWorldStats(WorldStatistics world_stats);
+  void WorldStatsChanged(WorldStatistics world_stats);
 
  private:
   void Step();

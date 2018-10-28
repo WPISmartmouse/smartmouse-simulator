@@ -47,6 +47,7 @@ def main():
     test_parser = subparsers.add_parser('test')
     test_parser.set_defaults(func=test)
     test_parser.add_argument("conf_names", nargs='*', default=ALL, help="name(s) of build conf(s)")
+    test_parser.add_argument("--coverage", action="store_true")
 
     args = parser.parse_args()
 
@@ -234,7 +235,8 @@ def test_conf(args, root, conf):
         if '_TEST' in cmd['file']:
             filename = cmd['file']
             test_name = os.path.splitext(os.path.basename(filename))[0]
-            tests.append(test_name)
+            if '_TEST' in test_name:
+                tests.append(test_name)
 
     # Recompile if necessary
     if len(tests) >= 0:
@@ -252,20 +254,21 @@ def test_conf(args, root, conf):
         return False
 
     # Run lcov and generate HTML reports
-    cmd = ["lcov", "-c", "--directory", cwd, "--output-file", "main_coverage.info"]
-    result = subprocess.run(cmd, cwd=cwd)
-    if result.returncode:
-        print(colorama.Fore.RED, end='')
-        print("Command failed: {} in directory {}".format(cmd, cwd))
-        print(colorama.Fore.RESET, end='')
-        return False
+    if args.coverage:
+        cmd = ["lcov", "-c", "--directory", cwd, "--output-file", "main_coverage.info"]
+        result = subprocess.run(cmd, cwd=cwd)
+        if result.returncode:
+            print(colorama.Fore.RED, end='')
+            print("Command failed: {} in directory {}".format(cmd, cwd))
+            print(colorama.Fore.RESET, end='')
+            return False
 
-    cmd = ["genhtml", "main_coverage.info", "--output-directory", "gcov_output"]
-    result = subprocess.run(cmd, cwd=cwd)
-    if result.returncode:
-        print(colorama.Fore.RED, end='')
-        print("Command failed: {} in directory {}".format(cmd, cwd))
-        print(colorama.Fore.RESET, end='')
-        return False
+        cmd = ["genhtml", "main_coverage.info", "--output-directory", "gcov_output"]
+        result = subprocess.run(cmd, cwd=cwd)
+        if result.returncode:
+            print(colorama.Fore.RED, end='')
+            print("Command failed: {} in directory {}".format(cmd, cwd))
+            print(colorama.Fore.RESET, end='')
+            return False
 
     return True

@@ -31,10 +31,12 @@ AbstractMaze::AbstractMaze(AbstractMaze const &m) : AbstractMaze() {
 }
 
 #ifndef REAL
+
 AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
   std::string line;
 
-  //look West and North to connect any nodes
+
+  //look West and South to connect any nodes
   for (unsigned int i = 0; i < SIZE; i++) {
     std::getline(fs, line);
 
@@ -55,11 +57,19 @@ AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
       charPos++;
     }
   }
-  printf("\n");
+
+  // Add the north and east walls
+  for (unsigned int j = 0; j < SIZE; j++) {
+    nodes[0][j]->neighbors[static_cast<int>(Direction::N)] = nullptr;
+    nodes[j][SIZE - 1]->neighbors[static_cast<int>(Direction::E)] = nullptr;
+  }
+
+
 }
+
 #endif
 
-int AbstractMaze::get_node(Node ** const out, const unsigned int row, const unsigned int col) const {
+int AbstractMaze::get_node(Node **const out, const unsigned int row, const unsigned int col) const {
   if (col < 0 || col >= SIZE || row < 0 || row >= SIZE) {
     return Node::OUT_OF_BOUNDS;
   }

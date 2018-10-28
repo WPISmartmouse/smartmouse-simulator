@@ -24,8 +24,11 @@ Client::Client(Server * const server, QMainWindow *parent) : QMainWindow(parent)
 
   connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics);
   connect(this, &Client::ServerChanged, server, &Server::OnServerControl);
+  connect(this, &Client::RobotCommandChanged, server, &Server::OnRobotCommand);
   connect(this, &Client::MazeChanged, server, &Server::OnMaze);
   connect(this, &Client::MazeChanged, maze_widget_, &MazeWidget::OnMaze);
+  connect(server, &Server::WorldStatsChanged, this, &Client::OnWorldStats);
+  connect(server, &Server::RobotSimStateChanged, maze_widget_, &MazeWidget::OnRobotSimState);
 
   // publish the initial configuration
   PhysicsConfig initial_physics_config;

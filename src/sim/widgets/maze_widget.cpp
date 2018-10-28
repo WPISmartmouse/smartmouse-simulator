@@ -3,6 +3,7 @@
 #include <sim/widgets/maze_widget.h>
 #include <hal/hal.h>
 #include <hal/util.h>
+#include <thread>
 
 namespace ssim {
 
@@ -46,7 +47,7 @@ WallCoordinates WallToCoordinates(double const r, double const c, Direction cons
     }
   }
 
-  return {c1, r1, c2, r2};
+  return {.r1=r1, .c1=c1, .r2=r2, .c2=c2};
 }
 
 
@@ -85,7 +86,7 @@ void MazeWidget::paintEvent(QPaintEvent *event) {
     painter.drawLine(tf.map(v_line));
   }
 
-//  PaintWalls(painter, tf);
+  PaintWalls(painter, tf);
   PaintMouse(painter, tf);
 }
 
@@ -141,23 +142,30 @@ void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
 }
 
 void MazeWidget::PaintWalls(QPainter &painter, QTransform tf) {
-  for (unsigned int row = 0; row < SIZE; row++) {
-    for (unsigned int col = 0; col < SIZE; col++) {
-      Node const *n = maze_.nodes[row][col];
-      for (auto d = Direction::First; d < Direction::Last; d++) {
-        if (n->wall(d)) {
-          auto wall = WallToCoordinates(row, col, d);
-          QPainterPath wall_path;
-          wall_path.moveTo(wall.c1, wall.r1);
-          wall_path.lineTo(wall.c2, wall.r1);
-          wall_path.lineTo(wall.c2, wall.r2);
-          wall_path.lineTo(wall.c1, wall.r2);
-          wall_path.lineTo(wall.c1, wall.r1);
-          painter.fillPath(tf.map(wall_path), kWallBrush);
-        }
-      }
-    }
+  print(">\n");
+  for (auto i=0;i<4;i++) {
+    print("%p\n", maze_.nodes[0][1]->neighbors[i]);
   }
+//  for (unsigned int row = 0; row < SIZE; row++) {
+//    for (unsigned int col = 0; col < SIZE; col++) {
+//      Node *n = nullptr;
+//      const auto success = maze_.get_node(&n, row, col);
+//      if (success == 0) {
+//        for (auto d = Direction::First; d < Direction::Last; d++) {
+//          if (n->wall(d)) {
+//            auto wall = WallToCoordinates(row, col, d);
+//            QPainterPath wall_path;
+//            wall_path.moveTo(wall.c1, wall.r1);
+//            wall_path.lineTo(wall.c2, wall.r1);
+//            wall_path.lineTo(wall.c2, wall.r2);
+//            wall_path.lineTo(wall.c1, wall.r2);
+//            wall_path.lineTo(wall.c1, wall.r1);
+//            painter.fillPath(tf.map(wall_path), kWallBrush);
+//          }
+//        }
+//      }
+//    }
+//  }
 }
 
 const QString MazeWidget::GetTabName() {
@@ -166,6 +174,9 @@ const QString MazeWidget::GetTabName() {
 
 void MazeWidget::OnMaze(AbstractMaze maze) {
   maze_ = maze;
+  for (auto i=0;i<4;i++) {
+    print("%p\n", maze.nodes[0][1]->neighbors[i]);
+  }
 
   emit update();
 }

@@ -20,7 +20,7 @@ public:
   bool visited = false;
 
   //if you want to iterate over neighbors, just increment the pointer to north
-  std::array<Node *, 4> neighbors = {};
+  std::array<Node *, 4> neighbors = {nullptr, nullptr, nullptr, nullptr};
 
   int const static OUT_OF_BOUNDS;
 

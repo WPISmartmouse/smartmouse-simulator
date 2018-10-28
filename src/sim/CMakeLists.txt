@@ -39,3 +39,4 @@ target_link_libraries(smartmouse_simulator client server core)
 
 file(GLOB WIDGET_SRCS widgets/*.cpp)
 
+add_subdirectory(test)

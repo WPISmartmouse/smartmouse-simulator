@@ -63,7 +63,7 @@ void Server::run() {
     ssim::WorldStatistics world_stats;
     world_stats.sim_time = std::chrono::nanoseconds(ns_of_sim_per_step_ * steps_);
     world_stats.real_time_factor = rtf;
-    emit UpdateWorldStats(world_stats);
+    emit WorldStatsChanged(world_stats);
   }
 }
 
@@ -79,7 +79,7 @@ void Server::Step() {
   global_plugin->Step();
 
   // emit the information to the client
-  emit UpdateState(state_);
+  emit RobotSimStateChanged(state_);
 
   // increment step counter
   ++steps_;

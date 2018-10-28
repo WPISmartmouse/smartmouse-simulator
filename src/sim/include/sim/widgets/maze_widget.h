@@ -9,7 +9,7 @@
 
 namespace ssim {
 
-WallCoordinates WallToCoordinates(double r, double c);
+WallCoordinates WallToCoordinates(double const r, double const c, Direction const dir);
 
 class MazeWidget : public QWidget, public AbstractTab {
  Q_OBJECT
