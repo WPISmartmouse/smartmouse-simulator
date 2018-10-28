@@ -3,8 +3,11 @@
  */
 #pragma once
 
+#include <functional>
 #include <stdio.h>
+#include <unordered_set>
 #include <sstream>
+#include <tuple>
 #include <vector>
 
 #ifndef ARDUINO
@@ -18,13 +21,37 @@
 #include "direction.h"
 
 namespace ssim {
+struct Wall {
+  Wall(unsigned int row, unsigned int col, Direction d);
 
-/**
- * \brief the maze is graph of nodes, stored internally as an matrix.
- * don't forget to call free_maze(maze) after a maze is done being used
- */
+  Wall() = default;
 
-struct motion_primitive_t {
+  unsigned int Row() const;
+  unsigned int Col() const;
+  Direction Dir() const;
+
+  bool operator==(const Wall &other) const;
+
+ private:
+  unsigned int row = 0;
+  unsigned int col = 0;
+  Direction dir = Direction::N;
+
+};
+}
+
+namespace std {
+template<>
+struct hash<ssim::Wall> {
+  size_t operator()(const ssim::Wall &x) const {
+    return (x.Row() << 8) + x.Col();
+  }
+};
+}
+
+namespace ssim {
+
+struct MotionPrimitive {
   uint8_t n;
   Direction d;
 
@@ -35,15 +62,15 @@ struct motion_primitive_t {
   }
 };
 
-using route_t = std::vector<motion_primitive_t>;
+using Route = std::vector<MotionPrimitive>;
 
-std::string route_to_string(route_t const &route);
+std::string route_to_string(Route const &route);
 
-unsigned int expanded_route_length(route_t const &route);
+unsigned int expanded_route_length(Route const &route);
 
-void insert_motion_primitive_front(route_t *route, motion_primitive_t prim);
+void insert_motion_primitive_front(Route *route, MotionPrimitive prim);
 
-void insert_motion_primitive_back(route_t *route, motion_primitive_t prim);
+void insert_motion_primitive_back(Route *route, MotionPrimitive prim);
 
 unsigned int constexpr static SIZE = 16;
 unsigned long const BUFF_SIZE = (SIZE * 2 + 3) * SIZE;
@@ -69,98 +96,70 @@ double constexpr SIZE_CU = toCellUnits(SIZE_M);
 
 class AbstractMaze {
 
- public:
-
-  route_t fastest_route;
-
-  bool solved;
-
-  /** \brief allocates and initializes a node
-   * allocates a maze of the given size and sets all links in graph to be null. Naturally, it's column major.
-   */
-  AbstractMaze();
-
-  AbstractMaze(AbstractMaze const &m);
-
 #ifndef REAL
-
+ public:
   AbstractMaze(std::ifstream &fs);
 
 #endif
 
-  ~AbstractMaze();
+ public:
 
-  void mark_origin_known();
-
-  void mark_position_visited(unsigned int row, unsigned int col);
-
-  /** \brief add the neighbor in the given direction
-   * \param dir direction connect in
-   */
-  void connect_neighbor(unsigned int row, unsigned int col, Direction dir);
-
-  void reset();
-
-  /**
-   * \brief uses the information from a sensor read and correctly adds or removes walls from nodes
-   * \param row row
-   * \param col col
-   * \param walls the array of walls
-   * \param n the node to update the neighbors of
-   */
-  void update(SensorReading sr);
-
-  //This method will take a maze and perform a traditional flood fill
-  //the fill starts from r0, c0 and ends at r1, c1
-  bool flood_fill_from_point(route_t *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1);
-
-  bool flood_fill_from_origin(route_t *path, unsigned int r1, unsigned int c1);
-
-  bool flood_fill_from_origin_to_center(route_t *path);
-
-  /** \brief connect all neighbors in the whole maze
-   * \param i row
-   * \param j col
-   */
-  void connect_all_neighbors_in_maze();
-
-  /** \brief get node by its position
-   * \return 0 on success, OUT_OF_BOUNDS, or -1 on NULL
-   */
-  int get_node(Node **const out, unsigned int r, unsigned int c) const;
-
-  /** \brief get neighbor node in a direction from a position
-   * \param the adress of the node to set
-   * \param row starting row
-   * \param col starting col
-   * \param dir the direction of the neighbor you want
-   * \return 0 on success, OUT_OF_BOUNDS, or -1 on NULL
-   */
-  int get_node_in_direction(Node **const out, unsigned int row, unsigned int col, Direction dir) const;
-
-  /** \brief add all the neighbors
-   */
-  void connect_all_neighbors(unsigned int row, unsigned int col);
-
-  /** \brief disconnect any neighbor in the given direction
-   * \param dir direction connect in
-   */
-  void disconnect_neighbor(unsigned int row, unsigned int col, Direction dir);
-
-  /** \brief walks along a route in the maze and return the longest valid path
-   * Valid means you don't walk through any walls.
-   */
-  route_t truncate(unsigned int row, unsigned int col, Direction dir, route_t route) const;
+  AbstractMaze();
 
   static AbstractMaze gen_random_legal_maze();
 
-  static void make_connections(AbstractMaze *maze, Node *node);
+  static void random_walk(AbstractMaze &maze, unsigned int row, unsigned int col);
 
-  bool flood_fill(route_t *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1);
+  static std::tuple<bool, unsigned int, unsigned int> step(unsigned int row, unsigned int col, Direction d);
 
   bool operator==(AbstractMaze const &other) const;
 
-  std::array<std::array<Node *, SIZE>, SIZE> nodes; // array of node pointers
+  bool out_of_bounds(unsigned int row, unsigned int col) const;
+
+  Node get_node(unsigned int r, unsigned int c) const;
+
+  Node get_node_in_direction(unsigned int row, unsigned int col, Direction dir) const;
+
+  Route truncate_route(unsigned int row, unsigned int col, Direction dir, Route route) const;
+
+  void reset();
+
+  bool is_perimeter(unsigned int row, unsigned int col, Direction dir) const;
+
+  bool is_wall(unsigned int row, unsigned int col, Direction dir) const;
+
+  void add_all_walls();
+
+  void add_wall(unsigned int row, unsigned int col, Direction dir);
+
+  void remove_all_walls();
+
+  void remove_all_walls(unsigned int row, unsigned int col);
+
+  void remove_wall(unsigned int row, unsigned int col, Direction dir);
+
+  void mark_position_visited(unsigned int row, unsigned int col);
+
+  void assign_weights_to_neighbors(Node n, Node goal, int weight, bool &goal_found);
+
+  bool flood_fill_from_point(Route *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1);
+
+  bool flood_fill_from_origin(Route *path, unsigned int r1, unsigned int c1);
+
+  bool flood_fill_from_origin_to_center(Route *path);
+
+  bool flood_fill(Route *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1);
+
+  void update(SensorReading sr);
+
+  Route fastest_route = {};
+  bool solved = false;
+
+ private:
+  std::unordered_set<Wall> walls;
+  std::array<std::array<Node, SIZE>, SIZE> nodes; // array of node pointers
+  std::unordered_set<Wall> perimeter;
 };
 
 }
+

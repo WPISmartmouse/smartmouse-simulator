@@ -9,11 +9,11 @@ Flood::Flood(Mouse *mouse) : Solver(mouse), done(false), goal(Goal::CENTER), sol
 void Flood::setup() {
   mouse->reset();
   mouse->maze.reset();
-  no_wall_maze.connect_all_neighbors_in_maze();
-  all_wall_maze.connect_neighbor(CENTER, CENTER, Direction::W);
-  all_wall_maze.connect_neighbor(CENTER, CENTER, Direction::N);
-  all_wall_maze.connect_neighbor(CENTER - 1, CENTER - 1, Direction::E);
-  all_wall_maze.connect_neighbor(CENTER - 1, CENTER - 1, Direction::S);
+  no_wall_maze.remove_all_walls();
+  all_wall_maze.remove_wall(CENTER, CENTER, Direction::W);
+  all_wall_maze.remove_wall(CENTER, CENTER, Direction::N);
+  all_wall_maze.remove_wall(CENTER - 1, CENTER - 1, Direction::E);
+  all_wall_maze.remove_wall(CENTER - 1, CENTER - 1, Direction::S);
   goal = Solver::Goal::CENTER;
 }
 
@@ -21,7 +21,7 @@ void Flood::setGoal(Solver::Goal goal) {
   this->goal = goal;
 }
 
-motion_primitive_t Flood::planNextStep() {
+MotionPrimitive Flood::planNextStep() {
   // mark the nodes visited in both the mazes
   no_wall_maze.mark_position_visited(mouse->getRow(), mouse->getCol());
   all_wall_maze.mark_position_visited(mouse->getRow(), mouse->getCol());
@@ -54,7 +54,7 @@ motion_primitive_t Flood::planNextStep() {
 
   // Walk along the no_wall_path as far as possible in the all_wall_maze
   // This will results in the longest path where we know there are no walls
-  route_t nextPath = all_wall_maze.truncate(mouse->getRow(), mouse->getCol(), mouse->getDir(), no_wall_path);
+  Route nextPath = all_wall_maze.truncate_route(mouse->getRow(), mouse->getCol(), mouse->getDir(), no_wall_path);
   if (nextPath.empty()) {
     throw std::length_error("Plan length was zero because the first step in the path was deemed impossible.");
   } else {
@@ -62,8 +62,8 @@ motion_primitive_t Flood::planNextStep() {
   }
 }
 
-route_t Flood::solve() {
-  route_t route;
+Route Flood::solve() {
+  Route route;
   while (!isFinished()) {
     auto const step = planNextStep();
     insert_motion_primitive_back(&route, step);

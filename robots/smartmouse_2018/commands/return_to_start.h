@@ -13,7 +13,7 @@ public:
   bool isFinished() override;
 
 private:
-  ssim::route_t pathToStart;
+  ssim::Route pathToStart;
   int index;
   Smartmouse2018Robot &robot;
 

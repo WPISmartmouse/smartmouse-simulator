@@ -5,9 +5,13 @@
     <sourceRoots>
       <file path="$PROJECT_DIR$" />
     </sourceRoots>
+    <libraryRoots>
+      <file path="$PROJECT_DIR$/src/fmt-5.2.1" />
+    </libraryRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/.build" />
       <file path="$PROJECT_DIR$/.sim_build_usan" />
+      <file path="$PROJECT_DIR$/venv" />
     </excludeRoots>
   </component>
 </project>

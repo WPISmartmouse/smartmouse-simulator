@@ -142,30 +142,27 @@ void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
 }
 
 void MazeWidget::PaintWalls(QPainter &painter, QTransform tf) {
-  print(">\n");
-  for (auto i=0;i<4;i++) {
-    print("%p\n", maze_.nodes[0][1]->neighbors[i]);
+  for (unsigned int row = 0; row < SIZE; row++) {
+    for (unsigned int col = 0; col < SIZE; col++) {
+      Node *n = nullptr;
+      const auto success = maze_.get_node(&n, row, col);
+      if (success == 0) {
+        for (auto d = Direction::First; d < Direction::Last; d++) {
+          if (n->wall(d)) {
+            auto wall = WallToCoordinates(row, col, d);
+            QPainterPath wall_path;
+            wall_path.moveTo(wall.c1, wall.r1);
+            wall_path.lineTo(wall.c2, wall.r1);
+            wall_path.lineTo(wall.c2, wall.r2);
+            wall_path.lineTo(wall.c1, wall.r2);
+            wall_path.lineTo(wall.c1, wall.r1);
+            painter.fillPath(tf.map(wall_path), kWallBrush);
+          }
+        }
+      }
+    }
   }
-//  for (unsigned int row = 0; row < SIZE; row++) {
-//    for (unsigned int col = 0; col < SIZE; col++) {
-//      Node *n = nullptr;
-//      const auto success = maze_.get_node(&n, row, col);
-//      if (success == 0) {
-//        for (auto d = Direction::First; d < Direction::Last; d++) {
-//          if (n->wall(d)) {
-//            auto wall = WallToCoordinates(row, col, d);
-//            QPainterPath wall_path;
-//            wall_path.moveTo(wall.c1, wall.r1);
-//            wall_path.lineTo(wall.c2, wall.r1);
-//            wall_path.lineTo(wall.c2, wall.r2);
-//            wall_path.lineTo(wall.c1, wall.r2);
-//            wall_path.lineTo(wall.c1, wall.r1);
-//            painter.fillPath(tf.map(wall_path), kWallBrush);
-//          }
-//        }
-//      }
-//    }
-//  }
+  print("%d\n", maze_.nodes[0][1]->wall(Direction::N));
 }
 
 const QString MazeWidget::GetTabName() {
@@ -174,10 +171,6 @@ const QString MazeWidget::GetTabName() {
 
 void MazeWidget::OnMaze(AbstractMaze maze) {
   maze_ = maze;
-  for (auto i=0;i<4;i++) {
-    print("%p\n", maze.nodes[0][1]->neighbors[i]);
-  }
-
   emit update();
 }
 

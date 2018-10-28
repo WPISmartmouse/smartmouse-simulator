@@ -20,9 +20,9 @@ public:
 
   void setup() override;
 
-  motion_primitive_t planNextStep() override;
+  MotionPrimitive planNextStep() override;
 
-  route_t solve() override;
+  Route solve() override;
 
   bool isFinished() override;
 
@@ -38,8 +38,8 @@ private:
   /// \brief this maze is initially all walls, and walls are removed every time the mouse moves
   AbstractMaze all_wall_maze;
 
-  route_t no_wall_path;
-  route_t all_wall_path;
+  Route no_wall_path;
+  Route all_wall_path;
   Solver::Goal goal;
 
   bool solved;

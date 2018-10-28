@@ -49,13 +49,8 @@ void Mouse::internalForward() {
   }
 }
 
-bool Mouse::isWallInDirection(Direction d)  const {
-  Node *mouse_node = nullptr;
-  if ((maze.get_node(&mouse_node, row, col) == Node::OUT_OF_BOUNDS)) {
-    return false;
-  }
-  bool is_wall = mouse_node->neighbor(d) == nullptr;
-  return is_wall;
+bool Mouse::isWallInDirection(Direction d) const {
+  return maze.is_wall(row, col, d);
 }
 
 void Mouse::maze_mouse_string(char *buff) const {
@@ -63,8 +58,7 @@ void Mouse::maze_mouse_string(char *buff) const {
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
-      Node *n = maze.nodes[i][j];
-      if (n->neighbor(Direction::W) == NULL) {
+      if (maze.is_wall(i, j, Direction::W)) {
         strcpy(b++, "|");
       } else {
         strcpy(b++, "_");
@@ -88,7 +82,7 @@ void Mouse::maze_mouse_string(char *buff) const {
             strcpy(b++, "o");
             break;
         }
-      } else if (n->neighbor(Direction::S) == NULL) {
+      } else if (maze.is_wall(i, j, Direction::W)) {
         strcpy(b++, "_");
       } else {
         strcpy(b++, " ");

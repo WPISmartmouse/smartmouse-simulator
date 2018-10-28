@@ -4,9 +4,9 @@
 #include <core/maze.h>
 
 TEST(MazeTest, insert_motion_primitive_back) {
-  ssim::route_t route;
-  ssim::motion_primitive_t E1{.n=1, .d=ssim::Direction::E};
-  ssim::motion_primitive_t W2{.n=2, .d=ssim::Direction::W};
+  ssim::Route route;
+  ssim::MotionPrimitive E1{.n=1, .d=ssim::Direction::E};
+  ssim::MotionPrimitive W2{.n=2, .d=ssim::Direction::W};
 
   ssim::insert_motion_primitive_back(&route, E1);
   EXPECT_EQ(ssim::route_to_string(route), "1E");

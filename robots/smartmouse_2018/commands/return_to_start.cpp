@@ -18,7 +18,7 @@ bool ReturnToStart::isFinished() {
     bool returned = robot.getRow() == 0 && robot.getCol() == 0;
 
     if (!returned) {
-      ssim::motion_primitive_t prim = pathToStart[index++];
+      ssim::MotionPrimitive prim = pathToStart[index++];
       add<Turn>(robot, prim.d);
       add<Forward>(robot);
     } else {

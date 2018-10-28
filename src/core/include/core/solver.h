@@ -15,11 +15,11 @@ public:
 
   virtual void setup() = 0;
 
-  virtual motion_primitive_t planNextStep() = 0;
+  virtual MotionPrimitive planNextStep() = 0;
 
   virtual bool isFinished() = 0;
 
-  virtual route_t solve() = 0;
+  virtual Route solve() = 0;
 
   virtual void teardown() {};
 
