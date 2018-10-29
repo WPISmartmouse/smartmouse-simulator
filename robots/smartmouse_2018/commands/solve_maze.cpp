@@ -29,7 +29,7 @@ bool SolveMaze::isFinished() {
     if (!mazeSolved) {
       ssim::MotionPrimitive prim = solver->planNextStep();
 
-      if (prim.d == ssim::Direction::INVALID || !solver->isSolvable()) {
+      if (!solver->isSolvable()) {
         solved = false;
         return true;
       }

@@ -1,5 +1,6 @@
 #include <core/direction.h>
 #include <core/math.h>
+#include <fmt/format.h>
 
 namespace ssim {
 
@@ -29,7 +30,7 @@ Direction left_of_dir(Direction dir) {
     case Direction::W:
       return Direction::S;
     default:
-      return Direction::INVALID;
+      return Direction::Last;
   }
 }
 
@@ -44,7 +45,7 @@ Direction right_of_dir(Direction dir) {
     case Direction::W:
       return Direction::N;
     default:
-      return Direction::INVALID;
+      return Direction::Last;
   }
 }
 
@@ -59,7 +60,7 @@ Direction int_to_dir(int i) {
     case 3:
       return Direction::W;
     default:
-      return Direction::INVALID;
+      throw std::invalid_argument(fmt::format("invalid int {}", i));
   }
 }
 
@@ -78,7 +79,7 @@ const Direction operator++(Direction &dir, int) {
       dir = Direction::Last;
       break;
     default:
-      dir = Direction::INVALID;
+      dir = Direction::Last;
   }
   return dir;
 }
@@ -133,7 +134,7 @@ Direction opposite_direction(Direction d) {
     case Direction::W:
       return Direction::E;
     default:
-      return Direction::INVALID;
+      throw std::invalid_argument(fmt::format("direction has no opposite"));
   }
 }
 
@@ -163,7 +164,7 @@ Direction char_to_dir(char c) {
     case 'W':
       return Direction::W;
     default:
-      return Direction::INVALID;
+      throw std::invalid_argument(fmt::format("invalid char {}", c));
   }
 }
 

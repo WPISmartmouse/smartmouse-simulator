@@ -10,6 +10,7 @@ void Flood::setup() {
   mouse->reset();
   mouse->maze.reset();
   no_wall_maze.remove_all_walls();
+  all_wall_maze.add_all_walls();
   all_wall_maze.remove_wall(CENTER, CENTER, Direction::W);
   all_wall_maze.remove_wall(CENTER, CENTER, Direction::N);
   all_wall_maze.remove_wall(CENTER - 1, CENTER - 1, Direction::E);

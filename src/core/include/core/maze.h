@@ -52,8 +52,8 @@ struct hash<ssim::Wall> {
 namespace ssim {
 
 struct MotionPrimitive {
-  uint8_t n;
-  Direction d;
+  uint8_t n = 0;
+  Direction d = Direction::N;
 
   std::string to_string() {
     std::stringstream ss;
@@ -137,6 +137,8 @@ class AbstractMaze {
   void remove_all_walls(unsigned int row, unsigned int col);
 
   void remove_wall(unsigned int row, unsigned int col, Direction dir);
+
+  void remove_wall_if_exists(unsigned int row, unsigned int col, Direction dir);
 
   void mark_position_visited(unsigned int row, unsigned int col);
 

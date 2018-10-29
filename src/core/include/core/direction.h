@@ -9,7 +9,6 @@ enum class Direction {
   W, //3
   Last, //4
   First = N, //0
-  INVALID = -1
 };
 
 /** \brief returns the left of the given direction */

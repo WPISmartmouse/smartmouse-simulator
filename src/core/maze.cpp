@@ -32,10 +32,10 @@ Direction Wall::Dir() const {
 
 AbstractMaze::AbstractMaze() {
   for (unsigned int i = 0; i < SIZE; i++) {
-    perimeter.emplace(i, 0, Direction::N);
-    perimeter.emplace(i, SIZE - 1, Direction::S);
-    perimeter.emplace(0, i, Direction::W);
-    perimeter.emplace(SIZE - 1, i, Direction::E);
+    perimeter.emplace(0, i, Direction::N);
+    perimeter.emplace(SIZE - 1, i, Direction::S);
+    perimeter.emplace(i, SIZE - 1, Direction::E);
+    perimeter.emplace(i, 0, Direction::W);
   }
 }
 
@@ -43,7 +43,6 @@ AbstractMaze::AbstractMaze() {
 
 AbstractMaze::AbstractMaze(std::ifstream &fs) : AbstractMaze() {
   std::string line;
-  printf("constructing maze %p\n", this);
 
   add_all_walls();
 
@@ -104,7 +103,7 @@ AbstractMaze::step(unsigned int const row, unsigned int const col, Direction con
     case Direction::W:
       return col > 0 ? t{true, row, col - 1} : t{false, 0, 0};
     default:
-      throw std::invalid_argument(fmt::format("direction {} is out of bounds", dir_to_char(d)));
+      throw std::invalid_argument(fmt::format("direction {} is invalid", dir_to_char(d)));
   }
 }
 
@@ -118,37 +117,46 @@ bool AbstractMaze::out_of_bounds(unsigned int row, unsigned int col) const {
 
 Node AbstractMaze::get_node(unsigned int const row, unsigned int const col) const {
   if (out_of_bounds(row, col)) {
-    throw std::invalid_argument(fmt::format("row {} or col {} is out of bounds", row, col));
+    throw std::invalid_argument(fmt::format("get_node: row {} or col {} is out of bounds", row, col));
   }
   return nodes[row][col];
 }
 
 Node AbstractMaze::get_node_in_direction(unsigned int const row, unsigned int const col, Direction const dir) const {
+  if (dir == Direction::Last) {
+    throw std::invalid_argument("Invalid direction Last");
+  }
+
   const auto[valid, row_in_dir, col_in_dir] = step(row, col, dir);
   if (!valid) {
     throw std::invalid_argument(
-        fmt::format("row {} or col {} in direction {} is out of bounds", row, col, dir_to_char(dir)));
+        fmt::format("get_node_in_dir: row {} or col {} in direction {} is out of bounds", row, col, dir_to_char(dir)));
   }
   return get_node(row_in_dir, col_in_dir);
 }
 
 bool AbstractMaze::is_perimeter(unsigned int row, unsigned int col, Direction dir) const {
+  if (dir == Direction::Last) {
+    throw std::invalid_argument("Invalid direction Last");
+  }
+
   if (row == 0 and dir == Direction::N) {
     return true;
-  }
-  if (row == SIZE - 1 and dir == Direction::S) {
+  } else if (row == SIZE - 1 and dir == Direction::S) {
     return true;
-  }
-  if (col == 0 and dir == Direction::W) {
+  } else if (col == 0 and dir == Direction::W) {
     return true;
-  }
-  if (col == SIZE - 1 and dir == Direction::E) {
+  } else if (col == SIZE - 1 and dir == Direction::E) {
     return true;
   }
   return false;
 }
 
 bool AbstractMaze::is_wall(unsigned int const row, unsigned int const col, Direction const dir) const {
+  if (dir == Direction::Last) {
+    throw std::invalid_argument("Invalid direction Last");
+  }
+
   auto const wall_it = walls.find({.row=row, .col=col, .dir=dir});
   auto const perimeter_it = perimeter.find({.row=row, .col=col, .dir=dir});
   return wall_it != walls.cend() or perimeter_it != perimeter.cend();
@@ -164,24 +172,61 @@ void AbstractMaze::reset() {
 }
 
 void AbstractMaze::add_wall(unsigned int const row, unsigned int const col, Direction const dir) {
-  if (out_of_bounds(row, col)) {
-    throw std::invalid_argument(fmt::format("row {} or col {} is out of bounds", row, col));
-  } else if (is_perimeter(row, col, dir)) {
-    throw std::invalid_argument(
-        fmt::format("wall at row {} col {} dir {} is perimeter", row, col, dir_to_char(dir)));
+  if (dir == Direction::Last) {
+    throw std::invalid_argument("Invalid direction Last");
   }
 
-  walls.emplace(row, col, dir);
+  if (out_of_bounds(row, col)) {
+    throw std::invalid_argument(fmt::format("add_wall: row {} or col {} is out of bounds", row, col));
+  }
+
+  if (!is_perimeter(row, col, dir)) {
+    walls.emplace(row, col, dir);
+  }
+
+  // Add the wall from the other side if that's possible
+  const auto[valid, row_in_dir, col_in_dir] = step(row, col, dir);
+  if (valid and !is_perimeter(row_in_dir, col_in_dir, opposite_direction(dir))) {
+    walls.emplace(row_in_dir, col_in_dir, opposite_direction(dir));
+  }
 }
 
 void AbstractMaze::remove_wall(unsigned int const row, unsigned int const col, Direction const dir) {
-  auto it = walls.find({.row=row, .col=col, .dir=dir});
-  if (it == walls.cend()) {
-    throw std::invalid_argument(
-        fmt::format("row {} or col {} is out of bounds, or has no non-perimeter wall in direction {}", row, col,
-                    dir_to_char(dir)));
+  if (dir == Direction::Last) {
+    throw std::invalid_argument("Invalid direction Last");
   }
-  walls.erase(it);
+
+  {
+    if (is_perimeter(row, col, dir)) {
+      throw std::invalid_argument(
+          fmt::format("row {} or col {} direction {} is a perimeter, which cannot be remove", row, col,
+                      dir_to_char(dir)));
+
+    }
+    const auto it = walls.find({.row=row, .col=col, .dir=dir});
+    if (it == walls.cend()) {
+      throw std::invalid_argument(
+          fmt::format("remove_wall: row {} col {} dir {} not in walls", row, col, dir_to_char(dir)));
+    }
+    walls.erase(it);
+  }
+
+  // Remove the wall from the other side if that's possible
+  const auto[valid, row_in_dir, col_in_dir] = step(row, col, dir);
+  if (valid) {
+    const auto it = walls.find({.row=row_in_dir, .col=col_in_dir, .dir=opposite_direction(dir)});
+    if (it != walls.cend()) {
+      walls.erase(it);
+    }
+  }
+}
+
+void AbstractMaze::remove_wall_if_exists(unsigned int const row, unsigned int const col, ssim::Direction const dir) {
+  try {
+    remove_wall(row, col, dir);
+  }
+  catch (std::invalid_argument const &e) {
+  }
 }
 
 void AbstractMaze::remove_all_walls() {
@@ -206,15 +251,15 @@ void AbstractMaze::assign_weights_to_neighbors(Node n, Node goal, int weight, bo
     //don't visit it again unless you find a shorter path
     n.known = true;
 
-    //check if path to goal node was found
+    // check if path to goal node was found
     if (n == goal) {
       goal_found = true;
     }
 
-    //update weight
+    // update weight
     n.weight = weight;
 
-    //recursive call to explore each neighbors
+    // recursive call to explore each neighbors
     for (Direction d = Direction::First; d != Direction::Last; d++) {
       const auto[valid, row_in_dir, col_in_dir] = step(n.Row(), n.Col(), d);
       if (!valid) {
@@ -414,6 +459,10 @@ void insert_motion_primitive_front(Route *route, MotionPrimitive const prim) {
 
 Route AbstractMaze::truncate_route(unsigned int const row, unsigned int const col, Direction const dir,
                                    Route const route) const {
+  if (dir == Direction::Last) {
+    throw std::invalid_argument("Invalid direction Last");
+  }
+
   Route trunc;
   auto r = row;
   auto c = col;
@@ -444,7 +493,7 @@ void AbstractMaze::update(SensorReading const sr) {
     if (sr.isWall(d)) {
       add_wall(sr.row, sr.col, d);
     } else {
-      remove_wall(sr.row, sr.col, d);
+      remove_wall_if_exists(sr.row, sr.col, d);
     }
   }
 }
