@@ -6,6 +6,7 @@
 #include <hal/hal.h>
 #include <hal/util.h>
 #include <kinematic_controller/kinematic_controller.h>
+#include <sim/widgets/maze_widget.h>
 #include <sim/ray_tracing.h>
 #include <sim/server.h>
 
@@ -297,18 +298,21 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
   unsigned int max_c = std::min(SIZE, col + max_cells_to_check_);
   for (unsigned int r = min_r; r < max_r; r++) {
     for (unsigned int c = min_c; c < max_c; c++) {
-      // get the walls at r/c
-      Node *n = nullptr;
-      if (maze_.get_node(&n, r, c) != 0) {
-        // FIXME make exits do something clever
-        exit(-1);
-      }
-
-      auto lines = Convert(*n);
-      for (auto const &line : lines) {
-        auto range = RayTracing::distance_to_wall(line, s_origin, s_direction);
-        if (range && *range < min_range) {
-          min_range = *range;
+      for (auto d = Direction::First; d < Direction::Last; d++) {
+        if (maze_.is_wall(row, col, d)) {
+          auto wall = WallToCoordinates(row, col, d);
+          std::array<Line2d, 4> lines {
+              Line2d{wall.c1, wall.r1, wall.c2, wall.r1},
+              Line2d{wall.c2, wall.r1, wall.c2, wall.r2},
+              Line2d{wall.c2, wall.r2, wall.c1, wall.r2},
+              Line2d{wall.c1, wall.r2, wall.c1, wall.r1}
+          };
+          for (auto const &line : lines) {
+            auto range = RayTracing::distance_to_wall(line, s_origin, s_direction);
+            if (range && *range < min_range) {
+              min_range = *range;
+            }
+          }
         }
       }
     }

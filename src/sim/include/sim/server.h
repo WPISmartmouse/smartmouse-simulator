@@ -3,8 +3,9 @@
 #include <QtCore/QThread>
 
 #include <core/maze.h>
+#include <core/msgs.h>
+#include <sim/msgs.h>
 #include <core/plugin.h>
-#include <sim/conversions.h>
 
 namespace ssim {
 

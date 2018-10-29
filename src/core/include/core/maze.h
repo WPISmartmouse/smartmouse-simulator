@@ -157,8 +157,8 @@ class AbstractMaze {
 
  private:
   std::unordered_set<Wall> walls;
-  std::array<std::array<Node, SIZE>, SIZE> nodes; // array of node pointers
   std::unordered_set<Wall> perimeter;
+  std::array<std::array<Node, SIZE>, SIZE> nodes; // array of node pointers
 };
 
 }

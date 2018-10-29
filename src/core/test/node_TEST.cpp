@@ -9,12 +9,12 @@ TEST(NodeTest, MazeSizeTest) {
 
 TEST(NodeTest, ConstructorTest) {
   const ssim::Node n(3, 4);
-  EXPECT_EQ(n.row(), 3u);
-  EXPECT_EQ(n.col(), 4u);
+  EXPECT_EQ(n.Row(), 3u);
+  EXPECT_EQ(n.Col(), 4u);
 }
 
 TEST(NodeTest, NoArgConstructorTest) {
   const ssim::Node n;
-  EXPECT_EQ(n.row(), 0u);
-  EXPECT_EQ(n.col(), 0u);
+  EXPECT_EQ(n.Row(), 0u);
+  EXPECT_EQ(n.Col(), 0u);
 }

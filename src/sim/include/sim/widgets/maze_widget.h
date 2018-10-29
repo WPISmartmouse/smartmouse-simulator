@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QtWidgets>
+#include <QtWidgets/QWidget>
 #include <QtGui/QPaintEvent>
 
 #include <core/maze.h>
@@ -9,7 +9,7 @@
 
 namespace ssim {
 
-WallCoordinates WallToCoordinates(double const r, double const c, Direction const dir);
+WallCoordinates WallToCoordinates(double r, double c, Direction dir);
 
 class MazeWidget : public QWidget, public AbstractTab {
  Q_OBJECT

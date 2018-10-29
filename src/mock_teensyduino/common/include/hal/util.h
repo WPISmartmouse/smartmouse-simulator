@@ -21,8 +21,6 @@ void print_maze(AbstractMaze const &maze);
 
 void print_maze_str(char *buff);
 
-void print_pointer_maze();
-
 /** prints each node as a list of booleans
  * EX)  0010 would mean on wall South 1011 would mean walls to the North, South, and West
 */

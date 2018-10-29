@@ -10,7 +10,7 @@ find_package(Qt5 COMPONENTS Core Widgets Charts REQUIRED)
 find_path(QWT_INCLUDE_DIR NAMES qwt.h PATHS /usr/include/qwt)
 find_library(QWT_LIBRARY NAMES qwt-qt5 PATHS /usr/lib/)
 
-add_library(sim ray_tracing.cpp conversions.cpp)
+add_library(sim ray_tracing.cpp)
 target_include_directories(sim PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)

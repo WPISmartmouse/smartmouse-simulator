@@ -11,7 +11,6 @@
 #include <sim/widgets/state_widget.h>
 #include <core/plugin.h>
 #include <sim/server.h>
-#include <sim/conversions.h>
 
 namespace Ui {
 class MainWindow;

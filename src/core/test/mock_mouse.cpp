@@ -10,18 +10,11 @@ void MockMouse::reset_to(unsigned int const r, unsigned int const c) {
 }
 
 ssim::SensorReading MockMouse::checkWalls() {
-  ssim::Node *n;
-  auto valid = maze.get_node(&n, getRow(), getCol());
-
-  if (valid == ssim::Node::OUT_OF_BOUNDS) {
-    return {getRow(), getCol()};
-  }
-
   ssim::SensorReading sr(getRow(), getCol());
-  sr.walls[static_cast<int>(ssim::Direction::N)] = n->wall(ssim::Direction::N);
-  sr.walls[static_cast<int>(ssim::Direction::S)] = n->wall(ssim::Direction::S);
-  sr.walls[static_cast<int>(ssim::Direction::E)] = n->wall(ssim::Direction::E);
-  sr.walls[static_cast<int>(ssim::Direction::W)] = n->wall(ssim::Direction::W);
+  sr.walls[static_cast<int>(ssim::Direction::N)] = maze.is_wall(getRow(), getCol(), ssim::Direction::N);
+  sr.walls[static_cast<int>(ssim::Direction::S)] = maze.is_wall(getRow(), getCol(), ssim::Direction::S);
+  sr.walls[static_cast<int>(ssim::Direction::E)] = maze.is_wall(getRow(), getCol(), ssim::Direction::E);
+  sr.walls[static_cast<int>(ssim::Direction::W)] = maze.is_wall(getRow(), getCol(), ssim::Direction::W);
 
   return sr;
 }

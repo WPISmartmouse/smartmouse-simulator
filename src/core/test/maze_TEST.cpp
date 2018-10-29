@@ -29,10 +29,10 @@ TEST(MazeTest, empty_maze) {
     ssim::AbstractMaze maze(fs);
 
     for (unsigned int i = 0; i < ssim::SIZE; ++i) {
-      ASSERT_EQ(maze.nodes[0][i]->neighbors[static_cast<int>(ssim::Direction::N)], nullptr);
-      ASSERT_EQ(maze.nodes[i][ssim::SIZE - 1]->neighbors[static_cast<int>(ssim::Direction::E)], nullptr);
-      ASSERT_EQ(maze.nodes[ssim::SIZE - 1][i]->neighbors[static_cast<int>(ssim::Direction::S)], nullptr);
-      ASSERT_EQ(maze.nodes[i][0]->neighbors[static_cast<int>(ssim::Direction::W)], nullptr);
+      ASSERT_TRUE(maze.is_wall(0, i, ssim::Direction::N));
+      ASSERT_TRUE(maze.is_wall(i, ssim::SIZE-1, ssim::Direction::E));
+      ASSERT_TRUE(maze.is_wall(ssim::SIZE-1, i, ssim::Direction::S));
+      ASSERT_TRUE(maze.is_wall(i, 0, ssim::Direction::W));
     }
   }
 }

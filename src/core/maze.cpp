@@ -91,7 +91,8 @@ void AbstractMaze::random_walk(AbstractMaze &maze, unsigned int const row, unsig
   }
 }
 
-std::tuple<bool, unsigned int, unsigned int> step(unsigned int const row, unsigned int const col, Direction const d) {
+std::tuple<bool, unsigned int, unsigned int>
+AbstractMaze::step(unsigned int const row, unsigned int const col, Direction const d) {
   using t = std::tuple<bool, unsigned int, unsigned int>;
   switch (d) {
     case Direction::N:
@@ -183,7 +184,7 @@ void AbstractMaze::remove_wall(unsigned int const row, unsigned int const col, D
   walls.erase(it);
 }
 
-void AbstractMaze::remove_all_walls(unsigned int const row, unsigned int const col) {
+void AbstractMaze::remove_all_walls() {
   walls.clear();
 }
 
