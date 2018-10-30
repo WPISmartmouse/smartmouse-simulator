@@ -26,21 +26,12 @@ public:
 
   void reset();
 
-  /** \brief return the current column.
-   * Guaranteed to be between 0 and MAZE_SIZE
-   * \return current column
-   */
   unsigned int getCol() const;
 
-  /** \brief return the current row.
-   * Guaranteed to be between 0 and MAZE_SIZE
-   * \return current row
-   */
   unsigned int getRow() const;
 
-  /** \brief return the current direction.
-   * \return current direction
-   */
+  RowCol getRowCol() const;
+
   Direction getDir() const;
 
   void internalTurnToFace(Direction dir);
@@ -58,8 +49,7 @@ public:
   AbstractMaze maze;
 
 protected:
-  unsigned int row = 0;
-  unsigned int col = 0;
+  RowCol row_col = {0};
   Direction dir = Direction::E;
 };
 

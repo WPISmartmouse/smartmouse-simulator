@@ -158,8 +158,8 @@ void Smartmouse2018Robot::Step(double dt_s) {
 
   // THIS IS SUPER IMPORTANT!
   // update row/col information
-  row = static_cast<unsigned int>(kinematic_controller.getGlobalPose().row);
-  col = static_cast<unsigned int>(kinematic_controller.getGlobalPose().col);
+  row_col.row = static_cast<unsigned int>(kinematic_controller.getGlobalPose().row);
+  row_col.col = static_cast<unsigned int>(kinematic_controller.getGlobalPose().col);
 
   if (abstract_left_force < 0) {
     analogWrite(MOTOR_LEFT_A1, 0);

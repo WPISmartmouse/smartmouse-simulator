@@ -6,8 +6,8 @@ ReturnToStart::ReturnToStart(Smartmouse2018Robot &robot) : CommandGroup("return"
 }
 
 void ReturnToStart::initialize() {
-  //plan path from center to origin
-  robot.maze.flood_fill_from_point(&pathToStart, ssim::SIZE / 2, ssim::SIZE / 2, 0, 0);
+  // plan path from center to origin
+  robot.maze.flood_fill_from_point(&pathToStart, ssim::CENTER, {0, 0});
   index = 0;
 }
 

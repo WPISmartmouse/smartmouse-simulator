@@ -51,16 +51,16 @@ void print_maze_str(const AbstractMaze &maze, char *buff) {
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
-      if (maze.is_wall(i, j, Direction::W)) {
+      if (maze.is_wall({i, j}, Direction::W)) {
         strncpy(b++, "|", 1);
-        if (maze.is_wall(i, j, Direction::S)) {
+        if (maze.is_wall({i, j}, Direction::S)) {
           strncpy(b++, "_", 1);
         } else {
           strncpy(b++, " ", 1);
         }
       } else {
         strcpy(b++, "_");
-        if (maze.is_wall(i, j, Direction::S)) {
+        if (maze.is_wall({i, j}, Direction::S)) {
           strncpy(b++, "_", 1);
         } else {
           strncpy(b++, " ", 1);
@@ -85,7 +85,7 @@ void print_neighbor_maze(const AbstractMaze &maze) {
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
       for (Direction d = Direction::First; d < Direction::Last; d++) {
-        bool wall = maze.is_wall(i, j, d);
+        bool wall = maze.is_wall({i, j}, d);
         print("%i", wall);
       }
       print(" ");
@@ -98,7 +98,7 @@ void print_weight_maze(const AbstractMaze &maze) {
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
-      int w = maze.get_node(i, j).weight;
+      int w = maze.get_node({i, j}).weight;
       print("%03u ", w);
     }
     print("\r\n");
@@ -109,7 +109,7 @@ void print_dist_maze(const AbstractMaze &maze) {
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
-      int d = maze.get_node(i, j).distance;
+      int d = maze.get_node({i, j}).distance;
       if (d < 10) {
         print("  %d ", d);
       } else if (d < 100) {

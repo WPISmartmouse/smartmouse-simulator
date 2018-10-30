@@ -11,10 +11,10 @@ void Flood::setup() {
   mouse->maze.reset();
   no_wall_maze.remove_all_walls();
   all_wall_maze.add_all_walls();
-  all_wall_maze.remove_wall(CENTER, CENTER, Direction::W);
-  all_wall_maze.remove_wall(CENTER, CENTER, Direction::N);
-  all_wall_maze.remove_wall(CENTER - 1, CENTER - 1, Direction::E);
-  all_wall_maze.remove_wall(CENTER - 1, CENTER - 1, Direction::S);
+  all_wall_maze.remove_wall(CENTER, Direction::W);
+  all_wall_maze.remove_wall(CENTER, Direction::N);
+  all_wall_maze.remove_wall({SIZE/2 - 1, SIZE/2 - 1}, Direction::E);
+  all_wall_maze.remove_wall({SIZE/2 - 1, SIZE/2 - 1}, Direction::S);
   goal = Solver::Goal::CENTER;
 }
 
@@ -24,8 +24,8 @@ void Flood::setGoal(Solver::Goal goal) {
 
 MotionPrimitive Flood::planNextStep() {
   // mark the nodes visited in both the mazes
-  no_wall_maze.mark_position_visited(mouse->getRow(), mouse->getCol());
-  all_wall_maze.mark_position_visited(mouse->getRow(), mouse->getCol());
+  no_wall_maze.mark_position_visited(mouse->getRowCol());
+  all_wall_maze.mark_position_visited(mouse->getRowCol());
 
   // check left right back and front sides
   // eventually this will return values from sensors
@@ -38,15 +38,13 @@ MotionPrimitive Flood::planNextStep() {
   // solve flood fill on the two mazes from mouse to goal
   switch (goal) {
     case Solver::Goal::CENTER: {
-      solvable = no_wall_maze.flood_fill_from_point(&no_wall_path, mouse->getRow(), mouse->getCol(),
-                                                    CENTER, CENTER);
-      all_wall_maze.flood_fill_from_point(&all_wall_path, mouse->getRow(), mouse->getCol(), CENTER,
-                                           CENTER);
+      solvable = no_wall_maze.flood_fill_from_point(&no_wall_path, mouse->getRowCol(), CENTER);
+      all_wall_maze.flood_fill_from_point(&all_wall_path, mouse->getRowCol(), CENTER);
       break;
     }
     case Solver::Goal::START: {
-      solvable = no_wall_maze.flood_fill_from_point(&no_wall_path, mouse->getRow(), mouse->getCol(), 0, 0);
-      all_wall_maze.flood_fill_from_point(&all_wall_path, mouse->getRow(), mouse->getCol(), 0, 0);
+      solvable = no_wall_maze.flood_fill_from_point(&no_wall_path, mouse->getRowCol(), {0, 0});
+      all_wall_maze.flood_fill_from_point(&all_wall_path, mouse->getRowCol(), {0, 0});
       break;
     }
   }
@@ -55,7 +53,7 @@ MotionPrimitive Flood::planNextStep() {
 
   // Walk along the no_wall_path as far as possible in the all_wall_maze
   // This will results in the longest path where we know there are no walls
-  Route nextPath = all_wall_maze.truncate_route(mouse->getRow(), mouse->getCol(), mouse->getDir(), no_wall_path);
+  Route nextPath = all_wall_maze.truncate_route(mouse->getRowCol(), mouse->getDir(), no_wall_path);
   if (nextPath.empty()) {
     throw std::length_error("Plan length was zero because the first step in the path was deemed impossible.");
   } else {

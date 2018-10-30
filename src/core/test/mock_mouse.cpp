@@ -5,16 +5,16 @@ MockMouse::MockMouse(ssim::AbstractMaze &maze) : Mouse(maze) {
 
 void MockMouse::reset_to(unsigned int const r, unsigned int const c) {
   reset();
-  this->row = r;
-  this->col = c;
+  this->row_col.row = r;
+  this->row_col.col = c;
 }
 
 ssim::SensorReading MockMouse::checkWalls() {
   ssim::SensorReading sr(getRow(), getCol());
-  sr.walls[static_cast<int>(ssim::Direction::N)] = maze.is_wall(getRow(), getCol(), ssim::Direction::N);
-  sr.walls[static_cast<int>(ssim::Direction::S)] = maze.is_wall(getRow(), getCol(), ssim::Direction::S);
-  sr.walls[static_cast<int>(ssim::Direction::E)] = maze.is_wall(getRow(), getCol(), ssim::Direction::E);
-  sr.walls[static_cast<int>(ssim::Direction::W)] = maze.is_wall(getRow(), getCol(), ssim::Direction::W);
+  sr.walls[static_cast<int>(ssim::Direction::N)] = maze.is_wall(getRowCol(), ssim::Direction::N);
+  sr.walls[static_cast<int>(ssim::Direction::S)] = maze.is_wall(getRowCol(), ssim::Direction::S);
+  sr.walls[static_cast<int>(ssim::Direction::E)] = maze.is_wall(getRowCol(), ssim::Direction::E);
+  sr.walls[static_cast<int>(ssim::Direction::W)] = maze.is_wall(getRowCol(), ssim::Direction::W);
 
   return sr;
 }

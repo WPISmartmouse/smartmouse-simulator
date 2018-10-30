@@ -146,7 +146,7 @@ void MazeWidget::PaintWalls(QPainter &painter, QTransform tf) {
   for (unsigned int row = 0; row < SIZE; row++) {
     for (unsigned int col = 0; col < SIZE; col++) {
       for (auto d = Direction::First; d < Direction::Last; d++) {
-        if (maze_.is_wall(row, col, d)) {
+        if (maze_.is_wall({row, col}, d)) {
           auto wall = WallToCoordinates(row, col, d);
           QPainterPath wall_path;
           wall_path.moveTo(wall.c1, wall.r1);

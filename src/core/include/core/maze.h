@@ -22,6 +22,8 @@
 
 namespace ssim {
 struct Wall {
+  Wall(RowCol row_col, Direction d);
+
   Wall(unsigned int row, unsigned int col, Direction d);
 
   Wall() = default;
@@ -33,8 +35,7 @@ struct Wall {
   bool operator==(const Wall &other) const;
 
  private:
-  unsigned int row = 0;
-  unsigned int col = 0;
+  RowCol row_col = {0};
   Direction dir = Direction::N;
 
 };
@@ -62,6 +63,11 @@ struct MotionPrimitive {
   }
 };
 
+struct StepResult {
+  bool const valid = false;
+  RowCol const row_col = {0};
+};
+
 using Route = std::vector<MotionPrimitive>;
 
 std::string route_to_string(Route const &route);
@@ -74,7 +80,7 @@ void insert_motion_primitive_back(Route *route, MotionPrimitive prim);
 
 unsigned int constexpr static SIZE = 16;
 unsigned long const BUFF_SIZE = (SIZE * 2 + 3) * SIZE;
-unsigned int constexpr static CENTER = SIZE / 2;
+auto constexpr static CENTER = RowCol{SIZE/2, SIZE/2};
 double constexpr static UNIT_DIST_M = 0.18;
 double constexpr static WALL_THICKNESS_M = 0.012;
 double constexpr static HALF_WALL_THICKNESS_M = WALL_THICKNESS_M / 2.0;
@@ -108,49 +114,49 @@ class AbstractMaze {
 
   static AbstractMaze gen_random_legal_maze();
 
-  static void random_walk(AbstractMaze &maze, unsigned int row, unsigned int col);
+  static void random_walk(AbstractMaze &maze, RowCol start);
 
-  static std::tuple<bool, unsigned int, unsigned int> step(unsigned int row, unsigned int col, Direction d);
+  static StepResult const step(RowCol start, Direction d);
 
   bool operator==(AbstractMaze const &other) const;
 
-  bool out_of_bounds(unsigned int row, unsigned int col) const;
+  bool out_of_bounds(RowCol row_col) const;
 
-  Node get_node(unsigned int r, unsigned int c) const;
+  Node get_node(RowCol row_col) const;
 
-  Node get_node_in_direction(unsigned int row, unsigned int col, Direction dir) const;
+  Node get_node_in_direction(RowCol row_col, Direction dir) const;
 
-  Route truncate_route(unsigned int row, unsigned int col, Direction dir, Route route) const;
+  Route truncate_route(RowCol start, Direction dir, Route route) const;
 
   void reset();
 
-  bool is_perimeter(unsigned int row, unsigned int col, Direction dir) const;
+  bool is_perimeter(RowCol row_col, Direction dir) const;
 
-  bool is_wall(unsigned int row, unsigned int col, Direction dir) const;
+  bool is_wall(RowCol row_col, Direction dir) const;
 
   void add_all_walls();
 
-  void add_wall(unsigned int row, unsigned int col, Direction dir);
+  void add_wall(RowCol row_col, Direction dir);
 
   void remove_all_walls();
 
-  void remove_all_walls(unsigned int row, unsigned int col);
+  void remove_all_walls(RowCol row_col);
 
-  void remove_wall(unsigned int row, unsigned int col, Direction dir);
+  void remove_wall(RowCol row_col, Direction dir);
 
-  void remove_wall_if_exists(unsigned int row, unsigned int col, Direction dir);
+  void remove_wall_if_exists(RowCol row_col, Direction dir);
 
-  void mark_position_visited(unsigned int row, unsigned int col);
+  void mark_position_visited(RowCol row_col);
 
-  void assign_weights_to_neighbors(Node n, Node goal, int weight, bool &goal_found);
+  void assign_weights_to_neighbors(RowCol rc, RowCol goal, int weight, bool &goal_found);
 
-  bool flood_fill_from_point(Route *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1);
+  bool flood_fill_from_point(Route *path, RowCol start, RowCol goal);
 
-  bool flood_fill_from_origin(Route *path, unsigned int r1, unsigned int c1);
+  bool flood_fill_from_origin(Route *path, RowCol goal);
 
   bool flood_fill_from_origin_to_center(Route *path);
 
-  bool flood_fill(Route *path, unsigned int r0, unsigned int c0, unsigned int r1, unsigned int c1);
+  bool flood_fill(Route *path, RowCol start, RowCol goal);
 
   void update(SensorReading sr);
 

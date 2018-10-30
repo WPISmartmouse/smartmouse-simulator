@@ -290,17 +290,17 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
   Eigen::Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
 
   // iterate over the lines of walls that are nearby
-  int row = (int) state_.p.row;
-  int col = (int) state_.p.col;
-  unsigned int min_r = (unsigned int) std::max(0, row - (int) max_cells_to_check_);
+  unsigned int row = static_cast<unsigned int>(state_.p.row);
+  unsigned int col = static_cast<unsigned int>(state_.p.col);
+  unsigned int min_r = std::max(0u, row - max_cells_to_check_);
   unsigned int max_r = std::min(SIZE, row + max_cells_to_check_);
-  unsigned int min_c = (unsigned int) std::max(0, col - (int) max_cells_to_check_);
+  unsigned int min_c = std::max(0u, col - max_cells_to_check_);
   unsigned int max_c = std::min(SIZE, col + max_cells_to_check_);
   for (unsigned int r = min_r; r < max_r; r++) {
     for (unsigned int c = min_c; c < max_c; c++) {
       for (auto d = Direction::First; d < Direction::Last; d++) {
-        if (maze_.is_wall(row, col, d)) {
-          auto wall = WallToCoordinates(row, col, d);
+        if (maze_.is_wall({r, c}, d)) {
+          auto wall = WallToCoordinates(r, c, d);
           std::array<Line2d, 4> lines {
               Line2d{wall.c1, wall.r1, wall.c2, wall.r1},
               Line2d{wall.c2, wall.r1, wall.c2, wall.r2},

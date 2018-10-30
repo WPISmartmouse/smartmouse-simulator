@@ -4,6 +4,12 @@
 
 namespace ssim {
 
+struct RowCol {
+  bool operator==(const RowCol &other) const;
+  unsigned int row;
+  unsigned int col;
+};
+
 /**
  * \brief holds its location & neighbors, as well as a bool for indicating if it has been discovered
  * you don't need to free nodes in a maze, just use free_maze however, be sure to free nodes allocated not in mazes
@@ -11,6 +17,7 @@ namespace ssim {
  */
 class Node {
  public:
+  Node(RowCol row_col);
   Node(unsigned int row, unsigned int col);
   Node() = default;
 
@@ -28,8 +35,7 @@ class Node {
   bool visited = false;
 
  private:
-  unsigned int r = 0;
-  unsigned int c = 0;
+  RowCol row_col = {0};
 };
 
 } // namespace ssim
