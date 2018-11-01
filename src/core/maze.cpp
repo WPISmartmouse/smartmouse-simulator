@@ -91,10 +91,13 @@ void AbstractMaze::random_walk(AbstractMaze &maze, RowCol const row_col) {
   std::shuffle(dirs.begin(), dirs.end(), g);
 
   for (auto d : dirs) {
-    auto n = maze.get_node_in_direction(row_col, d);
-    if (!n.visited) {
-      maze.remove_wall(row_col, d);
-      random_walk(maze, row_col);
+    auto const[valid, next_row_col] = step(row_col, d);
+    if (valid) {
+      auto next_n = maze.get_node(next_row_col);
+      if (!next_n.visited) {
+        maze.remove_wall_if_exists(row_col, d);
+        random_walk(maze, next_row_col);
+      }
     }
   }
 }
@@ -230,10 +233,33 @@ void AbstractMaze::remove_wall(RowCol const row_col, Direction const dir) {
 }
 
 void AbstractMaze::remove_wall_if_exists(RowCol const row_col, ssim::Direction const dir) {
-  try {
-    remove_wall(row_col, dir);
+  if (dir == Direction::Last) {
+    throw std::invalid_argument("Invalid direction Last");
   }
-  catch (std::invalid_argument const &e) {
+
+  {
+    if (is_perimeter(row_col, dir)) {
+      throw std::invalid_argument(
+          fmt::format("row {} or col {} direction {} is a perimeter, which cannot be remove", row_col.row, row_col.col,
+                      dir_to_char(dir)));
+
+    }
+
+    const auto it = walls.find({.row_col=row_col, .dir=dir});
+    if (it == walls.cend()) {
+      // this case is fine. The whole point of this function is to ignore this
+      return;
+    }
+    walls.erase(it);
+  }
+
+  // Remove the wall from the other side if that's possible
+  auto const[valid, new_row_col] = step(row_col, dir);
+  if (valid) {
+    const auto it = walls.find({new_row_col, opposite_direction(dir)});
+    if (it != walls.cend()) {
+      walls.erase(it);
+    }
   }
 }
 
@@ -255,6 +281,11 @@ void AbstractMaze::add_all_walls() {
 
 void
 AbstractMaze::assign_weights_to_neighbors(RowCol const start, RowCol const goal, int const weight, bool &goal_found) {
+  // stop early if we find that a node has higher weight than our goal
+  if (weight > nodes[goal.row][goal.col].weight) {
+    return;
+  }
+
   // check all nodes that are unvisited, or would be given a lower weight
   auto &n = nodes[start.row][start.col];
   if (!n.known || weight < n.weight) {
@@ -273,7 +304,8 @@ AbstractMaze::assign_weights_to_neighbors(RowCol const start, RowCol const goal,
     // recursive call to explore each neighbors
     for (Direction d = Direction::First; d != Direction::Last; d++) {
       auto const[valid, new_row_col] = step(start, d);
-      if (valid) {
+      auto const wall = is_wall(start, d);
+      if (valid and not wall) {
         assign_weights_to_neighbors(new_row_col, goal, weight + 1, goal_found);
       }
     }
@@ -294,8 +326,6 @@ bool AbstractMaze::flood_fill_from_origin_to_center(Route *const path) {
 }
 
 bool AbstractMaze::flood_fill(Route *const path, RowCol const start, RowCol const goal) {
-  Node goal_n = nodes[goal.row][goal.col];
-
   // in case the maze has already been solved, reset all weight and known values
   reset();
 
@@ -313,7 +343,7 @@ bool AbstractMaze::flood_fill(Route *const path, RowCol const start, RowCol cons
   path->clear();
 
   // if we solved the maze, traverse from goal back to root and record what direction is shortest
-  Node n = goal_n;
+  Node n = nodes[goal.row][goal.col];
   while (n != nodes[start.row][start.col] && solvable) {
     Node min_node = n;
     Direction min_dir = Direction::N;
@@ -322,8 +352,10 @@ bool AbstractMaze::flood_fill(Route *const path, RowCol const start, RowCol cons
     Direction d;
     bool deadend = true;
     for (d = Direction::First; d < Direction::Last; d++) {
-      auto const[valid, new_row_col] = step({n.Row(), n.Col()}, d);
-      if (valid) {
+      RowCol const current_rc = {n.Row(), n.Col()};
+      auto const[valid, new_row_col] = step(current_rc, d);
+      auto const wall = is_wall(current_rc, d);
+      if (valid and not wall) {
         auto next_n = get_node(new_row_col);
         if (next_n.weight < min_node.weight) {
           min_node = next_n;
@@ -351,6 +383,8 @@ void AbstractMaze::mark_position_visited(RowCol const row_col) {
 
 AbstractMaze AbstractMaze::gen_random_legal_maze() {
   AbstractMaze maze;
+
+  maze.add_all_walls();
 
   std::random_device rd;
   std::mt19937 g(rd());
@@ -415,16 +449,16 @@ AbstractMaze AbstractMaze::gen_random_legal_maze() {
     }
 
     if (can_delete) {
-      maze.remove_wall({row, col}, dir);
+      maze.remove_wall_if_exists({row, col}, dir);
       i++;
     }
   }
 
   // knock down center square
-  maze.remove_wall({SIZE / 2, SIZE / 2}, Direction::N);
-  maze.remove_wall({SIZE / 2, SIZE / 2}, Direction::W);
-  maze.remove_wall({SIZE / 2 - 1, SIZE / 2 - 1}, Direction::S);
-  maze.remove_wall({SIZE / 2 - 1, SIZE / 2 - 1}, Direction::E);
+  maze.remove_wall_if_exists({SIZE / 2, SIZE / 2}, Direction::N);
+  maze.remove_wall_if_exists({SIZE / 2, SIZE / 2}, Direction::W);
+  maze.remove_wall_if_exists({SIZE / 2 - 1, SIZE / 2 - 1}, Direction::S);
+  maze.remove_wall_if_exists({SIZE / 2 - 1, SIZE / 2 - 1}, Direction::E);
 
   return maze;
 }
@@ -475,12 +509,15 @@ Route AbstractMaze::truncate_route(RowCol const row_col, Direction const dir,
   for (MotionPrimitive prim : route) {
     for (unsigned int i = 0; i < prim.n; i++) {
       // check if this move is valid
-      auto [valid, new_row_col] = step(current_rc, prim.d);
-      current_rc = new_row_col;
-      if (!valid) {
+      auto[valid, new_row_col] = step(current_rc, prim.d);
+      auto const wall = is_wall(current_rc, prim.d);
+      if (!valid or wall) {
         done = true;
         break;
       }
+
+      // make the move
+      current_rc = new_row_col;
 
       insert_motion_primitive_back(&trunc, {1, prim.d});
     }

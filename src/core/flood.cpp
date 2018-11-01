@@ -53,7 +53,7 @@ MotionPrimitive Flood::planNextStep() {
 
   // Walk along the no_wall_path as far as possible in the all_wall_maze
   // This will results in the longest path where we know there are no walls
-  Route nextPath = all_wall_maze.truncate_route(mouse->getRowCol(), mouse->getDir(), no_wall_path);
+  Route const nextPath = all_wall_maze.truncate_route(mouse->getRowCol(), mouse->getDir(), no_wall_path);
   if (nextPath.empty()) {
     throw std::length_error("Plan length was zero because the first step in the path was deemed impossible.");
   } else {
