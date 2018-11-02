@@ -21,6 +21,13 @@
 #include "direction.h"
 
 namespace ssim {
+
+enum class WallEnum {
+  NoWall,
+  PerimeterWall,
+  Wall
+};
+
 struct Wall {
   Wall(RowCol row_col, Direction d);
 
@@ -140,8 +147,6 @@ class AbstractMaze {
 
   void remove_all_walls();
 
-  void remove_all_walls(RowCol row_col);
-
   void remove_wall(RowCol row_col, Direction dir);
 
   void remove_wall_if_exists(RowCol row_col, Direction dir);
@@ -164,8 +169,9 @@ class AbstractMaze {
   bool solved = false;
 
  private:
-  std::unordered_set<Wall> walls;
-  std::unordered_set<Wall> perimeter;
+//  std::unordered_set<Wall> walls;
+//  std::unordered_set<Wall> perimeter;
+  std::array<std::array<std::array<WallEnum, 4>, SIZE>, SIZE> walls; // array of node pointers
   std::array<std::array<Node, SIZE>, SIZE> nodes; // array of node pointers
 };
 

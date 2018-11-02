@@ -34,10 +34,10 @@ Direction Wall::Dir() const {
 
 AbstractMaze::AbstractMaze() {
   for (unsigned int i = 0; i < SIZE; i++) {
-    perimeter.emplace(0, i, Direction::N);
-    perimeter.emplace(SIZE - 1, i, Direction::S);
-    perimeter.emplace(i, SIZE - 1, Direction::E);
-    perimeter.emplace(i, 0, Direction::W);
+    walls[0][i][static_cast<int>(Direction::N)] = WallEnum::PerimeterWall;
+    walls[SIZE - 1][i][static_cast<int>(Direction::S)] = WallEnum::PerimeterWall;
+    walls[i][SIZE - 1][static_cast<int>(Direction::E)] = WallEnum::PerimeterWall;
+    walls[i][0][static_cast<int>(Direction::W)] = WallEnum::PerimeterWall;
   }
 
   // Set the row and column of all the nodes
@@ -168,9 +168,15 @@ bool AbstractMaze::is_wall(RowCol const row_col, Direction const dir) const {
     throw std::invalid_argument("Invalid direction Last");
   }
 
-  auto const wall_it = walls.find({.row_col=row_col, .dir=dir});
-  auto const perimeter_it = perimeter.find({.row_col=row_col, .dir=dir});
-  return wall_it != walls.cend() or perimeter_it != perimeter.cend();
+  auto const is_wall = walls[row_col.row][row_col.col][static_cast<int>(dir)];
+  switch (is_wall) {
+    case WallEnum::Wall:
+      return true;
+    case WallEnum::PerimeterWall:
+      return true;
+    case WallEnum::NoWall:
+      return false;
+  }
 }
 
 void AbstractMaze::reset() {
@@ -192,19 +198,23 @@ void AbstractMaze::add_wall(RowCol const row_col, Direction const dir) {
   }
 
   if (!is_perimeter(row_col, dir)) {
-    walls.emplace(row_col, dir);
+    walls[row_col.row][row_col.col][static_cast<int>(dir)] = WallEnum::Wall;
   }
 
   // Add the wall from the other side if that's possible
   auto const[valid, new_row_col] = step(row_col, dir);
   if (valid and !is_perimeter(new_row_col, opposite_direction(dir))) {
-    walls.emplace(new_row_col, opposite_direction(dir));
+    walls[new_row_col.row][new_row_col.col][static_cast<int>(opposite_direction(dir))] = WallEnum::PerimeterWall;
   }
 }
 
 void AbstractMaze::remove_wall(RowCol const row_col, Direction const dir) {
+  if (out_of_bounds(row_col)) {
+    throw std::invalid_argument(fmt::format("cannot remove wall out of bounds: {}, {}", row_col.row, row_col.col));
+  }
+
   if (dir == Direction::Last) {
-    throw std::invalid_argument("Invalid direction Last");
+    throw std::invalid_argument("Invalid direction Direction::Last");
   }
 
   {
@@ -214,21 +224,17 @@ void AbstractMaze::remove_wall(RowCol const row_col, Direction const dir) {
                       dir_to_char(dir)));
 
     }
-    const auto it = walls.find({.row_col=row_col, .dir=dir});
-    if (it == walls.cend()) {
+    if (walls[row_col.row][row_col.col][static_cast<int>(dir)] == WallEnum::NoWall) {
       throw std::invalid_argument(
           fmt::format("remove_wall: row {} col {} dir {} not in walls", row_col.row, row_col.col, dir_to_char(dir)));
     }
-    walls.erase(it);
+    walls[row_col.row][row_col.col][static_cast<int>(dir)] = WallEnum::NoWall;
   }
 
   // Remove the wall from the other side if that's possible
   auto const[valid, new_row_col] = step(row_col, dir);
   if (valid) {
-    const auto it = walls.find({new_row_col, opposite_direction(dir)});
-    if (it != walls.cend()) {
-      walls.erase(it);
-    }
+    walls[new_row_col.row][new_row_col.col][static_cast<int>(opposite_direction(dir))] = WallEnum::NoWall;
   }
 }
 
@@ -245,26 +251,30 @@ void AbstractMaze::remove_wall_if_exists(RowCol const row_col, ssim::Direction c
 
     }
 
-    const auto it = walls.find({.row_col=row_col, .dir=dir});
-    if (it == walls.cend()) {
+    if (walls[row_col.row][row_col.col][static_cast<int>(dir)] == WallEnum::NoWall) {
       // this case is fine. The whole point of this function is to ignore this
       return;
     }
-    walls.erase(it);
+    walls[row_col.row][row_col.col][static_cast<int>(dir)] = WallEnum::NoWall;
   }
 
   // Remove the wall from the other side if that's possible
   auto const[valid, new_row_col] = step(row_col, dir);
   if (valid) {
-    const auto it = walls.find({new_row_col, opposite_direction(dir)});
-    if (it != walls.cend()) {
-      walls.erase(it);
-    }
+    walls[new_row_col.row][new_row_col.col][static_cast<int>(opposite_direction(dir))] = WallEnum::NoWall;
   }
 }
 
 void AbstractMaze::remove_all_walls() {
-  walls.clear();
+  for (unsigned int row = 0; row < SIZE; row++) {
+    for (unsigned int col = 0; col < SIZE; col++) {
+      for (Direction d = Direction::First; d != Direction::Last; d++) {
+        if (!is_perimeter({row, col}, d)) {
+          walls[row][col][static_cast<int>(d)] = WallEnum::NoWall;
+        }
+      }
+    }
+  }
 }
 
 void AbstractMaze::add_all_walls() {
@@ -272,7 +282,7 @@ void AbstractMaze::add_all_walls() {
     for (unsigned int col = 0; col < SIZE; col++) {
       for (Direction d = Direction::First; d != Direction::Last; d++) {
         if (!is_perimeter({row, col}, d)) {
-          walls.emplace(row, col, d);
+          walls[row][col][static_cast<int>(d)] = WallEnum::Wall;
         }
       }
     }
@@ -352,7 +362,7 @@ bool AbstractMaze::flood_fill(Route *const path, RowCol const start, RowCol cons
     Direction d;
     bool deadend = true;
     for (d = Direction::First; d < Direction::Last; d++) {
-      RowCol const current_rc = {n.Row(), n.Col()};
+      RowCol const current_rc = n.GetRowCol();
       auto const[valid, new_row_col] = step(current_rc, d);
       auto const wall = is_wall(current_rc, d);
       if (valid and not wall) {
@@ -386,9 +396,9 @@ AbstractMaze AbstractMaze::gen_random_legal_maze() {
 
   maze.add_all_walls();
 
-  std::random_device rd;
-  std::mt19937 g(rd());
-  std::uniform_int_distribution<int> uid(1, 16);
+  static std::random_device rd;
+  static std::mt19937 g(rd());
+  static std::uniform_int_distribution<int> uid(1, 16);
 
   // start at center and move out, marking visited nodes as we go
   maze.mark_position_visited({SIZE / 2, SIZE / 2});

@@ -6,6 +6,7 @@
       <file path="$PROJECT_DIR$" />
     </sourceRoots>
     <libraryRoots>
+      <file path="$PROJECT_DIR$/googletest" />
       <file path="$PROJECT_DIR$/src/fmt-5.2.1" />
     </libraryRoots>
     <excludeRoots>

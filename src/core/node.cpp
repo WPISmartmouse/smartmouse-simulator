@@ -29,6 +29,10 @@ bool Node::operator!=(Node const &other) const {
   return !(operator==(other));
 }
 
+RowCol Node::GetRowCol() const {
+  return row_col;
+}
+
 bool RowCol::operator==(const RowCol &other) const {
   return row == other.row and col == other.col;
 }

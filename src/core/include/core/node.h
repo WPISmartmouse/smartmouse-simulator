@@ -27,6 +27,7 @@ class Node {
 
   unsigned int Row() const;
   unsigned int Col() const;
+  RowCol GetRowCol() const;
   void Reset();
 
   int weight = std::numeric_limits<decltype(weight)>::max(); // used for flood-fill

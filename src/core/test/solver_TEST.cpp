@@ -5,28 +5,34 @@
 
 #include "include/core/test/mock_mouse.h"
 
-TEST(FloodTest, invalid) {
-  auto ssim_env = std::getenv("SSIM");
-
-  EXPECT_TRUE(ssim_env);
-
-  auto project_root = std::string(ssim_env);
-  std::ifstream fs(project_root + "/mazes/tests/impossible.mz");
-  ssim::AbstractMaze maze(fs);
-
-  MockMouse mouse(maze);
-  ssim::Flood flood(&mouse);
-
-  flood.setup();
-  flood.setGoal(ssim::Flood::Goal::START);
-  auto route = flood.solve();
-  EXPECT_EQ(route.size(), 0u);
-
-  mouse.reset_to(1, 0);
-  flood.setup();
-  flood.setGoal(ssim::Flood::Goal::CENTER);
-
-  EXPECT_EQ(route.size(), 0u);
+namespace ssim {
+void print_maze_str(const AbstractMaze &maze, char *buff) {
+  char *b = buff;
+  unsigned int i, j;
+  for (i = 0; i < SIZE; i++) {
+    for (j = 0; j < SIZE; j++) {
+      if (maze.is_wall({i, j}, Direction::W)) {
+        strncpy(b++, "|", 1);
+        if (maze.is_wall({i, j}, Direction::S)) {
+          strncpy(b++, "_", 1);
+        } else {
+          strncpy(b++, " ", 1);
+        }
+      } else {
+        strcpy(b++, "_");
+        if (maze.is_wall({i, j}, Direction::S)) {
+          strncpy(b++, "_", 1);
+        } else {
+          strncpy(b++, " ", 1);
+        }
+      }
+    }
+    *(b++) = '|';
+    *(b++) = '\n';
+  }
+  b++;
+  *b = '\0';
+}
 }
 
 TEST(FloodTest, Maze2017) {
@@ -105,9 +111,33 @@ TEST(FloodTest, Maze2016) {
   EXPECT_EQ(ssim::route_to_string(route), expected_route_reverse_str);
 }
 
+TEST(FloodTest, invalid) {
+  auto ssim_env = std::getenv("SSIM");
+
+  EXPECT_TRUE(ssim_env);
+
+  auto project_root = std::string(ssim_env);
+  std::ifstream fs(project_root + "/mazes/tests/impossible.mz");
+  ssim::AbstractMaze maze(fs);
+
+  MockMouse mouse(maze);
+  ssim::Flood flood(&mouse);
+
+  flood.setup();
+  flood.setGoal(ssim::Flood::Goal::START);
+  auto route = flood.solve();
+  EXPECT_EQ(route.size(), 0u);
+
+  mouse.reset_to(1, 0);
+  flood.setup();
+  flood.setGoal(ssim::Flood::Goal::CENTER);
+
+  EXPECT_EQ(route.size(), 0u);
+}
+
 TEST(FloodTest, RandomMaze) {
   srand(0);
-  for (auto i = 0; i < 50; i++) {
+  for (auto i = 0; i < 1000; i++) {
     auto maze = ssim::AbstractMaze::gen_random_legal_maze();
     MockMouse mouse(maze);
     ssim::Flood flood(&mouse);
@@ -119,6 +149,6 @@ TEST(FloodTest, RandomMaze) {
 
     // The shortest possible route is directly E then S
     // which contains the same number of steps as the maze size
-    EXPECT_GE(ssim::expanded_route_length(route), ssim::SIZE);
+    ASSERT_GE(ssim::expanded_route_length(route), ssim::SIZE - 2);
   }
 }

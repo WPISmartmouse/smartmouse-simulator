@@ -36,3 +36,11 @@ TEST(MazeTest, empty_maze) {
     }
   }
 }
+
+TEST(MazeTest, add_works_both_ways) {
+  ssim::AbstractMaze mz;
+  mz.remove_all_walls();
+  mz.add_wall({0, 0}, ssim::Direction::S);
+  EXPECT_TRUE(mz.is_wall({0, 0}, ssim::Direction::S));
+  EXPECT_TRUE(mz.is_wall({1, 0}, ssim::Direction::N));
+}
