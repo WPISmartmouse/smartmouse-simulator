@@ -22,43 +22,6 @@
 
 namespace ssim {
 
-enum class WallEnum {
-  NoWall,
-  PerimeterWall,
-  Wall
-};
-
-struct Wall {
-  Wall(RowCol row_col, Direction d);
-
-  Wall(unsigned int row, unsigned int col, Direction d);
-
-  Wall() = default;
-
-  unsigned int Row() const;
-  unsigned int Col() const;
-  Direction Dir() const;
-
-  bool operator==(const Wall &other) const;
-
- private:
-  RowCol row_col = {0};
-  Direction dir = Direction::N;
-
-};
-}
-
-namespace std {
-template<>
-struct hash<ssim::Wall> {
-  size_t operator()(const ssim::Wall &x) const {
-    return (x.Row() << 8) + x.Col();
-  }
-};
-}
-
-namespace ssim {
-
 struct MotionPrimitive {
   uint8_t n = 0;
   Direction d = Direction::N;
@@ -125,8 +88,6 @@ class AbstractMaze {
 
   static StepResult const step(RowCol start, Direction d);
 
-  bool operator==(AbstractMaze const &other) const;
-
   bool out_of_bounds(RowCol row_col) const;
 
   Node get_node(RowCol row_col) const;
@@ -169,9 +130,7 @@ class AbstractMaze {
   bool solved = false;
 
  private:
-//  std::unordered_set<Wall> walls;
-//  std::unordered_set<Wall> perimeter;
-  std::array<std::array<std::array<WallEnum, 4>, SIZE>, SIZE> walls; // array of node pointers
+//  std::array<std::array<std::array<WallEnum, 4>, SIZE>, SIZE> walls; // array of node pointers
   std::array<std::array<Node, SIZE>, SIZE> nodes; // array of node pointers
 };
 

@@ -137,7 +137,7 @@ TEST(FloodTest, invalid) {
 
 TEST(FloodTest, RandomMaze) {
   srand(0);
-  for (auto i = 0; i < 1000; i++) {
+  for (auto i = 0; i < 50; i++) {
     auto maze = ssim::AbstractMaze::gen_random_legal_maze();
     MockMouse mouse(maze);
     ssim::Flood flood(&mouse);

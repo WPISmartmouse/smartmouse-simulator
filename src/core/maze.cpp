@@ -12,39 +12,20 @@
 
 namespace ssim {
 
-bool Wall::operator==(const Wall &other) const {
-  return row_col == other.row_col and dir == other.dir;
-}
-
-Wall::Wall(unsigned int const row, unsigned int const col, Direction d) : row_col{row, col}, dir(d) {}
-
-Wall::Wall(RowCol const row_col, Direction d) : row_col(row_col), dir(d) {}
-
-unsigned int Wall::Row() const {
-  return row_col.row;
-}
-
-unsigned int Wall::Col() const {
-  return row_col.col;
-}
-
-Direction Wall::Dir() const {
-  return dir;
-}
-
 AbstractMaze::AbstractMaze() {
-  for (unsigned int i = 0; i < SIZE; i++) {
-    walls[0][i][static_cast<int>(Direction::N)] = WallEnum::PerimeterWall;
-    walls[SIZE - 1][i][static_cast<int>(Direction::S)] = WallEnum::PerimeterWall;
-    walls[i][SIZE - 1][static_cast<int>(Direction::E)] = WallEnum::PerimeterWall;
-    walls[i][0][static_cast<int>(Direction::W)] = WallEnum::PerimeterWall;
-  }
-
   // Set the row and column of all the nodes
   for (unsigned int row = 0; row < SIZE; ++row) {
     for (unsigned int col = 0; col < SIZE; ++col) {
+      // This will construct new nodes!
       nodes[row][col] = RowCol{row, col};
     }
+  }
+
+  for (unsigned int i = 0; i < SIZE; i++) {
+    nodes[0][i].walls[static_cast<int>(Direction::N)] = WallEnum::PerimeterWall;
+    nodes[SIZE - 1][i].walls[static_cast<int>(Direction::S)] = WallEnum::PerimeterWall;
+    nodes[i][SIZE - 1].walls[static_cast<int>(Direction::E)] = WallEnum::PerimeterWall;
+    nodes[i][0].walls[static_cast<int>(Direction::W)] = WallEnum::PerimeterWall;
   }
 }
 
@@ -117,10 +98,6 @@ StepResult const AbstractMaze::step(RowCol const row_col, Direction const d) {
   }
 }
 
-bool AbstractMaze::operator==(AbstractMaze const &other) const {
-  return walls == other.walls;
-}
-
 bool AbstractMaze::out_of_bounds(RowCol const row_col) const {
   return row_col.col < 0 or row_col.col >= SIZE or row_col.row < 0 or row_col.row >= SIZE;
 }
@@ -168,7 +145,7 @@ bool AbstractMaze::is_wall(RowCol const row_col, Direction const dir) const {
     throw std::invalid_argument("Invalid direction Last");
   }
 
-  auto const is_wall = walls[row_col.row][row_col.col][static_cast<int>(dir)];
+  auto const is_wall = nodes[row_col.row][row_col.col].walls[static_cast<int>(dir)];
   switch (is_wall) {
     case WallEnum::Wall:
       return true;
@@ -198,13 +175,13 @@ void AbstractMaze::add_wall(RowCol const row_col, Direction const dir) {
   }
 
   if (!is_perimeter(row_col, dir)) {
-    walls[row_col.row][row_col.col][static_cast<int>(dir)] = WallEnum::Wall;
+    nodes[row_col.row][row_col.col].walls[static_cast<int>(dir)] = WallEnum::Wall;
   }
 
   // Add the wall from the other side if that's possible
   auto const[valid, new_row_col] = step(row_col, dir);
   if (valid and !is_perimeter(new_row_col, opposite_direction(dir))) {
-    walls[new_row_col.row][new_row_col.col][static_cast<int>(opposite_direction(dir))] = WallEnum::PerimeterWall;
+    nodes[new_row_col.row][new_row_col.col].walls[static_cast<int>(opposite_direction(dir))] = WallEnum::PerimeterWall;
   }
 }
 
@@ -224,17 +201,17 @@ void AbstractMaze::remove_wall(RowCol const row_col, Direction const dir) {
                       dir_to_char(dir)));
 
     }
-    if (walls[row_col.row][row_col.col][static_cast<int>(dir)] == WallEnum::NoWall) {
+    if (nodes[row_col.row][row_col.col].walls[static_cast<int>(dir)] == WallEnum::NoWall) {
       throw std::invalid_argument(
           fmt::format("remove_wall: row {} col {} dir {} not in walls", row_col.row, row_col.col, dir_to_char(dir)));
     }
-    walls[row_col.row][row_col.col][static_cast<int>(dir)] = WallEnum::NoWall;
+    nodes[row_col.row][row_col.col].walls[static_cast<int>(dir)] = WallEnum::NoWall;
   }
 
   // Remove the wall from the other side if that's possible
   auto const[valid, new_row_col] = step(row_col, dir);
   if (valid) {
-    walls[new_row_col.row][new_row_col.col][static_cast<int>(opposite_direction(dir))] = WallEnum::NoWall;
+    nodes[new_row_col.row][new_row_col.col].walls[static_cast<int>(opposite_direction(dir))] = WallEnum::NoWall;
   }
 }
 
@@ -251,17 +228,17 @@ void AbstractMaze::remove_wall_if_exists(RowCol const row_col, ssim::Direction c
 
     }
 
-    if (walls[row_col.row][row_col.col][static_cast<int>(dir)] == WallEnum::NoWall) {
+    if (nodes[row_col.row][row_col.col].walls[static_cast<int>(dir)] == WallEnum::NoWall) {
       // this case is fine. The whole point of this function is to ignore this
       return;
     }
-    walls[row_col.row][row_col.col][static_cast<int>(dir)] = WallEnum::NoWall;
+    nodes[row_col.row][row_col.col].walls[static_cast<int>(dir)] = WallEnum::NoWall;
   }
 
   // Remove the wall from the other side if that's possible
   auto const[valid, new_row_col] = step(row_col, dir);
   if (valid) {
-    walls[new_row_col.row][new_row_col.col][static_cast<int>(opposite_direction(dir))] = WallEnum::NoWall;
+    nodes[new_row_col.row][new_row_col.col].walls[static_cast<int>(opposite_direction(dir))] = WallEnum::NoWall;
   }
 }
 
@@ -270,7 +247,7 @@ void AbstractMaze::remove_all_walls() {
     for (unsigned int col = 0; col < SIZE; col++) {
       for (Direction d = Direction::First; d != Direction::Last; d++) {
         if (!is_perimeter({row, col}, d)) {
-          walls[row][col][static_cast<int>(d)] = WallEnum::NoWall;
+          nodes[row][col].walls[static_cast<int>(d)] = WallEnum::NoWall;
         }
       }
     }
@@ -282,7 +259,7 @@ void AbstractMaze::add_all_walls() {
     for (unsigned int col = 0; col < SIZE; col++) {
       for (Direction d = Direction::First; d != Direction::Last; d++) {
         if (!is_perimeter({row, col}, d)) {
-          walls[row][col][static_cast<int>(d)] = WallEnum::Wall;
+          nodes[row][col].walls[static_cast<int>(d)] = WallEnum::Wall;
         }
       }
     }

@@ -1,13 +1,21 @@
 #pragma once
 
 #include <limits>
+#include <array>
 
 namespace ssim {
 
 struct RowCol {
   bool operator==(const RowCol &other) const;
+
   unsigned int row;
   unsigned int col;
+};
+
+enum class WallEnum {
+  NoWall,
+  PerimeterWall,
+  Wall
 };
 
 /**
@@ -18,7 +26,9 @@ struct RowCol {
 class Node {
  public:
   Node(RowCol row_col);
+
   Node(unsigned int row, unsigned int col);
+
   Node() = default;
 
   bool operator==(Node const &other) const;
@@ -26,14 +36,18 @@ class Node {
   bool operator!=(Node const &other) const;
 
   unsigned int Row() const;
+
   unsigned int Col() const;
+
   RowCol GetRowCol() const;
+
   void Reset();
 
   int weight = std::numeric_limits<decltype(weight)>::max(); // used for flood-fill
   int distance = 0; // used for A-star
   bool known = false;
   bool visited = false;
+  std::array<WallEnum, 4> walls = {WallEnum::NoWall, WallEnum::NoWall, WallEnum::NoWall, WallEnum::NoWall};
 
  private:
   RowCol row_col = {0};
