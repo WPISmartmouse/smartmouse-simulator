@@ -1,4 +1,5 @@
 workspace.xml
+gmon.out
 *.info
 cmake-build-debug
 *build*
