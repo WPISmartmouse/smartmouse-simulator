@@ -16,6 +16,7 @@
 
 namespace ssim {
 
+
 Client::Client(Server * const server, QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindow) {
   ui_->setupUi(this);
 

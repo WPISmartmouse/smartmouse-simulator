@@ -1,5 +1,6 @@
 #include <optional>
 #include <chrono>
+#include <thread>
 #include <numeric>
 
 #include <core/math.h>
@@ -16,7 +17,7 @@ using namespace std::chrono_literals;
 using ul_micros = std::chrono::duration<unsigned long, std::micro>;
 using dbl_s = std::chrono::duration<double>;
 
-void Server::run() {
+void Server::process() {
   ResetRobot(0.5, 0.5, 0);
   ComputeMaxSensorRange();
 
@@ -28,7 +29,7 @@ void Server::run() {
 
     // special case when update_rate is zero, like on startup.
     if (desired_step_time_ns.count() == 0.0) {
-      msleep(1);
+      std::this_thread::sleep_for(1ms);
       continue;
     }
 
@@ -39,12 +40,12 @@ void Server::run() {
     if (pause_at_steps_ > 0 && pause_at_steps_ == steps_) {
       pause_at_steps_ = 0;
       pause_ = true;
-      msleep(1);
+      std::this_thread::sleep_for(1ms);
       continue;
     }
 
     if (pause_) {
-      msleep(1);
+      std::this_thread::sleep_for(1ms);
       continue;
     }
 
@@ -54,9 +55,8 @@ void Server::run() {
     // Sleep
     auto const end_step_time = std::chrono::steady_clock::now();
     auto const sleep_time = desired_end_time - end_step_time;
-    auto const sleep_time_us = std::chrono::duration_cast<ul_micros>(sleep_time).count();
-    if (sleep_time_us > 0) {
-      usleep(sleep_time_us);
+    if (sleep_time.count() > 0) {
+      std::this_thread::sleep_for(sleep_time);
     }
 
     auto const actual_end_step_time = std::chrono::steady_clock::now();
@@ -65,7 +65,12 @@ void Server::run() {
     world_stats.sim_time = std::chrono::nanoseconds(ns_of_sim_per_step_ * steps_);
     world_stats.real_time_factor = rtf;
     emit WorldStatsChanged(world_stats);
+
+    PhysicsConfig t;
+    emit Test(t);
   }
+
+  emit finished();
 }
 
 void Server::Step() {

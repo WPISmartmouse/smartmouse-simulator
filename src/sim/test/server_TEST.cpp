@@ -6,5 +6,4 @@
 
 TEST(ServerTest, create_test) {
   ssim::Server server;
-  server.Step();
 }

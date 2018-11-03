@@ -73,15 +73,19 @@ void KinematicController::reset_fwd_to_center(const Mouse &mouse) {
   switch (dir) {
     case Direction::N: {
       current_pose_estimate_cu.row = mouse.getRow() + 0.5;
+      break;
     }
     case Direction::S: {
       current_pose_estimate_cu.row = mouse.getRow() - 0.5;
+      break;
     }
     case Direction::E: {
       current_pose_estimate_cu.col = mouse.getCol() + 0.5;
+      break;
     }
     case Direction::W: {
       current_pose_estimate_cu.col = mouse.getCol() - 0.5;
+      break;
     }
     default: {
       exit(-1);

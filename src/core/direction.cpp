@@ -64,7 +64,7 @@ Direction int_to_dir(int i) {
   }
 }
 
-const Direction operator++(Direction &dir, int) {
+Direction operator++(Direction &dir, int) {
   switch (dir) {
     case Direction::N:
       dir = Direction::E;

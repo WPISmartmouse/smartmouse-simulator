@@ -90,6 +90,8 @@ class Client : public QMainWindow {
 
   void OnWorldStats(WorldStatistics msg);
 
+  void OnTest(RobotSimState msg);
+
  private:
   void ConfigureGui();
 

@@ -8,8 +8,8 @@ namespace ssim {
 struct RowCol {
   bool operator==(const RowCol &other) const;
 
-  unsigned int row;
-  unsigned int col;
+  unsigned int row = 0;
+  unsigned int col = 0;
 };
 
 enum class WallEnum {

@@ -99,7 +99,7 @@ StepResult const AbstractMaze::step(RowCol const row_col, Direction const d) {
 }
 
 bool AbstractMaze::out_of_bounds(RowCol const row_col) const {
-  return row_col.col < 0 or row_col.col >= SIZE or row_col.row < 0 or row_col.row >= SIZE;
+  return row_col.col >= SIZE or row_col.row >= SIZE;
 }
 
 Node AbstractMaze::get_node(RowCol const row_col) const {

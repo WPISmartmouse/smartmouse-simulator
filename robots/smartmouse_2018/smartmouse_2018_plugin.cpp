@@ -9,7 +9,7 @@
 
 
 void Smartmouse2018Plugin::Setup()  {
-  auto root_command = std::make_unique<SolveCommand>(robot, new ssim::Flood(&robot));
+  root_command = std::make_unique<SolveCommand>(robot, new ssim::Flood(&robot));
 
   last_t_us = micros();
   last_blink_us = micros();

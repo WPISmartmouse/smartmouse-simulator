@@ -1,4 +1,7 @@
 #include <hal/hal.h>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 #include "smartmouse_2018_description.h"
 
@@ -144,10 +147,22 @@ ssim::RobotDescription ssim::global_robot_description {
         {BUTTON_PIN, ssim::PinVariant{ssim::DigitalInputDescription{}}},
         {LED_1, ssim::PinVariant{ssim::LEDDescription{.r=255, .g=0, .b=0}}},
         {BATTERY_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{}}},
-        {MOTOR_LEFT_A1, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}}
+        {MOTOR_LEFT_A1, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
+        {MOTOR_LEFT_A2, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
+        {MOTOR_RIGHT_B1, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
+        {MOTOR_RIGHT_B2, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
+        {BACK_LEFT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
+        {FRONT_RIGHT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
+        {BACK_RIGHT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
+        {FRONT_LEFT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
+        {FRONT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
+        {GERALD_LEFT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
+        {GERALD_RIGHT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
+        {MOSI, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
     },
     .track_width_cu = TRACK_WIDTH_CU,
     .min_abstract_force = MIN_ABSTRACT_FORCE,
     .min_speed_cups = MIN_SPEED_CUPS,
     .max_speed_cups = ssim::toCellUnits(0.72),
+    .system_clock = SystemClock{.sim_time=0ns}
 };

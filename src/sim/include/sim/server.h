@@ -9,16 +9,13 @@
 
 namespace ssim {
 
-class Server : public QThread {
+class Server : public QObject {
  Q_OBJECT
 
- public:
-
-  void Step();
 
  public slots:
 
-  void run() override;
+  void process();
 
   void OnServerControl(ServerControl server_control);
 
@@ -34,11 +31,17 @@ class Server : public QThread {
 
  signals:
 
+  void finished();
+
+  void Test(PhysicsConfig p);
+
   void RobotSimStateChanged(RobotSimState state);
 
   void WorldStatsChanged(WorldStatistics world_stats);
 
  private:
+  void Step();
+
   void SimulateStep(double dt);
 
   void ResetRobot(double reset_col, double reset_row, double reset_yaw);
