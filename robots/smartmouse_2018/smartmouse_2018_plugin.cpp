@@ -35,7 +35,7 @@ void Smartmouse2018Plugin::Step() {
   }
 
   if (not paused and not done) {
-    done = root_command->run();
+    // done = root_command->run();
   } else {
     robot.setSpeedCps(0, 0);
     digitalWrite(LED_1, 1);

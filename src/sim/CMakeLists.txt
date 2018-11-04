@@ -35,7 +35,7 @@ add_library(smartmouse_simulator smartmouse_simulator.cpp simulator.qrc)
 target_include_directories(smartmouse_simulator PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
-target_link_libraries(smartmouse_simulator client server core)
+target_link_libraries(smartmouse_simulator client server core Threads::Threads)
 
 file(GLOB WIDGET_SRCS widgets/*.cpp)
 

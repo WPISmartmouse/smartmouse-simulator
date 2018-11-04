@@ -146,7 +146,7 @@ ssim::RobotDescription ssim::global_robot_description {
     .pin_map = {
         {BUTTON_PIN, ssim::PinVariant{ssim::DigitalInputDescription{}}},
         {LED_1, ssim::PinVariant{ssim::LEDDescription{.r=255, .g=0, .b=0}}},
-        {BATTERY_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{}}},
+        {BATTERY_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=13}}},
         {MOTOR_LEFT_A1, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
         {MOTOR_LEFT_A2, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
         {MOTOR_RIGHT_B1, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
@@ -164,5 +164,6 @@ ssim::RobotDescription ssim::global_robot_description {
     .min_abstract_force = MIN_ABSTRACT_FORCE,
     .min_speed_cups = MIN_SPEED_CUPS,
     .max_speed_cups = ssim::toCellUnits(0.72),
-    .system_clock = SystemClock{.sim_time=0ns}
+    .system_clock = SystemClock{.sim_time=0ns},
+    .battery = {.max_voltage = 3.3, .volts_per_bit=0.00041, .pin=BATTERY_ANALOG_PIN}
 };

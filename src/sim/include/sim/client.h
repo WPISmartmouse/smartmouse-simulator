@@ -70,6 +70,10 @@ class Client : public QMainWindow {
 
   void Step();
 
+  void OnWorldStats(WorldStatistics msg);
+
+  void OnFinished();
+
  signals:
 
   void PhysicsChanged(PhysicsConfig msg);
@@ -87,10 +91,6 @@ class Client : public QMainWindow {
   void SetRealTime(QString str);
 
   void SetTime(QString str);
-
-  void OnWorldStats(WorldStatistics msg);
-
-  void OnTest(RobotSimState msg);
 
  private:
   void ConfigureGui();

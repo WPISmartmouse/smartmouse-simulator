@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QCloseEvent>
 
+#include <fmt/format.h>
 #include <hal/util.h>
 #include <sim/server.h>
 #include <sim/client.h>
@@ -23,13 +24,14 @@ Client::Client(Server * const server, QMainWindow *parent) : QMainWindow(parent)
   ConfigureGui();
   RestoreSettings();
 
-  connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics);
-  connect(this, &Client::ServerChanged, server, &Server::OnServerControl);
-  connect(this, &Client::RobotCommandChanged, server, &Server::OnRobotCommand);
-  connect(this, &Client::MazeChanged, server, &Server::OnMaze);
+  connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics, Qt::ConnectionType::DirectConnection);
+  connect(this, &Client::ServerChanged, server, &Server::OnServerControl, Qt::ConnectionType::DirectConnection);
+  connect(this, &Client::RobotCommandChanged, server, &Server::OnRobotCommand, Qt::ConnectionType::DirectConnection);
+  connect(this, &Client::MazeChanged, server, &Server::OnMaze, Qt::ConnectionType::DirectConnection);
   connect(this, &Client::MazeChanged, maze_widget_, &MazeWidget::OnMaze);
   connect(server, &Server::WorldStatsChanged, this, &Client::OnWorldStats);
   connect(server, &Server::RobotSimStateChanged, maze_widget_, &MazeWidget::OnRobotSimState);
+  connect(server, &Server::finished, this, &Client::OnFinished);
 
   // publish the initial configuration
   PhysicsConfig initial_physics_config;
@@ -49,7 +51,6 @@ void Client::Exit() {
   ServerControl quit_msg;
   quit_msg.quit = true;
   emit ServerChanged(quit_msg);
-  QApplication::exit(0);
 }
 
 void Client::Restart() {
@@ -282,6 +283,19 @@ void Client::RestoreSettings() {
   ui_->kd_spinbox->setValue(settings_->value("gui/kd").toDouble());
   ui_->kff_offset_spinbox->setValue(settings_->value("gui/kff_offset").toDouble());
   ui_->kff_scale_spinbox->setValue(settings_->value("gui/kff_scale").toDouble());
+}
+
+void Client::OnWorldStats(WorldStatistics msg) {
+  auto const ms = std::chrono::duration_cast<std::chrono::milliseconds>(msg.sim_time_ns).count();
+  auto const s = std::chrono::duration_cast<std::chrono::seconds>(msg.sim_time_ns).count();
+  auto const m = std::chrono::duration_cast<std::chrono::minutes>(msg.sim_time_ns).count();
+  auto const h = std::chrono::duration_cast<std::chrono::hours>(msg.sim_time_ns).count();
+  std::string time_str = fmt::format("{:02}:{:02}:{:02}.{:03}", h, m, s, ms);
+  emit SetTime(QString::fromStdString(time_str));
+}
+
+void Client::OnFinished() {
+  QApplication::exit(0);
 }
 
 } // namespace ssim

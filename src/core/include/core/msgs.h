@@ -129,6 +129,13 @@ struct SystemClock {
   std::chrono::nanoseconds sim_time;
 };
 
+struct BatteryDescription {
+  double const max_voltage = 0;
+  double const volts_per_bit = 0;
+  // TODO: come up with a way to ensure that this pin is in the pin_map
+  int const pin = 0;
+};
+
 using PinVariant = std::variant<AnalogInputDescription,
     AnalogOutputDescription,
     DigitalInputDescription,
@@ -151,6 +158,7 @@ struct RobotDescription {
   double const min_speed_cups = 0;
   double const max_speed_cups = 0;
   SystemClock system_clock;
+  BatteryDescription battery;
 };
 
 struct WheelPhysicsState {
@@ -179,7 +187,7 @@ struct RobotCommand {
 
 struct WorldStatistics {
   unsigned long step = 0;
-  std::chrono::nanoseconds sim_time = {};
+  std::chrono::nanoseconds sim_time_ns = {};
   double real_time_factor = 0.0; // RTF acutally achieved
 };
 

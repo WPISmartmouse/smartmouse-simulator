@@ -3,6 +3,7 @@
 #include <thread>
 #include <numeric>
 
+#include <fmt/format.h>
 #include <core/math.h>
 #include <hal/hal.h>
 #include <hal/util.h>
@@ -20,6 +21,21 @@ using dbl_s = std::chrono::duration<double>;
 void Server::process() {
   ResetRobot(0.5, 0.5, 0);
   ComputeMaxSensorRange();
+
+  {
+    auto it = global_robot_description.pin_map.find(global_robot_description.battery.pin);
+    if (it == global_robot_description.pin_map.cend()) {
+      throw std::runtime_error{
+          fmt::format("Battery pin {0} not found in pin map", global_robot_description.battery.pin)};
+    }
+    auto analog_input = std::get_if<ssim::AnalogInputDescription>(&it->second);
+    if (!analog_input) {
+      throw std::runtime_error{
+          fmt::format("Battery pin {0} is not an AnalogInput pin", global_robot_description.battery.pin)};
+    }
+    analog_input->adc_value =
+        global_robot_description.battery.max_voltage / global_robot_description.battery.volts_per_bit;
+  }
 
   while (true) {
     // Handle stepping forward in time
@@ -61,13 +77,12 @@ void Server::process() {
 
     auto const actual_end_step_time = std::chrono::steady_clock::now();
     double rtf = std::chrono::duration_cast<dbl_s>(actual_end_step_time - start_step_time).count();
-    ssim::WorldStatistics world_stats;
-    world_stats.sim_time = std::chrono::nanoseconds(ns_of_sim_per_step_ * steps_);
-    world_stats.real_time_factor = rtf;
-    emit WorldStatsChanged(world_stats);
 
-    PhysicsConfig t;
-    emit Test(t);
+    ssim::WorldStatistics world_stats;
+    world_stats.sim_time_ns = std::chrono::nanoseconds(ns_of_sim_per_step_ * steps_);
+    world_stats.real_time_factor = rtf;
+    world_stats.step = steps_;
+    emit WorldStatsChanged(world_stats);
   }
 
   emit finished();
@@ -306,7 +321,7 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
       for (auto d = Direction::First; d < Direction::Last; d++) {
         if (maze_.is_wall({r, c}, d)) {
           auto wall = WallToCoordinates(r, c, d);
-          std::array<Line2d, 4> lines {
+          std::array<Line2d, 4> lines{
               Line2d{wall.c1, wall.r1, wall.c2, wall.r1},
               Line2d{wall.c2, wall.r1, wall.c2, wall.r2},
               Line2d{wall.c2, wall.r2, wall.c1, wall.r2},

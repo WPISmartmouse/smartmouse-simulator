@@ -56,7 +56,7 @@ MazeWidget::MazeWidget(QWidget *parent) : QWidget(parent), AbstractTab() {
   setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::MinimumExpanding);
 }
 
-void MazeWidget::paintEvent(QPaintEvent *event) {
+void MazeWidget::paintEvent(QPaintEvent */*event*/) {
   QPainter painter(this);
   QTransform tf;
   {

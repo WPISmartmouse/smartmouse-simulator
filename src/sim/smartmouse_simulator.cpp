@@ -1,10 +1,12 @@
-#include <core/args.h>
 #include <cstdio>
+#include <iostream>
 #include <memory>
 #include <cstdlib>
+#include <thread>
 
 #include <QtWidgets/QApplication>
 
+#include <core/args.h>
 #include <sim/server.h>
 #include <sim/client.h>
 
@@ -23,14 +25,8 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     // Start physics thread
-    QThread thread;
     ssim::Server server;
-    server.moveToThread(&thread);
-    QObject::connect(&thread, SIGNAL(started()), &server, SLOT(process()));
-    QObject::connect(&server, SIGNAL(finished()), &thread, SLOT(quit()));
-    QObject::connect(&server, SIGNAL(finished()), &server, SLOT(deleteLater()));
-    QObject::connect(&thread, SIGNAL(finished()), &thread, SLOT(deleteLater()));
-    thread.start();
+    std::thread thread(&ssim::Server::process, &server);
 
     auto client = std::make_unique<ssim::Client>(&server);
     client->setWindowTitle("Smartmouse Simulator");

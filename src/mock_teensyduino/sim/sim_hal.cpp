@@ -46,7 +46,7 @@ unsigned int analogRead(unsigned int pin) {
 
   auto analog_input = std::get_if<ssim::AnalogInputDescription>(&it->second);
   if (!analog_input) {
-    throw std::runtime_error{fmt::format("pin {0} is not an AnalogInput", pin)};
+    throw std::runtime_error{fmt::format("pin {0} is not an AnalogInput pin", pin)};
   }
 
   return analog_input->adc_value;
@@ -86,13 +86,13 @@ void CoutSerial::println(std::string const &s) {
   std::cout << s << std::endl;
 }
 
-void CoutSerial::print(word w, unsigned int mode) {
+void CoutSerial::print(word w, unsigned int /*mode*/) {
   print(std::to_string(w));
 }
 
-void NopSerial::print(std::string const &s) {}
+void NopSerial::print(std::string const &/*s*/) {}
 
-void NopSerial::println(std::string const &s) {}
+void NopSerial::println(std::string const &/*s*/) {}
 
 CoutSerial Serial;
 NopSerial Serial1;

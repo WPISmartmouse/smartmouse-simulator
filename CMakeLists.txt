@@ -29,6 +29,7 @@ macro(sanitize TARGET)
 endmacro()
 
 find_package(Eigen3 REQUIRED NO_MODULE)
+find_package(Threads)
 
 # Testing -- only valid on sim
 if (${REAL})

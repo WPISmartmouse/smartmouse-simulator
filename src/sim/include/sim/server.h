@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QtCore/QThread>
-
 #include <core/maze.h>
 #include <core/msgs.h>
 #include <sim/msgs.h>
@@ -11,7 +9,6 @@ namespace ssim {
 
 class Server : public QObject {
  Q_OBJECT
-
 
  public slots:
 
@@ -32,8 +29,6 @@ class Server : public QObject {
  signals:
 
   void finished();
-
-  void Test(PhysicsConfig p);
 
   void RobotSimStateChanged(RobotSimState state);
 

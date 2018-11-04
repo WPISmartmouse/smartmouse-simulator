@@ -11,9 +11,9 @@ class RobotPlugin {
 
   virtual void Step() {};
 
-  virtual void OnPIDConstants(PIDConstants const &msg) {};
+  virtual void OnPIDConstants(PIDConstants const &/*msg*/) {};
 
-  virtual void OnPIDSetpoints(PIDSetpoints const &msg) {};
+  virtual void OnPIDSetpoints(PIDSetpoints const &/*msg*/) {};
 };
 
 } // namespace ssim

@@ -20,6 +20,6 @@ void SPI_t::endTransaction() {
 
 }
 
-byte SPI_t::transfer(byte b) {
+byte SPI_t::transfer(byte /*b*/) {
   return 0;
 }
