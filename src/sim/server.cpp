@@ -1,5 +1,6 @@
 #include <optional>
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <numeric>
 
@@ -16,6 +17,7 @@ namespace ssim {
 
 using namespace std::chrono_literals;
 using ul_micros = std::chrono::duration<unsigned long, std::micro>;
+using dbl_nanos = std::chrono::duration<double, std::nano>;
 using dbl_s = std::chrono::duration<double>;
 
 void Server::process() {
@@ -38,35 +40,39 @@ void Server::process() {
   }
 
   while (true) {
-    // Handle stepping forward in time
     auto const start_step_time = std::chrono::steady_clock::now();
-    auto const desired_step_time_ns = ns_of_sim_per_step_ / real_time_factor_;
-    auto const desired_end_time = start_step_time + desired_step_time_ns;
+    std::chrono::time_point<std::chrono::steady_clock, dbl_nanos> desired_end_time;
+    {
+      std::lock_guard<std::mutex> lock(message_mutex);
+      // Handle stepping forward in time
+      auto const desired_step_time_ns = ns_of_sim_per_step_ / real_time_factor_;
+      desired_end_time = start_step_time + desired_step_time_ns;
 
-    // special case when update_rate is zero, like on startup.
-    if (desired_step_time_ns.count() == 0.0) {
-      std::this_thread::sleep_for(1ms);
-      continue;
+      // special case when update_rate is zero, like on startup.
+      if (desired_step_time_ns.count() == 0.0) {
+        std::this_thread::sleep_for(1ms);
+        continue;
+      }
+
+      if (quit_) {
+        break;
+      }
+
+      if (pause_at_steps_ > 0 && pause_at_steps_ == steps_) {
+        pause_at_steps_ = 0;
+        pause_ = true;
+        std::this_thread::sleep_for(1ms);
+        continue;
+      }
+
+      if (pause_) {
+        std::this_thread::sleep_for(1ms);
+        continue;
+      }
+
+      // Update the world and step the robot controller
+      Step();
     }
-
-    if (quit_) {
-      break;
-    }
-
-    if (pause_at_steps_ > 0 && pause_at_steps_ == steps_) {
-      pause_at_steps_ = 0;
-      pause_ = true;
-      std::this_thread::sleep_for(1ms);
-      continue;
-    }
-
-    if (pause_) {
-      std::this_thread::sleep_for(1ms);
-      continue;
-    }
-
-    // Update the world and step the robot controller
-    Step();
 
     // Sleep
     auto const end_step_time = std::chrono::steady_clock::now();
@@ -241,6 +247,7 @@ void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
 }
 
 void Server::OnServerControl(ServerControl const server_control) {
+  std::lock_guard<std::mutex> lock(message_mutex);
   if (server_control.pause) {
     pause_ = server_control.pause.value();
   } else if (server_control.toggle_play_pause) {
@@ -278,6 +285,7 @@ void Server::OnServerControl(ServerControl const server_control) {
 }
 
 void Server::OnPhysics(PhysicsConfig const config) {
+  std::lock_guard<std::mutex> lock(message_mutex);
   if (config.ns_of_sim_per_step) {
     ns_of_sim_per_step_ = std::chrono::nanoseconds(config.ns_of_sim_per_step.value());
   }
@@ -289,10 +297,12 @@ void Server::OnPhysics(PhysicsConfig const config) {
 }
 
 void Server::OnMaze(AbstractMaze const maze) {
+  std::lock_guard<std::mutex> lock(message_mutex);
   maze_ = maze;
 }
 
 void Server::OnRobotCommand(RobotCommand const cmd) {
+  std::lock_guard<std::mutex> lock(message_mutex);
   cmd_ = cmd;
 }
 
@@ -364,10 +374,12 @@ double Server::ComputeSensorRange(const SensorDescription sensor) {
 }
 
 void Server::OnPIDConstants(PIDConstants const msg) {
+  std::lock_guard<std::mutex> lock(message_mutex);
 
 }
 
 void Server::OnPIDSetpoints(PIDSetpoints const msg) {
+  std::lock_guard<std::mutex> lock(message_mutex);
 
 }
 

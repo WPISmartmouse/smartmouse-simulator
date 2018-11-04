@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include <core/maze.h>
 #include <core/msgs.h>
 #include <sim/msgs.h>
@@ -50,7 +52,7 @@ class Server : public QObject {
   double ComputeSensorDistToWall(SensorDescription sensor);
 
   unsigned long steps_ = 0UL;
-  bool pause_ = true;
+  bool pause_ = false;
   bool stationary_ = false;
   bool quit_ = false;
   std::chrono::nanoseconds ns_of_sim_per_step_{1'000'000};
@@ -60,6 +62,7 @@ class Server : public QObject {
   AbstractMaze maze_;
   RobotCommand cmd_;
   RobotSimState state_;
+  std::mutex message_mutex;
 };
 
 } // namespace ssim

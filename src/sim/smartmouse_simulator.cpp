@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     client->showMaximized();
     // Runs until the application is exited
     return_code = QApplication::exec();
+    thread.join();
   } while (return_code == ssim::Client::kRestartCode);
 
   QApplication::quit();

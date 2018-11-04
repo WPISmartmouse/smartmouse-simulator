@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <fstream>
 
 #include <QtCore/QUrl>
@@ -17,17 +18,16 @@
 
 namespace ssim {
 
-
-Client::Client(Server * const server, QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindow) {
+Client::Client(Server *const server, QMainWindow *parent) : QMainWindow(parent), ui_(new Ui::MainWindow) {
   ui_->setupUi(this);
 
   ConfigureGui();
   RestoreSettings();
 
-  connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics, Qt::ConnectionType::DirectConnection);
-  connect(this, &Client::ServerChanged, server, &Server::OnServerControl, Qt::ConnectionType::DirectConnection);
-  connect(this, &Client::RobotCommandChanged, server, &Server::OnRobotCommand, Qt::ConnectionType::DirectConnection);
-  connect(this, &Client::MazeChanged, server, &Server::OnMaze, Qt::ConnectionType::DirectConnection);
+  connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics, Qt::ConnectionType::QueuedConnection);
+  connect(this, &Client::ServerChanged, server, &Server::OnServerControl, Qt::ConnectionType::QueuedConnection);
+  connect(this, &Client::RobotCommandChanged, server, &Server::OnRobotCommand, Qt::ConnectionType::QueuedConnection);
+  connect(this, &Client::MazeChanged, server, &Server::OnMaze, Qt::ConnectionType::QueuedConnection);
   connect(this, &Client::MazeChanged, maze_widget_, &MazeWidget::OnMaze);
   connect(server, &Server::WorldStatsChanged, this, &Client::OnWorldStats);
   connect(server, &Server::RobotSimStateChanged, maze_widget_, &MazeWidget::OnRobotSimState);
