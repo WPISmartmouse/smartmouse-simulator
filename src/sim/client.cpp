@@ -22,16 +22,17 @@ Client::Client(Server *const server, QMainWindow *parent) : QMainWindow(parent),
   ui_->setupUi(this);
 
   ConfigureGui();
-  RestoreSettings();
 
-  connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics, Qt::ConnectionType::QueuedConnection);
-  connect(this, &Client::ServerChanged, server, &Server::OnServerControl, Qt::ConnectionType::QueuedConnection);
-  connect(this, &Client::RobotCommandChanged, server, &Server::OnRobotCommand, Qt::ConnectionType::QueuedConnection);
-  connect(this, &Client::MazeChanged, server, &Server::OnMaze, Qt::ConnectionType::QueuedConnection);
+  connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics);
+  connect(this, &Client::ServerChanged, server, &Server::OnServerControl);
+  connect(this, &Client::RobotCommandChanged, server, &Server::OnRobotCommand);
+  connect(this, &Client::MazeChanged, server, &Server::OnMaze);
   connect(this, &Client::MazeChanged, maze_widget_, &MazeWidget::OnMaze);
   connect(server, &Server::WorldStatsChanged, this, &Client::OnWorldStats);
   connect(server, &Server::RobotSimStateChanged, maze_widget_, &MazeWidget::OnRobotSimState);
   connect(server, &Server::finished, this, &Client::OnFinished);
+
+  RestoreSettings();
 
   // publish the initial configuration
   PhysicsConfig initial_physics_config;
@@ -40,7 +41,7 @@ Client::Client(Server *const server, QMainWindow *parent) : QMainWindow(parent),
 
   // publish initial config of the server
   ServerControl initial_server_control;
-  initial_server_control.pause = false;
+  initial_server_control.pause = true;
   initial_server_control.reset_robot = true;
   initial_server_control.reset_time = true;
   emit ServerChanged(initial_server_control);
@@ -55,7 +56,10 @@ void Client::Exit() {
 
 void Client::Restart() {
   SaveSettings();
-  QApplication::exit(kRestartCode);
+  ServerControl quit_msg;
+  quit_msg.quit = true;
+  restart_ = true;
+  emit ServerChanged(quit_msg);
 }
 
 void Client::TogglePlayPause() {
@@ -295,7 +299,12 @@ void Client::OnWorldStats(WorldStatistics msg) {
 }
 
 void Client::OnFinished() {
-  QApplication::exit(0);
+  if (restart_) {
+    QApplication::exit(kRestartCode);
+  }
+  else {
+    QApplication::exit(0);
+  }
 }
 
 } // namespace ssim

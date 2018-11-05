@@ -109,6 +109,7 @@ class Client : public QMainWindow {
   MazeWidget *maze_widget_;
   StateWidget *state_widget_;
   QShortcut *shortcut;
+  bool restart_ = false;
 };
 
 } // namespace ssim
