@@ -13,11 +13,7 @@ if (${REAL})
     # https://answers.launchpad.net/gcc-arm-embedded/+question/254554
     set_target_properties(teensy_main PROPERTIES LINK_FLAGS "--specs=nosys.specs")
 else ()
-    find_package(Qt5 COMPONENTS Core Widgets Charts REQUIRED)
-    set(CMAKE_AUTOMOC ON)
-    set(CMAKE_AUTOUIC ON)
-    set(CMAKE_AUTORCC ON)
-    add_executable(smartmouse_2018 smartmouse_2018_plugin.cpp smartmouse_2018_robot.cpp smartmouse_2018_description.cpp ../../src/sim/simulator.qrc)
-    target_link_libraries(smartmouse_2018 smartmouse_simulator commanduino commands kinematic_controller AS5048A hal core)
+    add_library(smartmouse_2018 smartmouse_2018_plugin.cpp smartmouse_2018_robot.cpp smartmouse_2018_description.cpp)
+    target_link_libraries(smartmouse_2018 commanduino commands kinematic_controller AS5048A hal core)
 endif ()
 

@@ -31,11 +31,11 @@ target_include_directories(client PUBLIC
         ${QWT_INCLUDE_DIR})
 target_link_libraries(client sim core hal Qt5::Widgets ${QWT_LIBRARY} dl)
 
-add_library(smartmouse_simulator smartmouse_simulator.cpp)
+add_executable(smartmouse_simulator smartmouse_simulator.cpp simulator.qrc)
 target_include_directories(smartmouse_simulator PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
-target_link_libraries(smartmouse_simulator client server core Threads::Threads)
+target_link_libraries(smartmouse_simulator client server ${CURRENT_ROBOT_LIBRARY} core Threads::Threads)
 
 file(GLOB WIDGET_SRCS widgets/*.cpp)
 

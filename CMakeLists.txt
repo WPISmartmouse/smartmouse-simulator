@@ -11,6 +11,7 @@ option(ADDRESS_SANITIZER "use address sanitizer" OFF)
 option(UNDEFINED_SANITIZER "use undefined behavior sanitizer" OFF)
 option(THREAD_SANITIZER "use thread sanitizer" OFF)
 option(LEAK_SANITIZER "use leak sanitizer" OFF)
+set(CURRENT_ROBOT_LIBRARY "smartmouse_2018")
 
 macro(sanitize TARGET)
     if (${ADDRESS_SANITIZER})
