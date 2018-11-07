@@ -73,7 +73,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../simulator.qrc">
+          <iconset resource="../simulator.qrc">
            <normaloff>:/images/camera.svg</normaloff>:/images/camera.svg</iconset>
          </property>
          <property name="flat">
@@ -104,7 +104,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../simulator.qrc"/>
+  <include location="../simulator.qrc"/>
  </resources>
  <connections/>
 </ui>

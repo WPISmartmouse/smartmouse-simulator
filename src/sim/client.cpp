@@ -242,11 +242,25 @@ void Client::ConfigureGui() {
   connect(ui_->teleport_button, &QPushButton::clicked, this, &Client::SendTeleportCmd);
   connect(ui_->publish_constants_button, &QPushButton::clicked, this, &Client::PIDConstantsSpinboxChanged);
   connect(ui_->publish_setpoints_button, &QPushButton::clicked, this, &Client::PIDSetpointsSpinboxChanged);
+
+  QFile styleFile(":/style.qss");
+  auto const success = styleFile.open(QFile::ReadOnly);
+  if (success) {
+    QString style(styleFile.readAll());
+    this->setStyleSheet(style);
+  } else {
+    throw std::runtime_error("Unable to open Qt Style Sheet: " + styleFile.errorString().toStdString());
+  }
+
 }
 
 void Client::closeEvent(QCloseEvent *event) {
   SaveSettings();
   event->accept();
+
+  ServerControl quit_msg;
+  quit_msg.quit = true;
+  emit ServerChanged(quit_msg);
 }
 
 void Client::SaveSettings() {
@@ -301,8 +315,7 @@ void Client::OnWorldStats(WorldStatistics msg) {
 void Client::OnFinished() {
   if (restart_) {
     QApplication::exit(kRestartCode);
-  }
-  else {
+  } else {
     QApplication::exit(0);
   }
 }

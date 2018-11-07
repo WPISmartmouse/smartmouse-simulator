@@ -1,9 +1,8 @@
-<RCC>
-  <qresource prefix="/">
-    <file>style.qss</file>
-  </qresource>
-  <qresource prefix="/images">
-    <file alias="vsplitter_handle.svg">images/vsplitter_handle.svg</file>
-    <file alias="camera.svg">images/camera.svg</file>
-  </qresource>
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>style.qss</file>
+        <file>images/vsplitter_handle.svg</file>
+        <file>images/camera.svg</file>
+    </qresource>
 </RCC>

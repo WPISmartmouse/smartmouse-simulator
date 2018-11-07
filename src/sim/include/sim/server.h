@@ -14,7 +14,7 @@ class Server : public QObject {
 
  public slots:
 
-  void process();
+  void thread_run();
 
   void OnServerControl(ServerControl server_control);
 

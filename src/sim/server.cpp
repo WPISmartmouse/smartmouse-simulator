@@ -20,7 +20,7 @@ using ul_micros = std::chrono::duration<unsigned long, std::micro>;
 using dbl_nanos = std::chrono::duration<double, std::nano>;
 using dbl_s = std::chrono::duration<double>;
 
-void Server::process() {
+void Server::thread_run() {
   ResetRobot(0.5, 0.5, 0);
   ComputeMaxSensorRange();
 
@@ -36,7 +36,7 @@ void Server::process() {
           fmt::format("Battery pin {0} is not an AnalogInput pin", global_robot_description.battery.pin)};
     }
     analog_input->adc_value =
-        global_robot_description.battery.max_voltage / global_robot_description.battery.volts_per_bit;
+        static_cast<int>(global_robot_description.battery.max_voltage / global_robot_description.battery.volts_per_bit);
   }
 
   while (true) {

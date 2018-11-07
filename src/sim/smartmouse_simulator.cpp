@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     // Start physics thread
     ssim::Server server;
-    std::thread thread(&ssim::Server::process, &server);
+    std::thread thread(&ssim::Server::thread_run, &server);
 
     auto client = std::make_unique<ssim::Client>(&server);
     client->setWindowTitle("Smartmouse Simulator");
