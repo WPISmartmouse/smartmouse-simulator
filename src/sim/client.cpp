@@ -30,6 +30,7 @@ Client::Client(Server *const server, QMainWindow *parent) : QMainWindow(parent),
   connect(this, &Client::MazeChanged, maze_widget_, &MazeWidget::OnMaze);
   connect(server, &Server::WorldStatsChanged, this, &Client::OnWorldStats);
   connect(server, &Server::RobotSimStateChanged, maze_widget_, &MazeWidget::OnRobotSimState);
+  connect(server, &Server::Redraw, maze_widget_, &MazeWidget::OnRedraw);
   connect(server, &Server::finished, this, &Client::OnFinished);
 
   RestoreSettings();

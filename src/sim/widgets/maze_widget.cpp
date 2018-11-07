@@ -176,6 +176,10 @@ void MazeWidget::OnRobotSimState(RobotSimState state) {
   emit update();
 }
 
+void MazeWidget::OnRedraw() {
+  emit update();
+}
+
 } // namespace ssim
 
 // Force MOC to run on the header file

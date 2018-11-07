@@ -32,6 +32,8 @@ class Server : public QObject {
 
   void finished();
 
+  void Redraw();
+
   void RobotSimStateChanged(RobotSimState state);
 
   void WorldStatsChanged(WorldStatistics world_stats);

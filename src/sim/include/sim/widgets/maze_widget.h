@@ -21,6 +21,8 @@ class MazeWidget : public QWidget, public AbstractTab {
 
   void OnRobotSimState(RobotSimState msg);
 
+  void OnRedraw();
+
   void paintEvent(QPaintEvent *event);
 
   const QString GetTabName() override;

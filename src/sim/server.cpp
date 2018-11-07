@@ -39,6 +39,8 @@ void Server::thread_run() {
         static_cast<int>(global_robot_description.battery.max_voltage / global_robot_description.battery.volts_per_bit);
   }
 
+  global_plugin->Setup();
+
   while (true) {
     auto const start_step_time = std::chrono::steady_clock::now();
     std::chrono::time_point<std::chrono::steady_clock, dbl_nanos> desired_end_time;
@@ -222,6 +224,7 @@ void Server::SimulateStep(double dt) {
 void Server::ResetTime() {
   steps_ = 0UL;
   pause_at_steps_ = 0ul;
+  emit Redraw();
 }
 
 void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
@@ -242,8 +245,6 @@ void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
   state_.right_wheel.current = 0;
   cmd_.left.abstract_force = 0;
   cmd_.right.abstract_force = 0;
-
-  global_plugin->Setup();
 }
 
 void Server::OnServerControl(ServerControl const server_control) {
