@@ -115,6 +115,8 @@ struct MotorDescription {
   double const R = 0;
   double const L = 0;
   double const K = 0;
+  unsigned int const pin_1 = 0;
+  unsigned int const pin_2 = 0;
 };
 
 struct WheelsDescription {

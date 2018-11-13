@@ -28,12 +28,12 @@ void Server::thread_run() {
     auto it = global_robot_description.pin_map.find(global_robot_description.battery.pin);
     if (it == global_robot_description.pin_map.cend()) {
       throw std::runtime_error{
-          fmt::format("Battery pin {0} not found in pin map", global_robot_description.battery.pin)};
+          fmt::format("Battery pin {} not found in pin map", global_robot_description.battery.pin)};
     }
     auto analog_input = std::get_if<ssim::AnalogInputDescription>(&it->second);
     if (!analog_input) {
       throw std::runtime_error{
-          fmt::format("Battery pin {0} is not an AnalogInput pin", global_robot_description.battery.pin)};
+          fmt::format("Battery pin {} is not an AnalogInput pin", global_robot_description.battery.pin)};
     }
     analog_input->adc_value =
         static_cast<int>(global_robot_description.battery.max_voltage / global_robot_description.battery.volts_per_bit);
@@ -161,9 +161,43 @@ void Server::SimulateStep(double dt) {
   double new_tl = tl + new_wl * dt + 0.5 * new_al * dt * dt;
   double new_tr = tr + new_wr * dt + 0.5 * new_ar * dt * dt;
 
+  auto const left_pin_1 = global_robot_description.pin_map.at(global_robot_description.left_motor.pin_1);
+  auto const left_analog_1 = std::get_if<ssim::MotorPinDescription>(&left_pin_1);
+  auto const left_pin_2 = global_robot_description.pin_map.at(global_robot_description.left_motor.pin_2);
+  auto const left_analog_2 = std::get_if<ssim::MotorPinDescription>(&left_pin_2);
+  auto const left_abstract_force = [&]() {
+    if (left_analog_1->value > 0 and left_analog_2->value == 0) {
+      return left_analog_1->value;
+    } else if (left_analog_2->value > 0 and left_analog_1->value == 0) {
+      return left_analog_2->value;
+    } else if (left_analog_2->value == 0 and left_analog_1->value == 0) {
+      return 0u;
+    } else {
+      throw std::runtime_error(
+          fmt::format("pin 1 and 2 cannot have values {} and {}", left_analog_1->value, left_analog_2->value));
+    }
+  }();
+
+  auto const right_pin_1 = global_robot_description.pin_map.at(global_robot_description.right_motor.pin_1);
+  auto const right_analog_1 = std::get_if<ssim::MotorPinDescription>(&right_pin_1);
+  auto const right_pin_2 = global_robot_description.pin_map.at(global_robot_description.right_motor.pin_2);
+  auto const right_analog_2 = std::get_if<ssim::MotorPinDescription>(&right_pin_2);
+  auto const right_abstract_force = [&]() {
+    if (right_analog_1->value > 0 and right_analog_2->value == 0) {
+      return right_analog_1->value;
+    } else if (right_analog_2->value > 0 and right_analog_1->value == 0) {
+      return right_analog_2->value;
+    } else if (right_analog_2->value == 0 and right_analog_1->value == 0) {
+      return 0u;
+    } else {
+      throw std::runtime_error(
+          fmt::format("pin 1 and 2 cannot have values {} and {}", right_analog_1->value, right_analog_2->value));
+    }
+  }();
+
   double const kVRef = 5.0;
-  double voltage_l = (cmd_.left.abstract_force * kVRef) / 255.0;
-  double voltage_r = (cmd_.right.abstract_force * kVRef) / 255.0;
+  double voltage_l = (left_abstract_force * kVRef) / 255.0;
+  double voltage_r = (right_abstract_force * kVRef) / 255.0;
   double new_il = il + dt * (voltage_l - motor_K * wl - motor_R * il) / motor_L;
   double new_ir = ir + dt * (voltage_r - motor_K * wr - motor_R * ir) / motor_L;
 

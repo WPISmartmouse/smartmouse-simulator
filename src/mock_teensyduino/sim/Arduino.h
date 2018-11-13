@@ -25,9 +25,9 @@ typedef unsigned int word;
 #define BIN 2
 #define HEX 16
 
-void digitalWriteFast(unsigned int pin, bool high);
+void digitalWriteFast(unsigned int pin, bool state);
 
-void digitalWrite(unsigned int pin, bool high);
+void digitalWrite(unsigned int pin, bool state);
 
 bool digitalRead(unsigned int pin);
 

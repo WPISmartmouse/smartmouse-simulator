@@ -92,7 +92,7 @@ const ssim::SensorDescription BACK_RIGHT_SENSOR = {
 
 // NOTE: This variable can be manipulated by the server!
 // We don't need to guard it because the server and the robot plugin run synchronously
-ssim::RobotDescription ssim::global_robot_description {
+ssim::RobotDescription ssim::global_robot_description{
     .footprint = {
         {.x = -0.035, .y = 0.035},
         {.x = 0.040, .y =  0.035},
@@ -118,6 +118,8 @@ ssim::RobotDescription ssim::global_robot_description {
         .R = 5,
         .L = 0.58,
         .K = 0.0787,
+        .pin_1 = MOTOR_LEFT_A1,
+        .pin_2 = MOTOR_LEFT_A2
     },
     .right_motor = {
         .u_kinetic = 8.0,
@@ -127,6 +129,8 @@ ssim::RobotDescription ssim::global_robot_description {
         .R = 5,
         .L = 0.58,
         .K = 0.0787,
+        .pin_1 = MOTOR_RIGHT_B1,
+        .pin_2 = MOTOR_RIGHT_B2
     },
     .left_encoder = {
         .n_bits = 14,
@@ -145,7 +149,16 @@ ssim::RobotDescription ssim::global_robot_description {
     },
     .pin_map = {
         {BUTTON_PIN, ssim::PinVariant{ssim::DigitalInputDescription{}}},
+        {LEFT_ENCODER_CS, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
+        {RIGHT_ENCODER_CS, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
         {LED_1, ssim::PinVariant{ssim::LEDDescription{.r=255, .g=0, .b=0}}},
+        {LED_2, ssim::PinVariant{ssim::LEDDescription{.r=255, .g=255, .b=0}}},
+        {LED_3, ssim::PinVariant{ssim::LEDDescription{.r=0, .g=0, .b=255}}},
+        {LED_4, ssim::PinVariant{ssim::LEDDescription{.r=255, .g=0, .b=0}}},
+        {LED_5, ssim::PinVariant{ssim::LEDDescription{.r=0, .g=255, .b=0}}},
+        {LED_6, ssim::PinVariant{ssim::LEDDescription{.r=0, .g=0, .b=255}}},
+        {LED_7, ssim::PinVariant{ssim::LEDDescription{.r=255, .g=0, .b=0}}},
+        {SYS_LED, ssim::PinVariant{ssim::LEDDescription{.r=0, .g=255, .b=0}}},
         {BATTERY_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=13}}},
         {MOTOR_LEFT_A1, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
         {MOTOR_LEFT_A2, ssim::PinVariant{ssim::MotorPinDescription{.motor_pin_type=ssim::MotorPinType::A, .value=0}}},
@@ -158,6 +171,13 @@ ssim::RobotDescription ssim::global_robot_description {
         {FRONT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
         {GERALD_LEFT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
         {GERALD_RIGHT_ANALOG_PIN, ssim::PinVariant{ssim::AnalogInputDescription{.n_bits=10}}},
+        {BACK_LEFT_ENABLE_PIN, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
+        {FRONT_LEFT_ENABLE_PIN, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
+        {BACK_RIGHT_ENABLE_PIN, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
+        {FRONT_RIGHT_ENABLE_PIN, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
+        {GERALD_LEFT_ENABLE_PIN, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
+        {GERALD_RIGHT_ENABLE_PIN, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
+        {FRONT_ENABLE_PIN, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
         {MOSI, ssim::PinVariant{ssim::DigitalOutputDescription{}}},
     },
     .track_width_cu = TRACK_WIDTH_CU,

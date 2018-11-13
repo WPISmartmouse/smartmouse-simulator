@@ -1,5 +1,6 @@
 
 #include <commands/solve_command.h>
+#include <commands/forward.h>
 #include <commanduino/commanduino.h>
 #include <core/mouse.h>
 #include <core/plugin.h>
@@ -9,7 +10,7 @@
 
 
 void Smartmouse2018Plugin::Setup()  {
-  root_command = std::make_unique<SolveCommand>(robot, new ssim::Flood(&robot));
+  root_command = std::make_unique<Forward>(robot);
 
   last_t_us = micros();
   last_blink_us = micros();
@@ -35,7 +36,7 @@ void Smartmouse2018Plugin::Step() {
   }
 
   if (not paused and not done) {
-    // done = root_command->run();
+    done = root_command->run();
   } else {
     robot.setSpeedCps(0, 0);
     digitalWrite(LED_1, 1);
