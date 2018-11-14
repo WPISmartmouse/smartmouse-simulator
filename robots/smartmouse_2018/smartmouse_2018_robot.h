@@ -65,7 +65,7 @@ class Smartmouse2018Robot : public ssim::Robot {
   double dt_s = 0.0;
   bool enable_sensor_pose_estimate = true;
 
-  double max_speed_mps = ssim::global_robot_description.min_speed_cups;
+  double max_speed_mps = ssim::robot_description.min_speed_cups;
   bool wall_smash = false;
-  double max_speed_cups = ssim::global_robot_description.max_speed_cups;
+  double max_speed_cups = ssim::robot_description.max_speed_cups;
 };

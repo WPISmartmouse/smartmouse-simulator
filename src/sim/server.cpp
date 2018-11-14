@@ -25,18 +25,18 @@ void Server::thread_run() {
   ComputeMaxSensorRange();
 
   {
-    auto it = global_robot_description.pin_map.find(global_robot_description.battery.pin);
-    if (it == global_robot_description.pin_map.cend()) {
+    auto it = robot_description.pin_map.find(robot_description.battery.pin);
+    if (it == robot_description.pin_map.cend()) {
       throw std::runtime_error{
-          fmt::format("Battery pin {} not found in pin map", global_robot_description.battery.pin)};
+          fmt::format("Battery pin {} not found in pin map", robot_description.battery.pin)};
     }
     auto analog_input = std::get_if<ssim::AnalogInputDescription>(&it->second);
     if (!analog_input) {
       throw std::runtime_error{
-          fmt::format("Battery pin {} is not an AnalogInput pin", global_robot_description.battery.pin)};
+          fmt::format("Battery pin {} is not an AnalogInput pin", robot_description.battery.pin)};
     }
     analog_input->adc_value =
-        static_cast<int>(global_robot_description.battery.max_voltage / global_robot_description.battery.volts_per_bit);
+        static_cast<int>(robot_description.battery.max_voltage / robot_description.battery.volts_per_bit);
   }
 
   global_plugin->Setup();
@@ -98,7 +98,7 @@ void Server::thread_run() {
 
 void Server::Step() {
   // update sim time
-  global_robot_description.system_clock.sim_time += ns_of_sim_per_step_;
+  robot_description.system_clock.sim_time += ns_of_sim_per_step_;
 
   // perform physics simulation
   const auto dt_s = std::chrono::duration_cast<dbl_s>(ns_of_sim_per_step_).count();
@@ -117,14 +117,14 @@ void Server::Step() {
 void Server::SimulateStep(double dt) {
   // TODO: Implement friction
   // TODO: use left/right motors seperately
-  double const u_k = global_robot_description.left_motor.u_kinetic;
-  double const u_s = global_robot_description.left_motor.u_static;
+  double const u_k = robot_description.left_motor.u_kinetic;
+  double const u_s = robot_description.left_motor.u_static;
 
-  double const motor_J = global_robot_description.left_motor.J;
-  double const motor_b = global_robot_description.left_motor.b;
-  double const motor_K = global_robot_description.left_motor.K;
-  double const motor_R = global_robot_description.left_motor.R;
-  double const motor_L = global_robot_description.left_motor.L;
+  double const motor_J = robot_description.left_motor.J;
+  double const motor_b = robot_description.left_motor.b;
+  double const motor_K = robot_description.left_motor.K;
+  double const motor_R = robot_description.left_motor.R;
+  double const motor_L = robot_description.left_motor.L;
 
   // use the cmd abstract forces, apply our dynamics model, update robot state
   double col = state_.p.col;
@@ -161,9 +161,9 @@ void Server::SimulateStep(double dt) {
   double new_tl = tl + new_wl * dt + 0.5 * new_al * dt * dt;
   double new_tr = tr + new_wr * dt + 0.5 * new_ar * dt * dt;
 
-  auto const left_pin_1 = global_robot_description.pin_map.at(global_robot_description.left_motor.pin_1);
+  auto const left_pin_1 = robot_description.pin_map.at(robot_description.left_motor.pin_1);
   auto const left_analog_1 = std::get_if<ssim::MotorPinDescription>(&left_pin_1);
-  auto const left_pin_2 = global_robot_description.pin_map.at(global_robot_description.left_motor.pin_2);
+  auto const left_pin_2 = robot_description.pin_map.at(robot_description.left_motor.pin_2);
   auto const left_analog_2 = std::get_if<ssim::MotorPinDescription>(&left_pin_2);
   auto const left_abstract_force = [&]() {
     if (left_analog_1->value > 0 and left_analog_2->value == 0) {
@@ -178,9 +178,9 @@ void Server::SimulateStep(double dt) {
     }
   }();
 
-  auto const right_pin_1 = global_robot_description.pin_map.at(global_robot_description.right_motor.pin_1);
+  auto const right_pin_1 = robot_description.pin_map.at(robot_description.right_motor.pin_1);
   auto const right_analog_1 = std::get_if<ssim::MotorPinDescription>(&right_pin_1);
-  auto const right_pin_2 = global_robot_description.pin_map.at(global_robot_description.right_motor.pin_2);
+  auto const right_pin_2 = robot_description.pin_map.at(robot_description.right_motor.pin_2);
   auto const right_analog_2 = std::get_if<ssim::MotorPinDescription>(&right_pin_2);
   auto const right_abstract_force = [&]() {
     if (right_analog_1->value > 0 and right_analog_2->value == 0) {
@@ -227,7 +227,7 @@ void Server::SimulateStep(double dt) {
   // iterate over every line segment in the maze (all edges of all walls)
   // find the intersection of that wall with each sensor
   // if the intersection exists, and the distance is the shortest range for that sensor, replace the current range
-  for (auto &sensor : global_robot_description.sensors) {
+  for (auto &sensor : robot_description.sensors) {
     // take the actual distance and the angle and reverse-calculate the ADC value
     double const d = ComputeSensorDistToWall(sensor);
     sensor.adc_value = sensor.to_adc(d);
@@ -253,6 +253,11 @@ void Server::SimulateStep(double dt) {
   state_.right_wheel.omega = new_wr;
   state_.right_wheel.alpha = new_ar;
   state_.right_wheel.current = new_ir;
+
+  // set state variables within the global robot description
+  robot_description.left_encoder.ticks = rad_to_ticks(state_.left_wheel.theta, robot_description.left_encoder.n_bits);
+  robot_description.right_encoder.ticks = rad_to_ticks(state_.right_wheel.theta,
+                                                       robot_description.right_encoder.n_bits);
 }
 
 void Server::ResetTime() {
@@ -279,6 +284,8 @@ void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
   state_.right_wheel.current = 0;
   cmd_.left.abstract_force = 0;
   cmd_.right.abstract_force = 0;
+  emit RobotSimStateChanged(state_);
+  emit Redraw();
 }
 
 void Server::OnServerControl(ServerControl const server_control) {
@@ -344,9 +351,9 @@ void Server::OnRobotCommand(RobotCommand const cmd) {
 double Server::ComputeSensorDistToWall(SensorDescription sensor) {
   double min_range = sensor.max_range_m;
   // TODO: make a toCellUnits that is vectorized and operates in-place on sense.p
-  double sensor_col = toCellUnits(sensor.p.x);
-  double sensor_row = toCellUnits(sensor.p.y);
-  double robot_theta = state_.p.yaw;
+  double const sensor_col = toCellUnits(sensor.p.x);
+  double const sensor_row = toCellUnits(sensor.p.y);
+  double const robot_theta = state_.p.yaw;
   Eigen::Vector3d s_origin_3d{sensor_col, sensor_row, 1};
   Eigen::Matrix3d tf;
   tf << cos(robot_theta), -sin(robot_theta), state_.p.col, sin(robot_theta), cos(robot_theta), state_.p.row, 0, 0, 1;
@@ -355,17 +362,17 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
   Eigen::Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
 
   // iterate over the lines of walls that are nearby
-  unsigned int row = static_cast<unsigned int>(state_.p.row);
-  unsigned int col = static_cast<unsigned int>(state_.p.col);
-  unsigned int min_r = std::max(0u, row - max_cells_to_check_);
-  unsigned int max_r = std::min(SIZE, row + max_cells_to_check_);
-  unsigned int min_c = std::max(0u, col - max_cells_to_check_);
-  unsigned int max_c = std::min(SIZE, col + max_cells_to_check_);
+  auto row = static_cast<unsigned int>(state_.p.row);
+  auto col = static_cast<unsigned int>(state_.p.col);
+  unsigned int const min_r = std::max(0u, row - max_cells_to_check_);
+  unsigned int const max_r = std::min(SIZE, row + max_cells_to_check_);
+  unsigned int const min_c = std::max(0u, col - max_cells_to_check_);
+  unsigned int const max_c = std::min(SIZE, col + max_cells_to_check_);
   for (unsigned int r = min_r; r < max_r; r++) {
     for (unsigned int c = min_c; c < max_c; c++) {
       for (auto d = Direction::First; d < Direction::Last; d++) {
         if (maze_.is_wall({r, c}, d)) {
-          auto wall = WallToCoordinates(r, c, d);
+          auto const wall = WallToCoordinates(r, c, d);
           std::array<Line2d, 4> lines{
               Line2d{wall.c1, wall.r1, wall.c2, wall.r1},
               Line2d{wall.c2, wall.r1, wall.c2, wall.r2},
@@ -373,7 +380,7 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
               Line2d{wall.c1, wall.r2, wall.c1, wall.r1}
           };
           for (auto const &line : lines) {
-            auto range = RayTracing::distance_to_wall(line, s_origin, s_direction);
+            auto const range = RayTracing::distance_to_wall(line, s_origin, s_direction);
             if (range && *range < min_range) {
               min_range = *range;
             }
@@ -389,8 +396,8 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
 }
 
 void Server::ComputeMaxSensorRange() {
-  auto const max_range = std::accumulate(global_robot_description.sensors.cbegin(),
-                                         global_robot_description.sensors.cend(), 0.0,
+  auto const max_range = std::accumulate(robot_description.sensors.cbegin(),
+                                         robot_description.sensors.cend(), 0.0,
                                          [&](double range, SensorDescription const &sensor) {
                                            return std::max(range,
                                                            ComputeSensorRange(
@@ -406,16 +413,6 @@ double Server::ComputeSensorRange(const SensorDescription sensor) {
   double range_x = sensor_x + cos(sensor.p.theta) * sensor.max_range_m;
   double range_y = sensor_y + sin(sensor.p.theta) * sensor.max_range_m;
   return std::hypot(range_x, range_y);
-}
-
-void Server::OnPIDConstants(PIDConstants const msg) {
-  std::lock_guard<std::mutex> lock(message_mutex);
-
-}
-
-void Server::OnPIDSetpoints(PIDSetpoints const msg) {
-  std::lock_guard<std::mutex> lock(message_mutex);
-
 }
 
 } // namespace ssim

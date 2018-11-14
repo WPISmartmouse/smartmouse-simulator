@@ -147,12 +147,12 @@ void Smartmouse2018Robot::Setup() {
 }
 
 void Smartmouse2018Robot::Step(double dt_s) {
-  const auto left_angle_rad = left_encoder.getRotation() * 2 * M_PI / ssim::global_robot_description.left_encoder.ticks;
-  const auto right_angle_rad = right_encoder.getRotation() * 2 * M_PI / ssim::global_robot_description.right_encoder.ticks;
+  auto const left_angle_rad = ssim::ticks_to_rad(left_encoder.getRotation(), ssim::robot_description.left_encoder.n_bits);
+  auto const right_angle_rad = ssim::ticks_to_rad(right_encoder.getRotation(), ssim::robot_description.right_encoder.n_bits);
 
-  const auto range_data_m = ReadSensors();
+  auto const range_data_m = ReadSensors();
 
-  const auto[abstract_left_force, abstract_right_force] = kinematic_controller.run(dt_s, left_angle_rad,
+  auto const[abstract_left_force, abstract_right_force] = kinematic_controller.run(dt_s, left_angle_rad,
                                                                                    right_angle_rad,
                                                                                    *this);
 

@@ -31,7 +31,7 @@ RegulatedMotor::RegulatedMotor()
 bool RegulatedMotor::isStopped() {
   bool stopped =
       fabs(radToMeters(velocity_rps)) <= 0.001
-      && fabs(abstract_force) <= global_robot_description.min_abstract_force;
+      && fabs(abstract_force) <= robot_description.min_abstract_force;
   return stopped;
 }
 
@@ -74,9 +74,9 @@ void RegulatedMotor::setAccelerationCpss(double acceleration_cellpss) {
 void RegulatedMotor::setSetpointCps(double setpoint_cups) {
   double s = 0.0;
   if (setpoint_cups > 0.0) {
-    s = std::max(std::min(setpoint_cups, global_robot_description.max_speed_cups), global_robot_description.min_speed_cups);
+    s = std::max(std::min(setpoint_cups, robot_description.max_speed_cups), robot_description.min_speed_cups);
   } else if (setpoint_cups < 0.0) {
-    s = std::min(std::max(setpoint_cups, -global_robot_description.max_speed_cups), -global_robot_description.min_speed_cups);
+    s = std::min(std::max(setpoint_cups, -robot_description.max_speed_cups), -robot_description.min_speed_cups);
   }
   this->setpoint_rps = cellsToRad(s);
 }

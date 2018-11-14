@@ -87,7 +87,7 @@ struct AnalogOutputDescription {
 
 struct EncoderDescription {
   unsigned int const n_bits = 0;
-  unsigned int ticks = 0;
+  int ticks = 0;
 };
 
 struct LEDDescription {

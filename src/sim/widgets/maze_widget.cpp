@@ -93,18 +93,18 @@ void MazeWidget::paintEvent(QPaintEvent */*event*/) {
 
 void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
   QPainterPath footprint;
-  for (auto pt : global_robot_description.footprint) {
+  for (auto pt : robot_description.footprint) {
     footprint.lineTo(pt.x, pt.y);
   }
 
-  auto const &left_wheel_pose = global_robot_description.wheels.left_wheel_position;
-  auto const &right_wheel_pose = global_robot_description.wheels.right_wheel_position;
+  auto const &left_wheel_pose = robot_description.wheels.left_wheel_position;
+  auto const &right_wheel_pose = robot_description.wheels.right_wheel_position;
   double const lwx = left_wheel_pose.x;
   double const lwy = left_wheel_pose.y;
   double const rwx = right_wheel_pose.x;
   double const rwy = right_wheel_pose.y;
-  double const radius = global_robot_description.wheels.radius;
-  double const thickness = global_robot_description.wheels.thickness;
+  double const radius = robot_description.wheels.radius;
+  double const thickness = robot_description.wheels.thickness;
 
   QPainterPath left_wheel_path;
   left_wheel_path.moveTo(lwx - radius, lwy - thickness / 2);
@@ -127,7 +127,7 @@ void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
   painter.fillPath(tf.map(left_wheel_path), QBrush(Qt::black));
   painter.fillPath(tf.map(right_wheel_path), QBrush(Qt::black));
 
-  for (auto sensor : global_robot_description.sensors) {
+  for (auto sensor : robot_description.sensors) {
     auto const sensor_pose = sensor.p;
     // FIXME: This really should not be here
     double const sensor_range = sensor.to_meters(sensor.adc_value);

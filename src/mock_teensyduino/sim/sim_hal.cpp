@@ -9,8 +9,8 @@
 #include "Arduino.h"
 
 void digitalWrite(unsigned int pin, bool state) {
-  const auto it = ssim::global_robot_description.pin_map.find(pin);
-  if (it == ssim::global_robot_description.pin_map.cend()) {
+  const auto it = ssim::robot_description.pin_map.find(pin);
+  if (it == ssim::robot_description.pin_map.cend()) {
     throw std::invalid_argument{fmt::format("pin {} is not in the pin map.", pin)};
   }
 
@@ -27,8 +27,8 @@ void digitalWrite(unsigned int pin, bool state) {
 }
 
 bool digitalRead(unsigned int pin) {
-  auto const it = ssim::global_robot_description.pin_map.find(pin);
-  if (it == ssim::global_robot_description.pin_map.cend()) {
+  auto const it = ssim::robot_description.pin_map.find(pin);
+  if (it == ssim::robot_description.pin_map.cend()) {
     throw std::invalid_argument{fmt::format("pin {} is not in the pin map.", pin)};
   }
 
@@ -41,8 +41,8 @@ bool digitalRead(unsigned int pin) {
 }
 
 void analogWrite(unsigned int pin, unsigned int value) {
-  auto const it = ssim::global_robot_description.pin_map.find(pin);
-  if (it == ssim::global_robot_description.pin_map.cend()) {
+  auto const it = ssim::robot_description.pin_map.find(pin);
+  if (it == ssim::robot_description.pin_map.cend()) {
     throw std::invalid_argument{fmt::format("pin {} is not in the pin map.", pin)};
   }
 
@@ -58,8 +58,8 @@ void analogWrite(unsigned int pin, unsigned int value) {
 }
 
 unsigned int analogRead(unsigned int pin) {
-  const auto it = ssim::global_robot_description.pin_map.find(pin);
-  if (it == ssim::global_robot_description.pin_map.cend()) {
+  const auto it = ssim::robot_description.pin_map.find(pin);
+  if (it == ssim::robot_description.pin_map.cend()) {
     throw std::invalid_argument{fmt::format("pin {} is not in the pin map.", pin)};
   }
 
@@ -72,8 +72,8 @@ unsigned int analogRead(unsigned int pin) {
 }
 
 void pinMode(unsigned int pin, unsigned int mode) {
-  const auto it = ssim::global_robot_description.pin_map.find(pin);
-  if (it == ssim::global_robot_description.pin_map.cend()) {
+  const auto it = ssim::robot_description.pin_map.find(pin);
+  if (it == ssim::robot_description.pin_map.cend()) {
     throw std::invalid_argument{fmt::format("Tried to set pin mode on pin {}, which is not in the pin map.", pin)};
   }
 
@@ -120,7 +120,7 @@ void pinMode(unsigned int pin, unsigned int mode) {
 long micros() {
   using ul_micro = std::chrono::duration<unsigned long, std::micro>;
   const auto micros = std::chrono::duration_cast<ul_micro>(
-      ssim::global_robot_description.system_clock.sim_time);
+      ssim::robot_description.system_clock.sim_time);
   return micros.count();
 }
 
@@ -131,7 +131,7 @@ void delayMicroseconds(unsigned long long micros) {
 unsigned long millis() {
   using ul_milli = std::chrono::duration<unsigned long, std::milli>;
   const auto millis = std::chrono::duration_cast<ul_milli>(
-      ssim::global_robot_description.system_clock.sim_time);
+      ssim::robot_description.system_clock.sim_time);
   return millis.count();
 }
 

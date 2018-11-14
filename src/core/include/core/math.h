@@ -94,5 +94,12 @@ class Line2d {
 
 double Distance(Eigen::Vector2d p0, Eigen::Vector2d p1);
 
+constexpr double ticks_to_rad(int const ticks, unsigned int const n_bits) {
+  return ticks * M_2_PI / ((2 << n_bits) - 1);
+}
+
+constexpr int rad_to_ticks(double const theta, unsigned int const n_bits) {
+  return static_cast<int>(theta / M_2_PI * ((2 << n_bits) - 1));
+}
 
 } // namespace ssim

@@ -92,7 +92,7 @@ const ssim::SensorDescription BACK_RIGHT_SENSOR = {
 
 // NOTE: This variable can be manipulated by the server!
 // We don't need to guard it because the server and the robot plugin run synchronously
-ssim::RobotDescription ssim::global_robot_description{
+ssim::RobotDescription ssim::robot_description{
     .footprint = {
         {.x = -0.035, .y = 0.035},
         {.x = 0.040, .y =  0.035},

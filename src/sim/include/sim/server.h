@@ -24,10 +24,6 @@ class Server : public QObject {
 
   void OnRobotCommand(RobotCommand cmd);
 
-  void OnPIDConstants(PIDConstants msg);
-
-  void OnPIDSetpoints(PIDSetpoints msg);
-
  signals:
 
   void finished();

@@ -136,8 +136,8 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
 
 GlobalPose KinematicController::forwardKinematics(double vl_cups, double vr_cups, double yaw_rad, double dt) {
   double dcol_cu, drow_cu, dtheta_rad;
-  double dyawdt = (vl_cups - vr_cups) / global_robot_description.track_width_cu;
-  double R = global_robot_description.track_width_cu * (vr_cups + vl_cups) / (2 * (vl_cups - vr_cups));
+  double dyawdt = (vl_cups - vr_cups) / robot_description.track_width_cu;
+  double R = robot_description.track_width_cu * (vr_cups + vl_cups) / (2 * (vl_cups - vr_cups));
 
   if (fabs(vl_cups) < 1e-5 && fabs(vr_cups) < 1e-5) {
     // this means we're stopped, so ignore it

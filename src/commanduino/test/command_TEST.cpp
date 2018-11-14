@@ -9,7 +9,7 @@
 #include <commanduino/commanduino.h>
 #include <core/msgs.h>
 
-ssim::RobotDescription ssim::global_robot_description = {};
+ssim::RobotDescription ssim::robot_description = {};
 
 class MockCommand : public Command {
  public:
