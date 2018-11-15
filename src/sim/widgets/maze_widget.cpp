@@ -140,6 +140,20 @@ void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
     painter.setPen(QPen(Qt::black));
     painter.drawLine(line_tf.map(line));
   }
+
+  int i = 0;
+  for (auto const &it : robot_description.pin_map) {
+    auto const led = std::get_if<LEDDescription>(&it.second);
+    if (led) {
+      if (led->state) {
+        painter.fillRect(QRect{i*12, 2, 10, 10}, QColor{led->r, led->g, led->b});
+      }
+      else {
+        painter.fillRect(QRect{i*12, 2, 10, 10}, Qt::black);
+      }
+      ++i;
+    }
+  }
 }
 
 void MazeWidget::PaintWalls(QPainter &painter, QTransform tf) {
