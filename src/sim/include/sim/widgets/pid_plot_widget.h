@@ -26,10 +26,6 @@ class PIDPlotWidget : public QWidget, public AbstractTab {
 
   const QString GetTabName() override;
 
-  void PIDSetpointsCallback(const ssim::PIDSetpoints &msg);
-
-  void PIDConstantsCallback(const ssim::PIDConstants &msg);
-
  signals:
 
   void Replot();

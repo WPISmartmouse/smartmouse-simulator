@@ -1,0 +1,15 @@
+./robots/test/CMakeLists.txt
+./robots/CMakeLists.txt
+./robots/smartmouse_2018/CMakeLists.txt
+./robots/libs/CMakeLists.txt
+./robots/libs/AS5048A/CMakeLists.txt
+./CMakeLists.txt
+./src/sim/test/CMakeLists.txt
+./src/sim/CMakeLists.txt
+./src/commanduino/test/CMakeLists.txt
+./src/commanduino/CMakeLists.txt
+./src/mock_teensyduino/CMakeLists.txt
+./src/CMakeLists.txt
+./src/kinematic_controller/CMakeLists.txt
+./src/core/test/CMakeLists.txt
+./src/core/CMakeLists.txt

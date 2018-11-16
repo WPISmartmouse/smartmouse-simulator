@@ -2,6 +2,8 @@
 #include <QtWidgets/QHBoxLayout>
 
 #include <sim/widgets/state_widget.h>
+#include <core/maze.h>
+#include <hal/hal.h>
 
 #include "ui_statewidget.h"
 
@@ -36,33 +38,32 @@ StateWidget::StateWidget(QWidget *parent) : QWidget(parent), AbstractTab(), ui_(
   connect(this, SIGNAL(SetTrueYaw(QString)), ui_->true_yaw_edit, SLOT(setText(QString)));
 }
 
-//void StateWidget::DebugStateCallback(const smartmouse::msgs::DebugState &msg) {
-//  auto p = msg.position_cu();
-//  this->SetEstimatedCol(QString::asprintf("%0.3f (%0.1f cm)", p.col(), smartmouse::maze::toMeters(p.col()) * 100));
-//  this->SetEstimatedRow(QString::asprintf("%0.3f (%0.1f cm)", p.row(), smartmouse::maze::toMeters(p.row()) * 100));
-//  this->SetEstimatedYaw(QString::asprintf("%0.1f deg", p.yaw() * 180 / M_PI));
-//}
-//
+
 void StateWidget::OnRobotSimState(RobotSimState msg) {
-//  auto p = msg.p();
-//  this->SetLeftVelocity(QString::asprintf("%0.3f c/s", smartmouse::kc::radToCU(msg.left_wheel().omega())));
-//  this->SetRightVelocity(QString::asprintf("%0.3f c/s", smartmouse::kc::radToCU(msg.right_wheel().omega())));
-//  this->SetLeftAcceleration(QString::asprintf("%0.3f c/s^2", smartmouse::kc::radToCU(msg.left_wheel().alpha())));
-//  this->SetRightAcceleration(QString::asprintf("%0.3f c/s^2", smartmouse::kc::radToCU(msg.right_wheel().alpha())));
-//  this->SetLeftCurrent(QString::asprintf("%0.3f mA", msg.left_wheel().current() * 1000));
-//  this->SetRightCurrent(QString::asprintf("%0.3f mA", msg.right_wheel().current() * 1000));
-//  this->SetTrueCol(QString::asprintf("%0.3f (%0.1f cm)", p.col(), smartmouse::maze::toMeters(p.col()) * 100));
-//  this->SetTrueRow(QString::asprintf("%0.3f (%0.1f cm)", p.row(), smartmouse::maze::toMeters(p.row()) * 100));
-//  this->SetTrueYaw(QString::asprintf("%0.1f deg", p.yaw() * 180 / M_PI));
+  auto const &p = msg.p;
+  this->SetLeftVelocity(QString::asprintf("%0.3f c/s", ssim::radToCU(msg.left_wheel.omega)));
+  this->SetRightVelocity(QString::asprintf("%0.3f c/s", ssim::radToCU(msg.right_wheel.omega)));
+  this->SetLeftAcceleration(QString::asprintf("%0.3f c/s^2", ssim::radToCU(msg.left_wheel.alpha)));
+  this->SetRightAcceleration(QString::asprintf("%0.3f c/s^2", ssim::radToCU(msg.right_wheel.alpha)));
+  this->SetLeftCurrent(QString::asprintf("%0.3f mA", msg.left_wheel.current * 1000));
+  this->SetRightCurrent(QString::asprintf("%0.3f mA", msg.right_wheel.current * 1000));
+  this->SetTrueCol(QString::asprintf("%0.3f (%0.1f cm)", p.col, ssim::toMeters(p.col) * 100));
+  this->SetTrueRow(QString::asprintf("%0.3f (%0.1f cm)", p.row, ssim::toMeters(p.row) * 100));
+  this->SetTrueYaw(QString::asprintf("%0.1f deg", p.yaw * 180 / M_PI));
 
   // compute x and y with respect to the top left square
-//  char col_str[14];
-//  snprintf(col_str, 14, "%i", (int) p.col());
-//  char row_str[14];
-//  snprintf(row_str, 14, "%i", (int) p.row());
-//  this->SetCol(col_str);
-//  this->SetRow(row_str);
-//  this->SetDir(QChar(yaw_to_char(p.yaw())));
+  char col_str[14];
+  snprintf(col_str, 14, "%i", (int) p.col);
+  char row_str[14];
+  snprintf(row_str, 14, "%i", (int) p.row);
+  this->SetCol(col_str);
+  this->SetRow(row_str);
+  this->SetDir(QChar(yaw_to_char(p.yaw)));
+  
+  auto p = msg.position_cu();
+  this->SetEstimatedCol(QString::asprintf("%0.3f (%0.1f cm)", p.col, ssim::toMeters(p.col) * 100));
+  this->SetEstimatedRow(QString::asprintf("%0.3f (%0.1f cm)", p.row, ssim::toMeters(p.row) * 100));
+  this->SetEstimatedYaw(QString::asprintf("%0.1f deg", p.yaw * 180 / M_PI));
 }
 
 void StateWidget::RobotCommandCallback(const RobotCommand msg) {

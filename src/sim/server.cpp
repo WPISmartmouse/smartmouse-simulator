@@ -106,9 +106,11 @@ void Server::Step() {
 
   // run the robot code
   global_plugin->Step();
+  auto const &debug = global_plugin->get_debug();
 
   // emit the information to the client
   emit RobotSimStateChanged(state_);
+  emit DebugChanged(debug);
 
   // increment step counter
   ++steps_;

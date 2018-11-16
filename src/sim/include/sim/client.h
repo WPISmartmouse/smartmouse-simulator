@@ -84,10 +84,6 @@ class Client : public QMainWindow {
 
   void RobotCommandChanged(RobotCommand msg);
 
-  void PIDConstantsChanged(PIDConstants msg);
-
-  void PIDSetpointsChanged(PIDSetpoints msg);
-
   void SetRealTime(QString str);
 
   void SetTime(QString str);

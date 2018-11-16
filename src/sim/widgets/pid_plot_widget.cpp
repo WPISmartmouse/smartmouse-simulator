@@ -48,17 +48,21 @@ const QString PIDPlotWidget::GetTabName() {
   return QString("PID");
 }
 
-//void PIDPlotWidget::PIDCallback(const ssim::PIDSetpoints &msg) {
+void PIDPlotWidget::PIDSetpointsCallback(const ssim::PIDSetpoints &msg) {
   // FIXME:
-//  double t = 0;
-//
-//  left_setpoint_->Append(t, msg.left_setpoints_cups);
+  double t = 0;
+
+  if (msg.left_setpoints_cups) {
+    left_setpoint_->Append(t, msg.left_setpoints_cups.value());
+  }
 //  left_actual_->Append(t, msg.left_cps_actual);
-//  right_setpoint_->Append(t, msg.right_cps_setpoint);
+  if (msg.right_setpoints_cups) {
+    right_setpoint_->Append(t, msg.right_setpoints_cups.value());
+  }
 //  right_actual_->Append(t, msg.right_cps_actual);
-//
-//  emit Replot();
-//}
+
+  emit Replot();
+}
 
 void PIDPlotWidget::LeftChecked() {
   if (ui_->left_checkbox->isChecked()) {

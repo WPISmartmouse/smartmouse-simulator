@@ -30,6 +30,7 @@ Client::Client(Server *const server, QMainWindow *parent) : QMainWindow(parent),
   connect(this, &Client::MazeChanged, maze_widget_, &MazeWidget::OnMaze);
   connect(server, &Server::WorldStatsChanged, this, &Client::OnWorldStats);
   connect(server, &Server::RobotSimStateChanged, maze_widget_, &MazeWidget::OnRobotSimState);
+  connect(server, &Server::RobotSimStateChanged, state_widget_, &StateWidget::OnRobotSimState);
   connect(server, &Server::Redraw, maze_widget_, &MazeWidget::OnRedraw);
   connect(server, &Server::finished, this, &Client::OnFinished);
 
@@ -184,22 +185,22 @@ void Client::SendTeleportCmd() {
   emit ServerChanged(cmd);
 }
 
-void Client::PIDConstantsSpinboxChanged() {
-  PIDConstants msg;
-  msg.kP = ui_->kp_spinbox->value();
-  msg.kI = ui_->ki_spinbox->value();
-  msg.kD = ui_->kd_spinbox->value();
-  msg.kFFOffset = ui_->kff_offset_spinbox->value();
-  msg.kFFScale = ui_->kff_scale_spinbox->value();
-  emit PIDConstantsChanged(msg);
-}
+//void Client::PIDConstantsSpinboxChanged() {
+//  PIDConstants msg;
+//  msg.kP = ui_->kp_spinbox->value();
+//  msg.kI = ui_->ki_spinbox->value();
+//  msg.kD = ui_->kd_spinbox->value();
+//  msg.kFFOffset = ui_->kff_offset_spinbox->value();
+//  msg.kFFScale = ui_->kff_scale_spinbox->value();
+//  emit PIDConstantsChanged(msg);
+//}
 
-void Client::PIDSetpointsSpinboxChanged() {
-  PIDSetpoints msg;
-  msg.left_setpoints_cups = ui_->left_setpoint_spinbox->value();
-  msg.right_setpoints_cups = ui_->right_setpoint_spinbox->value();
-  emit PIDSetpointsChanged(msg);
-}
+//void Client::PIDSetpointsSpinboxChanged() {
+//  PIDSetpoints msg;
+//  msg.left_setpoints_cups = ui_->left_setpoint_spinbox->value();
+//  msg.right_setpoints_cups = ui_->right_setpoint_spinbox->value();
+//  emit PIDSetpointsChanged(msg);
+//}
 
 void Client::ConfigureGui() {
   maze_widget_ = new MazeWidget(this);
@@ -241,8 +242,8 @@ void Client::ConfigureGui() {
   QObject::connect(this, &Client::SetTime, ui_->time_value_label, &QLabel::setText);
   connect(ui_->send_command_button, &QPushButton::clicked, this, &Client::SendRobotCmd);
   connect(ui_->teleport_button, &QPushButton::clicked, this, &Client::SendTeleportCmd);
-  connect(ui_->publish_constants_button, &QPushButton::clicked, this, &Client::PIDConstantsSpinboxChanged);
-  connect(ui_->publish_setpoints_button, &QPushButton::clicked, this, &Client::PIDSetpointsSpinboxChanged);
+//  connect(ui_->publish_constants_button, &QPushButton::clicked, this, &Client::PIDConstantsSpinboxChanged);
+//  connect(ui_->publish_setpoints_button, &QPushButton::clicked, this, &Client::PIDSetpointsSpinboxChanged);
 
   QFile styleFile(":/style.qss");
   auto const success = styleFile.open(QFile::ReadOnly);

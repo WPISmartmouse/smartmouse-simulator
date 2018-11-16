@@ -164,10 +164,10 @@ struct RobotDescription {
 };
 
 struct WheelPhysicsState {
-  double theta; // radian = 0s
-  double omega; // radians/secon = 0d
-  double alpha = 0;
-  double current; // ampere = 0s
+  double theta = 0.0; // radian
+  double omega = 0.0; // radians/second
+  double alpha = 0.0; // radians/seconds^2
+  double current = 0.0; // ampere
 };
 
 struct RobotSimState {
@@ -193,19 +193,16 @@ struct WorldStatistics {
   double real_time_factor = 0.0; // RTF acutally achieved
 };
 
-class PIDConstants {
+class Debug {
  public:
   std::optional<double> kP;
   std::optional<double> kI;
   std::optional<double> kD;
   std::optional<double> kFFOffset;
   std::optional<double> kFFScale;
-};
-
-class PIDSetpoints {
- public:
   std::optional<double> left_setpoints_cups;
   std::optional<double> right_setpoints_cups;
+  RowColYaw estimated_pose;
 };
 
 } // namespace ssim
