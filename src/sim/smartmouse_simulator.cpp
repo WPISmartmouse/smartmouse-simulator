@@ -13,7 +13,7 @@
 int main(int argc, char *argv[]) {
   int return_code = 0;
 
-  qRegisterMetaType<ssim::RobotCommand>("RobotCommand");
+  qRegisterMetaType<ssim::Debug>("Debug");
   qRegisterMetaType<ssim::PhysicsConfig>("PhysicsConfig");
   qRegisterMetaType<ssim::ServerControl>("ServerControl");
   qRegisterMetaType<ssim::AbstractMaze>("AbstractMaze");

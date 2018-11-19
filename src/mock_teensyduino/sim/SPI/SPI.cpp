@@ -33,4 +33,5 @@ byte SPI_t::transfer(byte b) {
       return ssim::robot_description.right_encoder.ticks;
     }
   }
+  return 0;
 }

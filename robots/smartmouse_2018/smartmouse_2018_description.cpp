@@ -8,86 +8,93 @@ using namespace std::chrono_literals;
 const ssim::SensorDescription FRONT_LEFT_SENSOR = {
     .p = {.x = 0.035, .y = -0.026, .theta = -1.3446},
     .min_range_m = 0,
-    .max_range_m = 0,
+    .max_range_m = 0.15,
     .beam_angle_rad = 0,
     .a = 1.304576,
     .b = 0.034583,
     .c = 295.613524,
     .calibration_offset = 0,
     .calibration_distance = 0.05621,
-    .adc_bits = 14
+    .adc_bits = 14,
+    .adc_pin = FRONT_LEFT_ANALOG_PIN
 };
 const ssim::SensorDescription GERALD_LEFT_SENSOR = {
     .p = {.x = 0.040, .y = -0.022, .theta = -0.785398},
     .min_range_m = 0,
-    .max_range_m = 0,
+    .max_range_m = 0.15,
     .beam_angle_rad = 0,
     .a = 1.195759,
     .b = 0.020983,
     .c = 531.855338,
     .calibration_offset = 0,
     .calibration_distance = 0.05220,
-    .adc_bits = 14
+    .adc_bits = 14,
+    .adc_pin = GERALD_LEFT_ANALOG_PIN
 };
 const ssim::SensorDescription GERALD_RIGHT_SENSOR = {
     .p = {.x = 0.040, .y = 0.022, .theta = 0.785398},
     .min_range_m = 0,
-    .max_range_m = 0,
+    .max_range_m = 0.15,
     .beam_angle_rad = 0,
     .a = 1.187237,
     .b = 0.020162,
     .c = 658.131265,
     .calibration_offset = 0,
     .calibration_distance = 0.06385,
-    .adc_bits = 14
+    .adc_bits = 14,
+    .adc_pin = GERALD_RIGHT_ANALOG_PIN
 };
 const ssim::SensorDescription FRONT_RIGHT_SENSOR = {
     .p = {.x = 0.035, .y = 0.026, .theta = 1.3446},
     .min_range_m = 0,
-    .max_range_m = 0,
+    .max_range_m = 0.15,
     .beam_angle_rad = 0,
     .a = 1.197716,
     .b = 0.021642,
     .c = 370.645580,
     .calibration_offset = 0,
     .calibration_distance = 0.10000,
-    .adc_bits = 14
+    .adc_bits = 14,
+    .adc_pin = FRONT_RIGHT_ANALOG_PIN
 };
 const ssim::SensorDescription FRONT_SENSOR = {
     .p = {.x = 0.055, .y = 0.0, .theta = 0.0},
     .min_range_m = 0,
-    .max_range_m = 0,
+    .max_range_m = 0.15,
     .beam_angle_rad = 0,
     .a = 1.168262,
     .b = 0.017652,
     .c = 506.691267,
     .calibration_offset = 0,
     .calibration_distance = 0.05959,
-    .adc_bits = 14
+    .adc_bits = 14,
+    .adc_pin = FRONT_ANALOG_PIN
 };
 const ssim::SensorDescription BACK_LEFT_SENSOR = {
     .p = {.x = -0.0256, .y = -0.03, .theta = -1.48353},
     .min_range_m = 0,
-    .max_range_m = 0,
+    .max_range_m = 0.15,
     .beam_angle_rad = 0,
     .a = 1.240250,
     .b = 0.028287,
     .c = 380.648090,
     .calibration_offset = 0,
     .calibration_distance = 0.07390,
-    .adc_bits = 14
+    .adc_bits = 14,
+    .adc_pin = BACK_LEFT_ANALOG_PIN
 };
 const ssim::SensorDescription BACK_RIGHT_SENSOR = {
     .p = {.x = -0.0256, .y = 0.03, .theta = 1.48353},
     .min_range_m = 0,
-    .max_range_m = 0,
+    .max_range_m = 0.15,
     .beam_angle_rad = 0,
     .a = 1.235639,
     .b = 0.026170,
     .c = 388.385273,
     .calibration_offset = 0,
     .calibration_distance = 0.06928,
-    .adc_bits = 14
+    .adc_bits = 14,
+    .adc_pin = BACK_RIGHT_ANALOG_PIN
 };
 
 // NOTE: This variable can be manipulated by the server!

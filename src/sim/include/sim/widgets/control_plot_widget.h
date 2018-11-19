@@ -27,8 +27,6 @@ class ControlPlotWidget : public QWidget, public AbstractTab {
 
   const QString GetTabName() override;
 
-  void ControlCallback(const RobotCommand msg);
-
  signals:
 
   void Replot();

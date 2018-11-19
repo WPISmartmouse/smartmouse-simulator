@@ -17,7 +17,7 @@ GlobalPose KinematicController::getGlobalPose() const {
 LocalPose KinematicController::getLocalPose(const Mouse &mouse) {
   LocalPose local_pose_estimate;
   local_pose_estimate.yaw_from_straight =
-      yaw_diff(dir_to_yaw(mouse.getDir()), current_pose_estimate_cu.yaw);
+      yaw_diff(current_pose_estimate_cu.yaw, dir_to_yaw(mouse.getDir()));
   switch (mouse.getDir()) {
     case Direction::N: {
       local_pose_estimate.to_back = ceil(current_pose_estimate_cu.row) - current_pose_estimate_cu.row;
@@ -116,7 +116,7 @@ KinematicController::run(double dt_s, double left_angle_rad, double right_angle_
       current_pose_estimate_cu.col += d_pose_cu.col;
       current_pose_estimate_cu.row += d_pose_cu.row;
       current_pose_estimate_cu.yaw += d_pose_cu.yaw;
-      wrapAngleRadInPlace(&current_pose_estimate_cu.yaw);
+      wrapAngleRadInPlace(current_pose_estimate_cu.yaw);
 
       // given odometry estimate, improve estimate using sensors, then update odometry estimate to match our best estimate
       // offset_cu is measured from center wall line left of the robot (it's in the local pose frame)

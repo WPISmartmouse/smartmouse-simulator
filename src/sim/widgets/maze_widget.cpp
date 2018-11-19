@@ -3,6 +3,7 @@
 
 #include <sim/widgets/maze_widget.h>
 #include <hal/hal.h>
+#include <Arduino.h>
 #include <hal/util.h>
 #include <thread>
 
@@ -130,7 +131,8 @@ void MazeWidget::PaintMouse(QPainter &painter, QTransform tf) {
   for (auto sensor : robot_description.sensors) {
     auto const sensor_pose = sensor.p;
     // FIXME: This really should not be here
-    double const sensor_range = sensor.to_meters(sensor.adc_value);
+    auto const adc_value = analogRead(sensor.adc_pin);
+    double const sensor_range = sensor.to_meters(adc_value);
     QTransform line_tf(tf);
     line_tf.translate(sensor_pose.x, sensor_pose.y);
     line_tf.rotateRadians(sensor_pose.theta, Qt::ZAxis);

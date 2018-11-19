@@ -22,8 +22,6 @@ class Server : public QObject {
 
   void OnMaze(AbstractMaze maze);
 
-  void OnRobotCommand(RobotCommand cmd);
-
  signals:
 
   void finished();
@@ -60,7 +58,6 @@ class Server : public QObject {
   unsigned long pause_at_steps_ = 0ul;
   double real_time_factor_ = 1.0;
   AbstractMaze maze_;
-  RobotCommand cmd_;
   RobotSimState state_;
   std::mutex message_mutex;
 };

@@ -26,6 +26,10 @@ class PIDPlotWidget : public QWidget, public AbstractTab {
 
   const QString GetTabName() override;
 
+  void OnDebug(const Debug &msg);
+
+  void OnRobotSimState(const RobotSimState &msg);
+
  signals:
 
   void Replot();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <cstdint>
 #include <core/msgs.h>
 #include <core/plugin.h>
@@ -44,17 +45,30 @@ unsigned long millis();
 void pinMode(unsigned int pin, unsigned int mode);
 
 class CoutSerial {
-public:
+ public:
   void println(const std::string &);
+
   void print(const std::string &);
+
   void print(word, unsigned int);
 };
 
-class NopSerial {
-public:
+class DebugSerial {
+ public:
   void print(const std::string &);
+
   void println(const std::string &);
+
+  template <typename T>
+  T read() {
+    // look through the list of messages and gives me the one with the right T?
+    // no idea how to implement this correctly...
+  }
+
 };
 
 extern CoutSerial Serial;
-extern NopSerial Serial1;
+// this is going to be our mechanism for passing data from the robot to the simulator
+// but we will do it in a way that could also pass data to a bluetooth transmitter or something
+// so it's juts going to be serialized data or text
+extern DebugSerial Serial1;

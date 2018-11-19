@@ -154,6 +154,7 @@ bool AbstractMaze::is_wall(RowCol const row_col, Direction const dir) const {
     case WallEnum::NoWall:
       return false;
   }
+  throw std::runtime_error("wall enum case not handled");
 }
 
 void AbstractMaze::reset() {

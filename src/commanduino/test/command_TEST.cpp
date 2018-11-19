@@ -31,7 +31,7 @@ class MockCommand : public Command {
 };
 
 class MockTimedCommand : public Command {
-public:
+ public:
   MockTimedCommand() : Command("Mock Command") {}
 
   ~MockTimedCommand() override = default;
@@ -46,7 +46,7 @@ public:
 };
 
 class MockCommandGroup : public CommandGroup {
-public:
+ public:
   MockCommandGroup() : CommandGroup("Mock Command Group") {
     // add two fake commands
     add<MockCommand>();
@@ -54,6 +54,21 @@ public:
   }
 
   ~MockCommandGroup() override = default;
+
+  void initialize() override {
+    ssim::print("initialize MockCommandGroup %p \n", this);
+  }
+};
+
+class MockAddableCommandGroup : public CommandGroup {
+ public:
+  MockAddableCommandGroup() : CommandGroup("Mock Command Group") {}
+
+  void add() {
+    CommandGroup::add<MockCommand>();
+  }
+
+  ~MockAddableCommandGroup() override = default;
 
   void initialize() override {
     ssim::print("initialize MockCommandGroup %p \n", this);
@@ -104,3 +119,11 @@ TEST(CommandGroupTest, command_group_test) {
   EXPECT_TRUE(done);
 }
 
+
+TEST(CommandGroupTest, command_group_perf) {
+  MockAddableCommandGroup cmd;
+  for (int i = 0; i < 100000; ++i) {
+    cmd.add();
+  }
+  ASSERT_TRUE(true);
+}

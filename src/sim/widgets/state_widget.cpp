@@ -38,7 +38,6 @@ StateWidget::StateWidget(QWidget *parent) : QWidget(parent), AbstractTab(), ui_(
   connect(this, SIGNAL(SetTrueYaw(QString)), ui_->true_yaw_edit, SLOT(setText(QString)));
 }
 
-
 void StateWidget::OnRobotSimState(RobotSimState msg) {
   auto const &p = msg.p;
   this->SetLeftVelocity(QString::asprintf("%0.3f c/s", ssim::radToCU(msg.left_wheel.omega)));
@@ -59,17 +58,22 @@ void StateWidget::OnRobotSimState(RobotSimState msg) {
   this->SetCol(col_str);
   this->SetRow(row_str);
   this->SetDir(QChar(yaw_to_char(p.yaw)));
-  
-  auto p = msg.position_cu();
+
+  this->SetLeftForce(QString::asprintf("%3i / 255", msg.left_wheel.abstract_force));
+  this->SetRightForce(QString::asprintf("%3i / 255", msg.right_wheel.abstract_force));
+}
+
+void StateWidget::OnDebug(Debug msg) {
+  auto const p = msg.estimated_pose;
   this->SetEstimatedCol(QString::asprintf("%0.3f (%0.1f cm)", p.col, ssim::toMeters(p.col) * 100));
   this->SetEstimatedRow(QString::asprintf("%0.3f (%0.1f cm)", p.row, ssim::toMeters(p.row) * 100));
   this->SetEstimatedYaw(QString::asprintf("%0.1f deg", p.yaw * 180 / M_PI));
+
+  pid_widget_->OnDebug(msg);
+//  control_widget_->OnDebug(msg);
+//  sensor_widget_->OnDebug(msg);
 }
 
-void StateWidget::RobotCommandCallback(const RobotCommand msg) {
-  emit SetLeftForce(QString::asprintf("%3i / 255", msg.left.abstract_force));
-  emit SetRightForce(QString::asprintf("%3i / 255", msg.right.abstract_force));
-}
 
 const QString StateWidget::GetTabName() {
   return QString("State Widget");

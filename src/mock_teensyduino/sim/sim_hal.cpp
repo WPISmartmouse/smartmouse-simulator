@@ -151,9 +151,9 @@ void CoutSerial::print(word w, unsigned int /*mode*/) {
   print(std::to_string(w));
 }
 
-void NopSerial::print(std::string const &/*s*/) {}
+void DebugSerial::print(std::string const &/*s*/) {}
 
-void NopSerial::println(std::string const &/*s*/) {}
+void DebugSerial::println(std::string const &/*s*/) {}
 
 CoutSerial Serial;
-NopSerial Serial1;
+DebugSerial Serial1;

@@ -18,7 +18,7 @@ void TurnInPlace::initialize() {
   setTimeout(5000);
   goal_yaw = dir_to_yaw(dir);
   const auto start = robot.getGlobalPose();
-  yaw_error = ssim::yaw_diff(start.yaw, goal_yaw);
+  yaw_error = ssim::yaw_diff(goal_yaw, start.yaw);
   const double turn_arc_length = fabs(yaw_error) * TRACK_WIDTH_CU / 2;
   left_turn = (yaw_error < 0);
   profile = new ssim::VelocityProfile(start, {turn_arc_length, 0, 0});

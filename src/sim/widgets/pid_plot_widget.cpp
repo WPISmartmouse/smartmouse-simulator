@@ -48,18 +48,20 @@ const QString PIDPlotWidget::GetTabName() {
   return QString("PID");
 }
 
-void PIDPlotWidget::PIDSetpointsCallback(const ssim::PIDSetpoints &msg) {
+void PIDPlotWidget::OnRobotSimState(const RobotSimState &msg) {
   // FIXME:
   double t = 0;
+  left_actual_->Append(t, msg.left_wheel.omega);
+  right_actual_->Append(t, msg.right_wheel.omega);
 
-  if (msg.left_setpoints_cups) {
-    left_setpoint_->Append(t, msg.left_setpoints_cups.value());
-  }
-//  left_actual_->Append(t, msg.left_cps_actual);
-  if (msg.right_setpoints_cups) {
-    right_setpoint_->Append(t, msg.right_setpoints_cups.value());
-  }
-//  right_actual_->Append(t, msg.right_cps_actual);
+  emit Replot();
+}
+
+void PIDPlotWidget::OnDebug(const Debug &msg) {
+  // FIXME:
+  double t = 0;
+  left_setpoint_->Append(t, msg.left_setpoint_cups);
+  right_setpoint_->Append(t, msg.right_setpoint_cups);
 
   emit Replot();
 }

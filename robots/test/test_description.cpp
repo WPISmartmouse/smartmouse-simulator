@@ -34,4 +34,6 @@ ssim::RobotDescription ssim::robot_description {
     .min_abstract_force = 0,
     .min_speed_cups = 0,
     .max_speed_cups = 1,
+    .system_clock = {},
+    .battery = {},
 };

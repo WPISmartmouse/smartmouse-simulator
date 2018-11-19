@@ -43,14 +43,14 @@ const QString ControlPlotWidget::GetTabName() {
   return QString("Control");
 }
 
-void ControlPlotWidget::ControlCallback(const RobotCommand msg) {
-  // FIXME:
-  double t = 0;
-  left_actual_->Append(t, msg.left.abstract_force);
-  right_actual_->Append(t, msg.right.abstract_force);
-
-  emit Replot();
-}
+//void ControlPlotWidget::ControlCallback(const RobotCommand msg) {
+//   FIXME:
+//  double t = 0;
+//  left_actual_->Append(t, msg.left.abstract_force);
+//  right_actual_->Append(t, msg.right.abstract_force);
+//
+//  emit Replot();
+//}
 
 void ControlPlotWidget::LeftChecked() {
   if (ui_->left_checkbox->isChecked()) {

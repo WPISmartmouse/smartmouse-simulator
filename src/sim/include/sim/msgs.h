@@ -40,10 +40,10 @@ class PhysicsConfig {
 } // namespace ssim
 
 // Must be done for all message (even those from core)
-Q_DECLARE_METATYPE(ssim::RobotCommand);
-Q_DECLARE_METATYPE(ssim::PhysicsConfig);
-Q_DECLARE_METATYPE(ssim::ServerControl);
 Q_DECLARE_METATYPE(ssim::AbstractMaze);
 Q_DECLARE_METATYPE(ssim::RobotDescription);
 Q_DECLARE_METATYPE(ssim::WorldStatistics);
 Q_DECLARE_METATYPE(ssim::RobotSimState);
+Q_DECLARE_METATYPE(ssim::Debug);
+Q_DECLARE_METATYPE(ssim::ServerControl);
+Q_DECLARE_METATYPE(ssim::PhysicsConfig);

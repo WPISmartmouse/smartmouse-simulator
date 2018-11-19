@@ -98,14 +98,14 @@
            </property>
            <layout class="QFormLayout" name="formLayout_3">
             <item row="0" column="0">
-             <widget class="QLabel" name="left_force_lable">
+             <widget class="QLabel" name="fwd_label">
               <property name="text">
-               <string>Left Force</string>
+               <string>Forward (cps)</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QSpinBox" name="left_f_spinbox">
+             <widget class="QSpinBox" name="fwd_spinbox">
               <property name="minimum">
                <number>-255</number>
               </property>
@@ -118,14 +118,14 @@
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="right_force_label">
+             <widget class="QLabel" name="turn_label">
               <property name="text">
-               <string>Right Force</string>
+               <string>Turn (deg/s)</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="right_f_spinbox">
+             <widget class="QSpinBox" name="turn_spinbox">
               <property name="minimum">
                <number>-255</number>
               </property>
@@ -134,13 +134,6 @@
               </property>
               <property name="singleStep">
                <number>5</number>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QPushButton" name="send_command_button">
-              <property name="text">
-               <string>Send Cmd</string>
               </property>
              </widget>
             </item>
@@ -233,6 +226,13 @@
               </property>
               <property name="text">
                <string>Static</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QPushButton" name="send_command_button">
+              <property name="text">
+               <string>Send Cmd</string>
               </property>
              </widget>
             </item>

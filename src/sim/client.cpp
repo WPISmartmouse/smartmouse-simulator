@@ -25,12 +25,12 @@ Client::Client(Server *const server, QMainWindow *parent) : QMainWindow(parent),
 
   connect(this, &Client::PhysicsChanged, server, &Server::OnPhysics);
   connect(this, &Client::ServerChanged, server, &Server::OnServerControl);
-  connect(this, &Client::RobotCommandChanged, server, &Server::OnRobotCommand);
   connect(this, &Client::MazeChanged, server, &Server::OnMaze);
   connect(this, &Client::MazeChanged, maze_widget_, &MazeWidget::OnMaze);
   connect(server, &Server::WorldStatsChanged, this, &Client::OnWorldStats);
   connect(server, &Server::RobotSimStateChanged, maze_widget_, &MazeWidget::OnRobotSimState);
   connect(server, &Server::RobotSimStateChanged, state_widget_, &StateWidget::OnRobotSimState);
+  connect(server, &Server::DebugChanged, state_widget_, &StateWidget::OnDebug);
   connect(server, &Server::Redraw, maze_widget_, &MazeWidget::OnRedraw);
   connect(server, &Server::finished, this, &Client::OnFinished);
 
@@ -169,13 +169,6 @@ void Client::LoadDefaultMaze() {
   }
 }
 
-void Client::SendRobotCmd() {
-  RobotCommand cmd;
-  cmd.left.abstract_force = ui_->left_f_spinbox->value();
-  cmd.right.abstract_force = ui_->right_f_spinbox->value();
-  emit RobotCommandChanged(cmd);
-}
-
 void Client::SendTeleportCmd() {
   ServerControl cmd;
   cmd.reset_robot = true;
@@ -185,7 +178,7 @@ void Client::SendTeleportCmd() {
   emit ServerChanged(cmd);
 }
 
-//void Client::PIDConstantsSpinboxChanged() {
+void Client::PIDConstantsSpinboxChanged() {
 //  PIDConstants msg;
 //  msg.kP = ui_->kp_spinbox->value();
 //  msg.kI = ui_->ki_spinbox->value();
@@ -193,14 +186,14 @@ void Client::SendTeleportCmd() {
 //  msg.kFFOffset = ui_->kff_offset_spinbox->value();
 //  msg.kFFScale = ui_->kff_scale_spinbox->value();
 //  emit PIDConstantsChanged(msg);
-//}
+}
 
-//void Client::PIDSetpointsSpinboxChanged() {
-//  PIDSetpoints msg;
-//  msg.left_setpoints_cups = ui_->left_setpoint_spinbox->value();
-//  msg.right_setpoints_cups = ui_->right_setpoint_spinbox->value();
+void Client::PIDSetpointsSpinboxChanged() {
+  Debug msg;
+  msg.left_setpoint_cups = ui_->left_setpoint_spinbox->value();
+  msg.right_setpoint_cups = ui_->right_setpoint_spinbox->value();
 //  emit PIDSetpointsChanged(msg);
-//}
+}
 
 void Client::ConfigureGui() {
   maze_widget_ = new MazeWidget(this);
@@ -240,10 +233,9 @@ void Client::ConfigureGui() {
           &Client::TimePerStepMsChanged);
   QObject::connect(this, &Client::SetRealTime, ui_->real_time_value_label, &QLabel::setText);
   QObject::connect(this, &Client::SetTime, ui_->time_value_label, &QLabel::setText);
-  connect(ui_->send_command_button, &QPushButton::clicked, this, &Client::SendRobotCmd);
   connect(ui_->teleport_button, &QPushButton::clicked, this, &Client::SendTeleportCmd);
-//  connect(ui_->publish_constants_button, &QPushButton::clicked, this, &Client::PIDConstantsSpinboxChanged);
-//  connect(ui_->publish_setpoints_button, &QPushButton::clicked, this, &Client::PIDSetpointsSpinboxChanged);
+  connect(ui_->publish_constants_button, &QPushButton::clicked, this, &Client::PIDConstantsSpinboxChanged);
+  connect(ui_->publish_setpoints_button, &QPushButton::clicked, this, &Client::PIDSetpointsSpinboxChanged);
 
   QFile styleFile(":/style.qss");
   auto const success = styleFile.open(QFile::ReadOnly);
@@ -306,10 +298,10 @@ void Client::RestoreSettings() {
 }
 
 void Client::OnWorldStats(WorldStatistics msg) {
-  auto const ms = std::chrono::duration_cast<std::chrono::milliseconds>(msg.sim_time_ns).count();
-  auto const s = std::chrono::duration_cast<std::chrono::seconds>(msg.sim_time_ns).count();
-  auto const m = std::chrono::duration_cast<std::chrono::minutes>(msg.sim_time_ns).count();
   auto const h = std::chrono::duration_cast<std::chrono::hours>(msg.sim_time_ns).count();
+  auto const m = std::chrono::duration_cast<std::chrono::minutes>(msg.sim_time_ns).count();
+  auto const s = std::chrono::duration_cast<std::chrono::seconds>(msg.sim_time_ns).count();
+  auto const ms = std::chrono::duration_cast<std::chrono::milliseconds>(msg.sim_time_ns).count();
   std::string time_str = fmt::format("{:02}:{:02}:{:02}.{:03}", h, m, s, ms);
   emit SetTime(QString::fromStdString(time_str));
 }

@@ -13,15 +13,15 @@ namespace ssim {
  * @param y2 the first angle in the subtraction
  * @return the signed shorted angle between y2 and y1.
  */
-constexpr double yaw_diff(double y1, double y2) {
+constexpr double yaw_diff(double y2, double y1) {
   double diff = y2 - y1;
-  if (diff > M_PI) return diff - M_PI * 2;
-  if (diff < -M_PI) return diff + M_PI * 2;
+  if (diff > M_PI) return M_PI * 2 - diff;
+  if (diff < -M_PI) return -(diff + M_PI * 2);
   return diff;
 }
 
 constexpr double rad_to_deg(double rad) {
-  return rad * 180 / (2 * M_PI);
+  return rad * 180 / M_PI;
 }
 
 // SOURCE: https://stackoverflow.com/questions/4633177/c-how-to-wrap-a-float-to-the-interval-pi-pi
@@ -71,9 +71,14 @@ constexpr double wrapAngleRad(double angle_rad) {
   return MyMod(angle_rad + M_PI, 2 * M_PI) - M_PI;
 }
 
-constexpr void wrapAngleRadInPlace(double *angle_rad) {
-  *angle_rad = MyMod(*angle_rad + M_PI, 2 * M_PI) - M_PI;
+constexpr void wrapAngleRadInPlace(double &angle_rad) {
+  angle_rad = MyMod(angle_rad + M_PI, 2 * M_PI) - M_PI;
 }
+
+struct IntersectResult {
+  bool intersects = false;
+  Eigen::Vector2d point;
+};
 
 class Line2d {
 
@@ -82,7 +87,7 @@ class Line2d {
 
   Line2d(double pt1_x, double pt1_y, double pt2_x, double pt2_y);
 
-  bool Intersect(Line2d const &_line, Eigen::Vector2d &_pt, double _epsilon = 1e-6) const;
+  IntersectResult Intersect(Line2d const &_line, double _epsilon = 1e-6) const;
 
   double CrossProduct(Line2d const &_line) const;
 

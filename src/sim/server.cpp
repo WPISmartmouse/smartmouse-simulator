@@ -223,7 +223,7 @@ void Server::SimulateStep(double dt) {
   double new_a = (new_dyawdt - dyawdt) / dt;
 
   // handle wrap-around of theta
-  wrapAngleRadInPlace(&new_yaw);
+  wrapAngleRadInPlace(new_yaw);
 
   // Ray trace to find distance to walls
   // iterate over every line segment in the maze (all edges of all walls)
@@ -232,7 +232,17 @@ void Server::SimulateStep(double dt) {
   for (auto &sensor : robot_description.sensors) {
     // take the actual distance and the angle and reverse-calculate the ADC value
     double const d = ComputeSensorDistToWall(sensor);
-    sensor.adc_value = sensor.to_adc(d);
+    const auto it = ssim::robot_description.pin_map.find(sensor.adc_pin);
+    if (it == ssim::robot_description.pin_map.cend()) {
+      throw std::invalid_argument{fmt::format("pin {} is not in the pin map.", sensor.adc_pin)};
+    }
+
+    auto analog_input = std::get_if<ssim::AnalogInputDescription>(&it->second);
+    if (!analog_input) {
+      throw std::invalid_argument{fmt::format("pin {} is not an AnalogInput pin", sensor.adc_pin)};
+    }
+
+    analog_input->adc_value = sensor.to_adc(d);
   }
 
   if (!stationary_) {
@@ -247,10 +257,12 @@ void Server::SimulateStep(double dt) {
     state_.a.yaw = new_a;
   }
 
+  state_.left_wheel.abstract_force = left_abstract_force;
   state_.left_wheel.theta = new_tl;
   state_.left_wheel.omega = new_wl;
   state_.left_wheel.alpha = new_al;
   state_.left_wheel.current = new_il;
+  state_.right_wheel.abstract_force = right_abstract_force;
   state_.right_wheel.theta = new_tr;
   state_.right_wheel.omega = new_wr;
   state_.right_wheel.alpha = new_ar;
@@ -284,8 +296,6 @@ void Server::ResetRobot(double reset_col, double reset_row, double reset_yaw) {
   state_.right_wheel.theta = 0;
   state_.right_wheel.omega = 0;
   state_.right_wheel.current = 0;
-  cmd_.left.abstract_force = 0;
-  cmd_.right.abstract_force = 0;
   emit RobotSimStateChanged(state_);
   emit Redraw();
 }
@@ -345,11 +355,6 @@ void Server::OnMaze(AbstractMaze const maze) {
   maze_ = maze;
 }
 
-void Server::OnRobotCommand(RobotCommand const cmd) {
-  std::lock_guard<std::mutex> lock(message_mutex);
-  cmd_ = cmd;
-}
-
 double Server::ComputeSensorDistToWall(SensorDescription sensor) {
   double min_range = sensor.max_range_m;
   // TODO: make a toCellUnits that is vectorized and operates in-place on sense.p
@@ -366,9 +371,9 @@ double Server::ComputeSensorDistToWall(SensorDescription sensor) {
   // iterate over the lines of walls that are nearby
   auto row = static_cast<unsigned int>(state_.p.row);
   auto col = static_cast<unsigned int>(state_.p.col);
-  unsigned int const min_r = std::max(0u, row - max_cells_to_check_);
+  unsigned int const min_r = row > max_cells_to_check_ ? std::max(0u, row - max_cells_to_check_) : 0u;
   unsigned int const max_r = std::min(SIZE, row + max_cells_to_check_);
-  unsigned int const min_c = std::max(0u, col - max_cells_to_check_);
+  unsigned int const min_c = col > max_cells_to_check_? std::max(0u, col - max_cells_to_check_) : 0u;
   unsigned int const max_c = std::min(SIZE, col + max_cells_to_check_);
   for (unsigned int r = min_r; r < max_r; r++) {
     for (unsigned int c = min_c; c < max_c; c++) {

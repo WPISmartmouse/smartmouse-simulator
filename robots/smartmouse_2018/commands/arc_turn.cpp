@@ -82,7 +82,7 @@ void ArcTurn::execute() {
   }
 
   double ang_error =
-      ssim::yaw_diff(dAngle, fabs(ssim::yaw_diff(curPose.yaw, dir_to_yaw(curDir))));
+      ssim::yaw_diff(fabs(ssim::yaw_diff(dir_to_yaw(curDir), curPose.yaw)), dAngle);
   double arc_error = (ssim::HALF_UNIT_DIST / pose_dist(curPose, vtc_x, vtc_y)) - 1;
   double corr = (ang_error * ang_weight) + (arc_error * arc_weight);
 
@@ -102,7 +102,7 @@ bool ArcTurn::isFinished() {
   curRow = robot.getRow();
   curDir = robot.getDir();
 
-  dYaw = ssim::yaw_diff(curPose.yaw, goalYaw);
+  dYaw = ssim::yaw_diff(goalYaw, curPose.yaw);
   return (curCol != startCol) || (curRow != startRow);
 }
 

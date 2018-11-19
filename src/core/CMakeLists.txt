@@ -7,7 +7,7 @@ target_include_directories(
   core
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include>)
-target_link_libraries(core PRIVATE fmt::fmt Eigen3::Eigen)
+target_link_libraries(core PRIVATE cereal::cereal fmt::fmt Eigen3::Eigen)
 
 if(${BUILD_TESTS})
   add_subdirectory(test)

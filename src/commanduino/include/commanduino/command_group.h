@@ -1,12 +1,12 @@
 #pragma once
 
-#include <list>
+#include <vector>
 #include <memory>
 
 #include <commanduino/command.h>
 
 /** \brief grouping commands is a useful abstraction.
- * Commands groups execute commands in parallel or series
+ * Commands groups execute commands in series
  */
 class CommandGroup : public Command {
 public:
@@ -18,7 +18,7 @@ public:
 
   template<typename T, class... Args>
   void add(Args &&... args) {
-    commands.push_back(std::move(std::make_unique<T>(args...)));
+    commands.emplace_back(new T(args...));
   }
 
   void _initialize() override;
@@ -33,10 +33,10 @@ public:
 
   bool isFinished() override;
 
-  std::list<std::unique_ptr<Command>> commands;
+  std::vector<std::unique_ptr<Command>> commands;
 
 private:
 
-  std::list<std::unique_ptr<Command>>::iterator iterator;
+  std::vector<std::unique_ptr<Command>>::iterator iterator;
 
 };

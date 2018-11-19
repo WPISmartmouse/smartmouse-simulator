@@ -46,8 +46,6 @@ class Client : public QMainWindow {
 
   void ShowWiki();
 
-  void SendRobotCmd();
-
   void SendTeleportCmd();
 
   void RealTimeFactorChanged(double real_time_factor);
@@ -81,8 +79,6 @@ class Client : public QMainWindow {
   void MazeChanged(AbstractMaze msg);
 
   void ServerChanged(ServerControl msg);
-
-  void RobotCommandChanged(RobotCommand msg);
 
   void SetRealTime(QString str);
 

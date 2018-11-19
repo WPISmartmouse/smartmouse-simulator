@@ -1,6 +1,7 @@
 
 #include <commands/solve_command.h>
 #include <commands/forward.h>
+#include <commands/turn.h>
 #include <commanduino/commanduino.h>
 #include <core/mouse.h>
 #include <core/plugin.h>
@@ -10,7 +11,7 @@
 
 
 void Smartmouse2018Plugin::Setup()  {
-  root_command = std::make_unique<Forward>(robot);
+  root_command = std::make_unique<Turn>(robot, ssim::Direction::S);
 
   last_t_us = micros();
   last_blink_us = micros();

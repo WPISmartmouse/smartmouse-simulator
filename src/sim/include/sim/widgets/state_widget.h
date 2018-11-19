@@ -32,9 +32,9 @@ class StateWidget : public QWidget, public AbstractTab {
 
   public slots:
 
-  void RobotCommandCallback(RobotCommand msg);
-
   void OnRobotSimState(RobotSimState msg);
+
+  void OnDebug(Debug msg);
 
  signals:
 

@@ -1,9 +1,9 @@
 add_subdirectory(fmt-5.2.1)
+add_subdirectory(cereal)
 add_subdirectory(core)
 add_subdirectory(commanduino)
 add_subdirectory(kinematic_controller)
 add_subdirectory(mock_teensyduino)
-add_subdirectory(bin)
 
 if(NOT ${REAL})
   add_subdirectory(sim)

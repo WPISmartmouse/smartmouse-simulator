@@ -8,6 +8,8 @@
 #include <variant>
 #include <vector>
 
+#include <cereal/archives/binary.hpp>
+
 #include <core/math.h>
 
 namespace ssim {
@@ -15,24 +17,44 @@ namespace ssim {
 struct Point2 {
   double x = 0;
   double y = 0;
+
+  template<class Archive>
+  void serialize(Archive &ar) {
+    ar(x, y);
+  }
 };
 
 struct Point3 {
   double x = 0;
   double y = 0;
   double z = 0;
+
+  template<class Archive>
+  void serialize(Archive &ar) {
+    ar(x, y, z);
+  }
 };
 
 struct RowColYaw {
   double row = 0;
   double col = 0;
   double yaw = 0;
+
+  template<class Archive>
+  void serialize(Archive &ar) {
+    ar(row, col, yaw);
+  }
 };
 
 struct XYTheta {
   double x = 0;
   double y = 0;
   double theta = 0;
+
+  template<class Archive>
+  void serialize(Archive &ar) {
+    ar(x, y, theta);
+  }
 };
 
 struct WallCoordinates {
@@ -40,6 +62,11 @@ struct WallCoordinates {
   double c1 = 0;
   double r2 = 0;
   double c2 = 0;
+
+  template<class Archive>
+  void serialize(Archive &ar) {
+    ar(r1, c1, r2, c2);
+  }
 };
 
 
@@ -59,11 +86,13 @@ struct SensorDescription {
   double calibration_offset = 0;
   double const calibration_distance = 0;
   unsigned int const adc_bits = 0;
-  unsigned int adc_value = 0;
+  unsigned int adc_pin = 0;
 
   // We don't use the adc_value in our class because on real hardware that won't be set!
   double to_meters(double adc_value) const;
+
   unsigned int to_adc(double meters) const;
+
   void calibrate(int adc_reading);
 };
 
@@ -164,6 +193,7 @@ struct RobotDescription {
 };
 
 struct WheelPhysicsState {
+  int abstract_force = 0;
   double theta = 0.0; // radian
   double omega = 0.0; // radians/second
   double alpha = 0.0; // radians/seconds^2
@@ -178,31 +208,32 @@ struct RobotSimState {
   RowColYaw a; // meters/second^2
 };
 
-struct Command {
-  int32_t abstract_force = 0;
-};
-
-struct RobotCommand {
-  Command left;
-  Command right;
-};
-
 struct WorldStatistics {
   unsigned long step = 0;
   std::chrono::nanoseconds sim_time_ns = {};
   double real_time_factor = 0.0; // RTF acutally achieved
+
+  template<class Archive>
+  void serialize(Archive &ar) {
+    ar(step, sim_time_ns, real_time_factor);
+  }
 };
 
 class Debug {
  public:
-  std::optional<double> kP;
-  std::optional<double> kI;
-  std::optional<double> kD;
-  std::optional<double> kFFOffset;
-  std::optional<double> kFFScale;
-  std::optional<double> left_setpoints_cups;
-  std::optional<double> right_setpoints_cups;
+  double kP;
+  double kI;
+  double kD;
+  double kFFOffset;
+  double kFFScale;
+  double left_setpoint_cups;
+  double right_setpoint_cups;
   RowColYaw estimated_pose;
+
+  template<class Archive>
+  void serialize(Archive &ar) {
+    ar(kP, kI, kD, kFFOffset, kFFScale, left_setpoint_cups, right_setpoint_cups, estimated_pose);
+  }
 };
 
 } // namespace ssim
