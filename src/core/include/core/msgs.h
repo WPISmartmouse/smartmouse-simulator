@@ -76,7 +76,7 @@ struct SensorDescription {
  *
  * distance in meters = a - (adc - c - adc_offset)^b;
  */
-  XYTheta const p;
+  XYTheta const p = {0};
   double const min_range_m = 0;
   double const max_range_m = 0;
   double const beam_angle_rad = 0;
@@ -229,6 +229,7 @@ class Debug {
   double left_setpoint_cups;
   double right_setpoint_cups;
   RowColYaw estimated_pose;
+  std::map<std::string, double> sensor_ranges;
 
   template<class Archive>
   void serialize(Archive &ar) {

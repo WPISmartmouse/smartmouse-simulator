@@ -20,6 +20,59 @@ using ul_micros = std::chrono::duration<unsigned long, std::micro>;
 using dbl_nanos = std::chrono::duration<double, std::nano>;
 using dbl_s = std::chrono::duration<double>;
 
+double ComputeSensorDistToWall(AbstractMaze const &maze, SensorDescription const &sensor, RowColYaw const robot_pose,
+                               unsigned int const max_cells_to_check) {
+  double min_range_m = sensor.max_range_m;
+  // TODO: make a toCellUnits that is vectorized and operates in-place on sense.p
+  double const sensor_col = toCellUnits(sensor.p.x);
+  double const sensor_row = toCellUnits(sensor.p.y);
+  double const robot_theta = robot_pose.yaw;
+  Eigen::Vector3d s_origin_3d{sensor_col, sensor_row, 1};
+  Eigen::Matrix3d tf;
+  tf << cos(robot_theta), -sin(robot_theta), robot_pose.col, sin(robot_theta), cos(
+      robot_theta), robot_pose.row, 0, 0, 1;
+  s_origin_3d = tf * s_origin_3d;
+  Eigen::Vector2d s_origin{s_origin_3d(0), s_origin_3d(1)};
+  Eigen::Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
+
+  // iterate over the lines of walls that are nearby
+  auto row = static_cast<unsigned int>(robot_pose.row);
+  auto col = static_cast<unsigned int>(robot_pose.col);
+  unsigned int const min_r = row > max_cells_to_check ? std::max(0u, row - max_cells_to_check) : 0u;
+  unsigned int const max_r = std::min(SIZE, row + max_cells_to_check);
+  unsigned int const min_c = col > max_cells_to_check ? std::max(0u, col - max_cells_to_check) : 0u;
+  unsigned int const max_c = std::min(SIZE, col + max_cells_to_check);
+  for (unsigned int r = min_r; r < max_r; r++) {
+    for (unsigned int c = min_c; c < max_c; c++) {
+      for (auto d = Direction::First; d < Direction::Last; d++) {
+        if (maze.is_wall({r, c}, d)) {
+          auto const wall = WallToCoordinates(r, c, d);
+          std::array<Line2d, 4> lines{
+              Line2d{wall.c1, wall.r1, wall.c2, wall.r1},
+              Line2d{wall.c2, wall.r1, wall.c2, wall.r2},
+              Line2d{wall.c2, wall.r2, wall.c1, wall.r2},
+              Line2d{wall.c1, wall.r2, wall.c1, wall.r1}
+          };
+          for (auto const &line : lines) {
+            auto const range_cu = RayTracing::distance_to_wall(line, s_origin, s_direction);
+            if (range_cu) {
+              auto const range_m = toMeters(range_cu.value());
+              if (range_m < min_range_m) {
+                min_range_m = range_m;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  min_range_m = std::max(min_range_m, sensor.min_range_m);
+
+  return min_range_m;
+}
+
+
 void Server::thread_run() {
   ResetRobot(0.5, 0.5, 0);
   ComputeMaxSensorRange();
@@ -231,7 +284,7 @@ void Server::SimulateStep(double dt) {
   // if the intersection exists, and the distance is the shortest range for that sensor, replace the current range
   for (auto &sensor : robot_description.sensors) {
     // take the actual distance and the angle and reverse-calculate the ADC value
-    double const d = ComputeSensorDistToWall(sensor);
+    double const d = ComputeSensorDistToWall(maze_, sensor, state_.p, max_cells_to_check_);
     const auto it = ssim::robot_description.pin_map.find(sensor.adc_pin);
     if (it == ssim::robot_description.pin_map.cend()) {
       throw std::invalid_argument{fmt::format("pin {} is not in the pin map.", sensor.adc_pin)};
@@ -355,53 +408,6 @@ void Server::OnMaze(AbstractMaze const maze) {
   maze_ = maze;
 }
 
-double Server::ComputeSensorDistToWall(SensorDescription sensor) {
-  double min_range = sensor.max_range_m;
-  // TODO: make a toCellUnits that is vectorized and operates in-place on sense.p
-  double const sensor_col = toCellUnits(sensor.p.x);
-  double const sensor_row = toCellUnits(sensor.p.y);
-  double const robot_theta = state_.p.yaw;
-  Eigen::Vector3d s_origin_3d{sensor_col, sensor_row, 1};
-  Eigen::Matrix3d tf;
-  tf << cos(robot_theta), -sin(robot_theta), state_.p.col, sin(robot_theta), cos(robot_theta), state_.p.row, 0, 0, 1;
-  s_origin_3d = tf * s_origin_3d;
-  Eigen::Vector2d s_origin{s_origin_3d(0), s_origin_3d(1)};
-  Eigen::Vector2d s_direction{cos(robot_theta + sensor.p.theta), sin(robot_theta + sensor.p.theta)};
-
-  // iterate over the lines of walls that are nearby
-  auto row = static_cast<unsigned int>(state_.p.row);
-  auto col = static_cast<unsigned int>(state_.p.col);
-  unsigned int const min_r = row > max_cells_to_check_ ? std::max(0u, row - max_cells_to_check_) : 0u;
-  unsigned int const max_r = std::min(SIZE, row + max_cells_to_check_);
-  unsigned int const min_c = col > max_cells_to_check_? std::max(0u, col - max_cells_to_check_) : 0u;
-  unsigned int const max_c = std::min(SIZE, col + max_cells_to_check_);
-  for (unsigned int r = min_r; r < max_r; r++) {
-    for (unsigned int c = min_c; c < max_c; c++) {
-      for (auto d = Direction::First; d < Direction::Last; d++) {
-        if (maze_.is_wall({r, c}, d)) {
-          auto const wall = WallToCoordinates(r, c, d);
-          std::array<Line2d, 4> lines{
-              Line2d{wall.c1, wall.r1, wall.c2, wall.r1},
-              Line2d{wall.c2, wall.r1, wall.c2, wall.r2},
-              Line2d{wall.c2, wall.r2, wall.c1, wall.r2},
-              Line2d{wall.c1, wall.r2, wall.c1, wall.r1}
-          };
-          for (auto const &line : lines) {
-            auto const range = RayTracing::distance_to_wall(line, s_origin, s_direction);
-            if (range && *range < min_range) {
-              min_range = *range;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  min_range = std::max(min_range, sensor.min_range_m);
-
-  return toMeters(min_range);
-}
-
 void Server::ComputeMaxSensorRange() {
   auto const max_range = std::accumulate(robot_description.sensors.cbegin(),
                                          robot_description.sensors.cend(), 0.0,
@@ -414,7 +420,7 @@ void Server::ComputeMaxSensorRange() {
   max_cells_to_check_ = (unsigned int) std::ceil(toCellUnits(max_range));
 }
 
-double Server::ComputeSensorRange(const SensorDescription sensor) {
+double Server::ComputeSensorRange(const SensorDescription sensor) const {
   double sensor_x = sensor.p.x;
   double sensor_y = sensor.p.x;
   double range_x = sensor_x + cos(sensor.p.theta) * sensor.max_range_m;

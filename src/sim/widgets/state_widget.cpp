@@ -71,7 +71,7 @@ void StateWidget::OnDebug(Debug msg) {
 
   pid_widget_->OnDebug(msg);
 //  control_widget_->OnDebug(msg);
-//  sensor_widget_->OnDebug(msg);
+  sensor_widget_->OnDebug(msg);
 }
 
 

@@ -12,8 +12,8 @@ std::optional<double> RayTracing::distance_to_wall(Line2d const &wall, Eigen::Ve
   auto const &[intersects, intersection_point] = wall.Intersect(sensor_ray);
 
   if (intersects) {
-    double dist = Distance(pt, intersection_point);
-    return std::optional<double>(dist);
+    double dist_m = Distance(pt, intersection_point);
+    return std::optional<double>(dist_m);
   } else {
     return std::optional<double>();
   }

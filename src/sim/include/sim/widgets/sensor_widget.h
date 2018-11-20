@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QtWidgets/QWidget>
+
+#include <core/msgs.h>
 #include <sim/widgets/abstract_tab.h>
 
 namespace Ui {
@@ -46,6 +48,12 @@ class SensorWidget : public QWidget, public AbstractTab {
   void SetEstimatedFrontRight(QString str);
 
   void SetEstimatedBackRight(QString str);
+
+ public slots:
+
+  void OnRobotSimState(RobotSimState const &msg);
+
+  void OnDebug(Debug const &msg);
 
  private:
   Ui::SensorWidget *ui_;

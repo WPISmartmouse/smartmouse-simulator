@@ -9,6 +9,9 @@
 
 namespace ssim {
 
+double ComputeSensorDistToWall(AbstractMaze const &maze, SensorDescription const &sensor, RowColYaw robot_pose,
+                               unsigned int max_cells_to_check);
+
 class Server : public QObject {
  Q_OBJECT
 
@@ -45,9 +48,7 @@ class Server : public QObject {
 
   void ComputeMaxSensorRange();
 
-  double ComputeSensorRange(SensorDescription sensor);
-
-  double ComputeSensorDistToWall(SensorDescription sensor);
+  double ComputeSensorRange(SensorDescription sensor) const;
 
   unsigned long steps_ = 0UL;
   bool pause_ = false;

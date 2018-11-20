@@ -44,8 +44,7 @@ IntersectResult Line2d::Intersect(Line2d const &_line, double _epsilon) const {
       _pt.x() + _epsilon < std::min(_line.pts[0].x(), _line.pts[1].x()) || _pt.x() > std::max(_line.pts[0].x(), _line.pts[1].x()) + _epsilon) {
     return {false, _pt};
   }
-
-  if (_pt.y() + _epsilon < std::min(this->pts[0].y(), this->pts[1].y()) || _pt.y() > std::max(this->pts[0].y(), this->pts[1].y() + _epsilon) ||
+  else if (_pt.y() + _epsilon < std::min(this->pts[0].y(), this->pts[1].y()) || _pt.y() > std::max(this->pts[0].y(), this->pts[1].y() + _epsilon) ||
       _pt.y() + _epsilon < std::min(_line.pts[0].y(), _line.pts[1].y()) || _pt.y() > std::max(_line.pts[0].y(), _line.pts[1].y()) + _epsilon) {
     return {false, _pt};
   }
