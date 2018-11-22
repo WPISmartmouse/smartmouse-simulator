@@ -12,16 +12,35 @@
 
 namespace ssim {
 
+void for_each_cell_and_dir(std::function<void(MazeIndex, MazeIndex, Direction)> f) {
+  MazeIndex row, col;
+  for (; row <= IDX_MAX; row++) {
+    for (; col <= IDX_MAX; col++) {
+      for (auto const d : wise_enum::range<Direction>) {
+        f(row, col, d.value);
+      }
+    }
+  }
+}
+
+void for_each_cell(std::function<void(MazeIndex, MazeIndex)> f) {
+  MazeIndex row, col;
+  for (; row <= IDX_MAX; row++) {
+    for (; col <= IDX_MAX; col++) {
+      f(row, col);
+    }
+  }
+}
+
 AbstractMaze::AbstractMaze() {
   // TODO remove all direct indexing with ints/unsigned ints
   // TODO remove all for loops over cells
   // Set the row and column of all the nodes
-  for (unsigned int row = 0; row < SIZE; ++row) {
-    for (unsigned int col = 0; col < SIZE; ++col) {
-      // This will construct new nodes!
-      nodes[row][col] = RowCol{row, col};
-    }
-  }
+  for_each_cell([&](MazeIndex row, MazeIndex col) {
+    auto &n = this->get_mutable_node({row, col});
+    n = RowCol{row, col};
+
+  });
 
   for (unsigned int i = 0; i < SIZE; i++) {
     nodes[0][i].walls[static_cast<int>(Direction::N)] = WallEnum::PerimeterWall;

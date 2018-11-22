@@ -22,6 +22,10 @@
 
 namespace ssim {
 
+void for_each_cell_and_dir(std::function<void(MazeIndex, MazeIndex, Direction)> f);
+
+void for_each_cell(std::function<void(MazeIndex, MazeIndex)> f);
+
 struct MotionPrimitive {
   uint8_t n = 0;
   Direction d = Direction::N;
@@ -49,7 +53,7 @@ void insert_motion_primitive_front(Route *route, MotionPrimitive prim);
 void insert_motion_primitive_back(Route *route, MotionPrimitive prim);
 
 unsigned long const BUFF_SIZE = (SIZE * 2 + 3) * SIZE;
-constexpr auto static CENTER = RowCol{SIZE/2, SIZE/2};
+constexpr auto static CENTER = RowCol{SIZE / 2, SIZE / 2};
 constexpr double static UNIT_DIST_M = 0.18;
 constexpr double static WALL_THICKNESS_M = 0.012;
 constexpr double static HALF_WALL_THICKNESS_M = WALL_THICKNESS_M / 2.0;
