@@ -15,6 +15,7 @@
 
 #endif
 
+#include "maze_index.h"
 #include "sensor_reading.h"
 #include "node.h"
 #include "direction.h"
@@ -47,27 +48,26 @@ void insert_motion_primitive_front(Route *route, MotionPrimitive prim);
 
 void insert_motion_primitive_back(Route *route, MotionPrimitive prim);
 
-unsigned int constexpr static SIZE = 16;
 unsigned long const BUFF_SIZE = (SIZE * 2 + 3) * SIZE;
-auto constexpr static CENTER = RowCol{SIZE/2, SIZE/2};
-double constexpr static UNIT_DIST_M = 0.18;
-double constexpr static WALL_THICKNESS_M = 0.012;
-double constexpr static HALF_WALL_THICKNESS_M = WALL_THICKNESS_M / 2.0;
-double constexpr static HALF_UNIT_DIST = UNIT_DIST_M / 2.0;
-double constexpr static SIZE_M = SIZE * UNIT_DIST_M;
+constexpr auto static CENTER = RowCol{SIZE/2, SIZE/2};
+constexpr double static UNIT_DIST_M = 0.18;
+constexpr double static WALL_THICKNESS_M = 0.012;
+constexpr double static HALF_WALL_THICKNESS_M = WALL_THICKNESS_M / 2.0;
+constexpr double static HALF_UNIT_DIST = UNIT_DIST_M / 2.0;
+constexpr double static SIZE_M = SIZE * UNIT_DIST_M;
 
-double constexpr toMeters(double cu) noexcept {
+constexpr double toMeters(double cu) noexcept {
   return cu * UNIT_DIST_M;
 }
 
-double constexpr toCellUnits(double meters) noexcept {
+constexpr double toCellUnits(double meters) noexcept {
   static_assert(UNIT_DIST_M > 0, "UNIT_DIST_M must be greater than zero.");
   return meters / UNIT_DIST_M;
 }
 
-double constexpr WALL_THICKNESS_CU = toCellUnits(WALL_THICKNESS_M);
-double constexpr HALF_WALL_THICKNESS_CU = toCellUnits(HALF_WALL_THICKNESS_M);
-double constexpr SIZE_CU = toCellUnits(SIZE_M);
+constexpr double WALL_THICKNESS_CU = toCellUnits(WALL_THICKNESS_M);
+constexpr double HALF_WALL_THICKNESS_CU = toCellUnits(HALF_WALL_THICKNESS_M);
+constexpr double SIZE_CU = toCellUnits(SIZE_M);
 
 class AbstractMaze {
 
