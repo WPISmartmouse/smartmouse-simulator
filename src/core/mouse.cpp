@@ -9,7 +9,7 @@ namespace ssim {
 Mouse::Mouse(AbstractMaze maze) : maze(maze) {}
 
 void Mouse::reset() {
-  row_col = {0};
+  row_col = RowCol{0, 0};
   dir = Direction::E;
 }
 
@@ -17,11 +17,11 @@ RowCol Mouse::getRowCol() const {
   return row_col;
 }
 
-unsigned int Mouse::getRow() const {
+MazeIndex Mouse::getRow() const {
   return row_col.row;
 }
 
-unsigned int Mouse::getCol() const {
+MazeIndex Mouse::getCol() const {
   return row_col.col;
 }
 
@@ -58,9 +58,9 @@ bool Mouse::isWallInDirection(Direction d) const {
 
 void Mouse::maze_mouse_string(char *buff) const {
   char *b = buff;
-  unsigned int i, j;
-  for (i = 0; i < SIZE; i++) {
-    for (j = 0; j < SIZE; j++) {
+  MazeIndex i, j;
+  for (; i <= IDX_MAX; i++) {
+    for (; j <= IDX_MAX; j++) {
       if (maze.is_wall({i, j}, Direction::W)) {
         strcpy(b++, "|");
       } else {

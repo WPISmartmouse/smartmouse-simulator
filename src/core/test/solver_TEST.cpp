@@ -128,7 +128,7 @@ TEST(FloodTest, invalid) {
   auto route = flood.solve();
   EXPECT_EQ(route.size(), 0u);
 
-  mouse.reset_to(1, 0);
+  mouse.reset_to(ssim::MazeIndex{1}, ssim::IDX_0);
   flood.setup();
   flood.setGoal(ssim::Flood::Goal::CENTER);
 

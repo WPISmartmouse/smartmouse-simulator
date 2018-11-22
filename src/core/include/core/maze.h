@@ -35,7 +35,7 @@ struct MotionPrimitive {
 
 struct StepResult {
   bool const valid = false;
-  RowCol const row_col = {0};
+  RowCol const row_col;
 };
 
 using Route = std::vector<MotionPrimitive>;
@@ -87,11 +87,7 @@ class AbstractMaze {
 
   static StepResult const step(RowCol start, Direction d);
 
-  bool out_of_bounds(RowCol row_col) const;
-
   Node get_node(RowCol row_col) const;
-
-  Node get_node_in_direction(RowCol row_col, Direction dir) const;
 
   Route truncate_route(RowCol start, Route route) const;
 
@@ -129,8 +125,10 @@ class AbstractMaze {
   bool solved = false;
 
  private:
-//  std::array<std::array<std::array<WallEnum, 4>, SIZE>, SIZE> walls; // array of node pointers
-  std::array<std::array<Node, SIZE>, SIZE> nodes; // array of node pointers
+
+  Node &get_mutable_node(RowCol row_col);
+
+  std::array<std::array<Node, SIZE>, SIZE> nodes;
 };
 
 }

@@ -23,16 +23,16 @@ double Robot::dispToNextEdge(Robot &robot) {
 
   switch (dir) {
     case Direction::N: {
-      return current_pose.row - robot.getRow();
+      return current_pose.row - robot.getRow().Double();
     }
     case Direction::S: {
-      return robot.getRow() + 1 - current_pose.row;
+      return robot.getRow().Double() + 1 - current_pose.row;
     }
     case Direction::E: {
-      return robot.getCol() + 1 - current_pose.col;
+      return robot.getCol().Double() + 1 - current_pose.col;
     }
     case Direction::W: {
-      return current_pose.col - robot.getCol();
+      return current_pose.col - robot.getCol().Double();
     }
     default:
       return std::numeric_limits<double>::quiet_NaN();
@@ -62,16 +62,16 @@ double Robot::sidewaysDispToCenter(Robot &robot) {
 double Robot::fwdDispToCenter(Robot &robot) {
   switch (robot.getDir()) {
     case Direction::N: {
-      return robot.getGlobalPose().row - robot.getRow() + 0.5;
+      return robot.getGlobalPose().row - robot.getRow().Double() + 0.5;
     }
     case Direction::S: {
-      return (robot.getRow() + 0.5) - robot.getGlobalPose().row;
+      return (robot.getRow().Double() + 0.5) - robot.getGlobalPose().row;
     }
     case Direction::E: {
-      return robot.getCol() + 0.5 - robot.getGlobalPose().col;
+      return robot.getCol().Double() + 0.5 - robot.getGlobalPose().col;
     }
     case Direction::W: {
-      return robot.getGlobalPose().col - (robot.getCol() + 0.5);
+      return robot.getGlobalPose().col - (robot.getCol().Double() + 0.5);
     }
     default:
       exit(-1);

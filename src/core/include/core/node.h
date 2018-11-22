@@ -3,13 +3,24 @@
 #include <limits>
 #include <array>
 
+#include "maze_index.h"
+
 namespace ssim {
 
 struct RowCol {
+
+  RowCol() = default;
+
+  constexpr RowCol(unsigned int const row, unsigned int const col) : row(row), col(col) {}
+
+  constexpr RowCol(MazeIndex row, MazeIndex col) : row(row), col(col) {}
+
   bool operator==(const RowCol &other) const;
 
-  unsigned int row = 0;
-  unsigned int col = 0;
+  bool operator!=(const RowCol &other) const;
+
+  MazeIndex row{0u};
+  MazeIndex col{0u};
 };
 
 enum class WallEnum {
@@ -27,7 +38,7 @@ class Node {
  public:
   Node(RowCol row_col);
 
-  Node(unsigned int row, unsigned int col);
+  Node(MazeIndex row, MazeIndex col);
 
   Node() = default;
 
@@ -35,9 +46,9 @@ class Node {
 
   bool operator!=(Node const &other) const;
 
-  unsigned int Row() const;
+  MazeIndex Row() const;
 
-  unsigned int Col() const;
+  MazeIndex Col() const;
 
   RowCol GetRowCol() const;
 
@@ -50,7 +61,9 @@ class Node {
   std::array<WallEnum, 4> walls = {WallEnum::NoWall, WallEnum::NoWall, WallEnum::NoWall, WallEnum::NoWall};
 
  private:
-  RowCol row_col = {0};
+  RowCol row_col;
 };
+
+constexpr RowCol const ORIGIN{0, 0};
 
 } // namespace ssim

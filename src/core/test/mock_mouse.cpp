@@ -3,7 +3,7 @@
 MockMouse::MockMouse(ssim::AbstractMaze &maze) : Mouse(maze) {
 }
 
-void MockMouse::reset_to(unsigned int const r, unsigned int const c) {
+void MockMouse::reset_to(ssim::MazeIndex const r, ssim::MazeIndex const c) {
   reset();
   this->row_col.row = r;
   this->row_col.col = c;

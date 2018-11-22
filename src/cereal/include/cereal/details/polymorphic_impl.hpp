@@ -252,7 +252,7 @@ namespace cereal
            the inserted base derived relationship */
         {
           // Checks whether there is a path from parent->child and returns a <dist, path> pair
-          // dist is set to MAX if the path does not exist
+          // dist is set to IDX_MAX if the path does not exist
           auto checkRelation = [](std::type_index const & parentInfo, std::type_index const & childInfo) ->
             std::pair<size_t, std::vector<PolymorphicCaster const *>>
           {

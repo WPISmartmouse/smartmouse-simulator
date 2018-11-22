@@ -8,13 +8,13 @@ TEST(NodeTest, MazeSizeTest) {
 }
 
 TEST(NodeTest, ConstructorTest) {
-  const ssim::Node n(3, 4);
-  EXPECT_EQ(n.Row(), 3u);
-  EXPECT_EQ(n.Col(), 4u);
+  const ssim::Node n(ssim::MazeIndex{3}, ssim::MazeIndex{4});
+  EXPECT_EQ(n.Row(), ssim::MazeIndex{3u});
+  EXPECT_EQ(n.Col(), ssim::MazeIndex{4u});
 }
 
 TEST(NodeTest, NoArgConstructorTest) {
   const ssim::Node n;
-  EXPECT_EQ(n.Row(), 0u);
-  EXPECT_EQ(n.Col(), 0u);
+  EXPECT_EQ(n.Row(), ssim::MazeIndex{0u});
+  EXPECT_EQ(n.Col(), ssim::MazeIndex{0u});
 }

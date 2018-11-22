@@ -10,28 +10,28 @@
 
 TEST(MouseTest, movement_test) {
   MockMouse m;
-  EXPECT_EQ(m.getRow(), 0u);
-  EXPECT_EQ(m.getCol(), 0u);
+  EXPECT_EQ(m.getRow(), ssim::IDX_0);
+  EXPECT_EQ(m.getCol(), ssim::IDX_0);
   EXPECT_EQ(m.getDir(), ssim::Direction::E);
 
   m.internalForward();
-  EXPECT_EQ(m.getRow(), 0u);
-  EXPECT_EQ(m.getCol(), 1u);
+  EXPECT_EQ(m.getRow(), ssim::IDX_0);
+  EXPECT_EQ(m.getCol(), ssim::MazeIndex{1u});
   EXPECT_EQ(m.getDir(), ssim::Direction::E);
 
   m.internalTurnToFace(ssim::Direction::S);
-  EXPECT_EQ(m.getRow(), 0u);
-  EXPECT_EQ(m.getCol(), 1u);
+  EXPECT_EQ(m.getRow(), ssim::IDX_0);
+  EXPECT_EQ(m.getCol(), ssim::MazeIndex{1u});
   EXPECT_EQ(m.getDir(), ssim::Direction::S);
 
   m.internalForward();
-  EXPECT_EQ(m.getRow(), 1u);
-  EXPECT_EQ(m.getCol(), 1u);
+  EXPECT_EQ(m.getRow(), ssim::MazeIndex{1u});
+  EXPECT_EQ(m.getCol(), ssim::MazeIndex{1u});
   EXPECT_EQ(m.getDir(), ssim::Direction::S);
 
   m.reset();
-  EXPECT_EQ(m.getRow(), 0u);
-  EXPECT_EQ(m.getCol(), 0u);
+  EXPECT_EQ(m.getRow(), ssim::IDX_0);
+  EXPECT_EQ(m.getCol(), ssim::IDX_0);
   EXPECT_EQ(m.getDir(), ssim::Direction::E);
 }
 

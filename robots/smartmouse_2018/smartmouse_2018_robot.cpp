@@ -80,30 +80,30 @@ ssim::GlobalPose Smartmouse2018Robot::estimate_pose() const {
 
     switch (getDir()) {
       case ssim::Direction::N: {
-        new_pose_estimate_cu.col = getCol() + offset_cu;
+        new_pose_estimate_cu.col = getCol().Double() + offset_cu;
         if (wall_in_front) {
-          new_pose_estimate_cu.row = getRow() + d_wall_front_cu + ssim::HALF_WALL_THICKNESS_CU;
+          new_pose_estimate_cu.row = getRow().Double() + d_wall_front_cu + ssim::HALF_WALL_THICKNESS_CU;
         }
         break;
       }
       case ssim::Direction::S: {
-        new_pose_estimate_cu.col = getCol() + 1 - offset_cu;
+        new_pose_estimate_cu.col = getCol().Double() + 1 - offset_cu;
         if (wall_in_front) {
-          new_pose_estimate_cu.row = getRow() + 1 - d_wall_front_cu - ssim::HALF_WALL_THICKNESS_CU;
+          new_pose_estimate_cu.row = getRow().Double() + 1 - d_wall_front_cu - ssim::HALF_WALL_THICKNESS_CU;
         }
         break;
       }
       case ssim::Direction::E: {
-        new_pose_estimate_cu.row = getRow() + offset_cu;
+        new_pose_estimate_cu.row = getRow().Double() + offset_cu;
         if (wall_in_front) {
-          new_pose_estimate_cu.col = getCol() + 1 - d_wall_front_cu - ssim::HALF_WALL_THICKNESS_CU;
+          new_pose_estimate_cu.col = getCol().Double() + 1 - d_wall_front_cu - ssim::HALF_WALL_THICKNESS_CU;
         }
         break;
       }
       case ssim::Direction::W: {
-        new_pose_estimate_cu.row = getRow() + 1 - offset_cu;
+        new_pose_estimate_cu.row = getRow().Double() + 1 - offset_cu;
         if (wall_in_front) {
-          new_pose_estimate_cu.col = getCol() + d_wall_front_cu + ssim::HALF_WALL_THICKNESS_CU;
+          new_pose_estimate_cu.col = getCol().Double() + d_wall_front_cu + ssim::HALF_WALL_THICKNESS_CU;
         }
         break;
       }
@@ -139,7 +139,7 @@ double Smartmouse2018Robot::checkVoltage() {
 }
 
 ssim::SensorReading Smartmouse2018Robot::checkWalls() {
-  return ssim::SensorReading(0, 0);
+  return ssim::SensorReading(ssim::MazeIndex{0}, ssim::MazeIndex{0});
 }
 
 void Smartmouse2018Robot::Setup() {
@@ -158,8 +158,8 @@ void Smartmouse2018Robot::Step(double dt_s) {
 
   // THIS IS SUPER IMPORTANT!
   // update row/col information
-  row_col.row = static_cast<unsigned int>(kinematic_controller.getGlobalPose().row);
-  row_col.col = static_cast<unsigned int>(kinematic_controller.getGlobalPose().col);
+  row_col.row = ssim::MazeIndex{static_cast<unsigned int>(kinematic_controller.getGlobalPose().row)};
+  row_col.col = ssim::MazeIndex{static_cast<unsigned int>(kinematic_controller.getGlobalPose().col)};
 
   if (abstract_left_force < 0) {
     analogWrite(MOTOR_LEFT_A1, 0);

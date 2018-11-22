@@ -76,15 +76,15 @@ Route Flood::solve() {
 }
 
 bool Flood::isFinished() {
-  unsigned int r = mouse->getRow();
-  unsigned int c = mouse->getCol();
-  unsigned int const C = SIZE / 2;
+  auto const r = mouse->getRow();
+  auto const c = mouse->getCol();
+  MazeIndex const C{SIZE / 2};
   switch (goal)
   {
     case Solver::Goal::CENTER:
       return !solvable || ((r >= C - 1 && r <= C) && (c >= C - 1 && c <= C));
     case Solver::Goal::START:
-      return !solvable || (r == 0 && c == 0);
+      return !solvable || (r == IDX_0 && c == IDX_0);
     default:
       throw std::invalid_argument("The Flood solver does not support the requested goal");
   }

@@ -7,7 +7,7 @@ ReturnToStart::ReturnToStart(Smartmouse2018Robot &robot) : CommandGroup("return"
 
 void ReturnToStart::initialize() {
   // plan path from center to origin
-  robot.maze.flood_fill_from_point(&pathToStart, ssim::CENTER, {0, 0});
+  robot.maze.flood_fill_from_point(&pathToStart, ssim::CENTER, ssim::ORIGIN);
   index = 0;
 }
 
@@ -15,7 +15,7 @@ bool ReturnToStart::isFinished() {
   bool groupFinished = CommandGroup::isFinished();
 
   if (groupFinished) {
-    bool returned = robot.getRow() == 0 && robot.getCol() == 0;
+    bool returned = (robot.getRowCol() == ssim::ORIGIN);
 
     if (!returned) {
       ssim::MotionPrimitive prim = pathToStart[index++];

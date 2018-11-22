@@ -12,13 +12,20 @@ static_assert(SIZE >= 4);
 
 class MazeIndex {
  public:
+
   unsigned int value{0};
 
-  explicit MazeIndex(unsigned int value) {
+  constexpr MazeIndex() = default;
+
+  constexpr explicit MazeIndex(unsigned int value) {
     if (value >= SIZE) {
       throw std::invalid_argument(fmt::format("MazeIndex must be < {}", SIZE));
     }
     this->value = value;
+  }
+
+  constexpr double Double() const {
+    return static_cast<double>(value);
   }
 
   MazeIndex operator-(int unsigned const other_value) const {
@@ -44,8 +51,7 @@ class MazeIndex {
   MazeIndex operator+(unsigned int const other_value) const {
     if (other_value > SIZE) {
       throw std::invalid_argument(fmt::format("Illegal addition of {} because it's >{}", other_value, SIZE));
-    }
-    else if (value + other_value >= SIZE) {
+    } else if (value + other_value >= SIZE) {
       throw std::invalid_argument(fmt::format("Illegal addition {}+{} because it's be >={}", value, other_value, SIZE));
     }
 
@@ -57,8 +63,7 @@ class MazeIndex {
   MazeIndex operator+(MazeIndex other) const {
     if (other.value > SIZE) {
       throw std::invalid_argument(fmt::format("Illegal addition of {} because it's >{}", other.value, SIZE));
-    }
-    else if (value + other.value >= SIZE) {
+    } else if (value + other.value >= SIZE) {
       throw std::invalid_argument(fmt::format("Illegal addition {}+{} because it's be >={}", value, other.value, SIZE));
     }
 
@@ -101,6 +106,33 @@ class MazeIndex {
     return temp;
   }
 
+  bool operator==(MazeIndex const other) const {
+    return value == other.value;
+  }
+
+  bool operator!=(MazeIndex const other) const {
+    return value != other.value;
+  }
+
+  bool operator>=(MazeIndex const other) const {
+    return value >= other.value;
+  }
+
+  bool operator<=(MazeIndex const other) const {
+    return value <= other.value;
+  }
+
+  bool operator>(MazeIndex const other) const {
+    return value > other.value;
+  }
+
+  bool operator<(MazeIndex const other) const {
+    return value < other.value;
+  }
+
 };
+
+constexpr static MazeIndex IDX_0{0};
+constexpr static MazeIndex IDX_MAX{SIZE - 1};
 
 } // namespace ssim

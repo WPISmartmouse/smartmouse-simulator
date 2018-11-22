@@ -10,19 +10,17 @@ ArcTurn::ArcTurn(Smartmouse2018Robot &robot, ssim::Direction dir) : Command("Arc
 
 void ArcTurn::initialize() {
   curPose = robot.getGlobalPose();
-  curCol = robot.getCol();
-  curRow = robot.getRow();
+  current_row_col = robot.getRowCol();
   curDir = robot.getDir();
 
   startPose = curPose;
-  startCol = curCol;
-  startRow = curRow;
+  start = current_row_col;
 
   goalYaw = dir_to_yaw(dir);
 
   // determine vtc of arc
-  vtc_x = curCol * ssim::UNIT_DIST_M + ssim::HALF_UNIT_DIST;
-  vtc_y = curRow * ssim::UNIT_DIST_M + ssim::HALF_UNIT_DIST;
+  vtc_x = current_row_col.row.Double() * ssim::UNIT_DIST_M + ssim::HALF_UNIT_DIST;
+  vtc_y = current_row_col.col.Double() * ssim::UNIT_DIST_M + ssim::HALF_UNIT_DIST;
   switch (curDir) {
     case ssim::Direction::N: {
       vtc_y += ssim::HALF_UNIT_DIST;
@@ -98,12 +96,11 @@ void ArcTurn::execute() {
 
 bool ArcTurn::isFinished() {
   curPose = robot.getGlobalPose();
-  curCol = robot.getCol();
-  curRow = robot.getRow();
+  current_row_col = robot.getRowCol();
   curDir = robot.getDir();
 
   dYaw = ssim::yaw_diff(goalYaw, curPose.yaw);
-  return (curCol != startCol) || (curRow != startRow);
+  return current_row_col != start;
 }
 
 void ArcTurn::end() {

@@ -2,7 +2,7 @@
 
 namespace ssim {
 
-SensorReading::SensorReading(unsigned int row, unsigned int col) : walls({false}), row(row), col(col) {}
+SensorReading::SensorReading(MazeIndex row, MazeIndex col) : walls({false}), row_col(row, col) {}
 
 bool SensorReading::isWall(Direction const dir) const {
   return walls[static_cast<int>(dir)];

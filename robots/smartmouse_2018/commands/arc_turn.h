@@ -27,13 +27,11 @@ class ArcTurn : public Command {
   ssim::Direction dir;
 
   ssim::GlobalPose curPose;
-  unsigned int curCol;
-  unsigned int curRow;
+  ssim::RowCol current_row_col;
   ssim::Direction curDir;
 
   ssim::GlobalPose startPose;
-  unsigned int startCol;
-  unsigned int startRow;
+  ssim::RowCol start;
 
   double dYaw;
   double goalYaw;

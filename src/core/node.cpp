@@ -4,10 +4,15 @@ namespace ssim {
 
 Node::Node(RowCol row_col) : row_col(row_col) {}
 
-Node::Node(unsigned int const row, unsigned int const col) : row_col{row, col} {}
+Node::Node(MazeIndex const row, MazeIndex const col) : row_col{row, col} {}
 
 bool Node::operator==(Node const &other) const {
+  // TODO replace all && || with and or
   return Row() == other.Row() and Col() == other.Col();
+}
+
+bool Node::operator!=(Node const &other) const {
+  return !(operator==(other));
 }
 
 void Node::Reset() {
@@ -17,16 +22,12 @@ void Node::Reset() {
   visited = false;
 }
 
-unsigned int Node::Row() const {
+MazeIndex Node::Row() const {
   return row_col.row;
 }
 
-unsigned int Node::Col() const {
+MazeIndex Node::Col() const {
   return row_col.col;
-}
-
-bool Node::operator!=(Node const &other) const {
-  return !(operator==(other));
 }
 
 RowCol Node::GetRowCol() const {
@@ -36,4 +37,9 @@ RowCol Node::GetRowCol() const {
 bool RowCol::operator==(const RowCol &other) const {
   return row == other.row and col == other.col;
 }
+
+bool RowCol::operator!=(const RowCol &other) const {
+  return row != other.row or col != other.col;
+}
+
 } // namespace ssim

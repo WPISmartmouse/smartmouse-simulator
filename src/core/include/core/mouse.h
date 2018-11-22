@@ -26,9 +26,9 @@ public:
 
   void reset();
 
-  unsigned int getCol() const;
+  MazeIndex getCol() const;
 
-  unsigned int getRow() const;
+  MazeIndex getRow() const;
 
   RowCol getRowCol() const;
 
@@ -49,7 +49,7 @@ public:
   AbstractMaze maze;
 
 protected:
-  RowCol row_col = {0};
+  RowCol row_col;
   Direction dir = Direction::E;
 };
 
