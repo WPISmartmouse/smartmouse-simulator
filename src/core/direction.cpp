@@ -29,8 +29,6 @@ Direction left_of_dir(Direction dir) {
       return Direction::E;
     case Direction::W:
       return Direction::S;
-    default:
-      return Direction::Last;
   }
 }
 
@@ -44,8 +42,6 @@ Direction right_of_dir(Direction dir) {
       return Direction::W;
     case Direction::W:
       return Direction::N;
-    default:
-      return Direction::Last;
   }
 }
 
@@ -62,26 +58,6 @@ Direction int_to_dir(int i) {
     default:
       throw std::invalid_argument(fmt::format("invalid int {}", i));
   }
-}
-
-Direction operator++(Direction &dir, int) {
-  switch (dir) {
-    case Direction::N:
-      dir = Direction::E;
-      break;
-    case Direction::E:
-      dir = Direction::S;
-      break;
-    case Direction::S:
-      dir = Direction::W;
-      break;
-    case Direction::W:
-      dir = Direction::Last;
-      break;
-    default:
-      dir = Direction::Last;
-  }
-  return dir;
 }
 
 char yaw_to_char(double yaw) {

@@ -93,7 +93,7 @@ class AbstractMaze {
 
   Node get_node_in_direction(RowCol row_col, Direction dir) const;
 
-  Route truncate_route(RowCol start, Direction dir, Route route) const;
+  Route truncate_route(RowCol start, Route route) const;
 
   void reset();
 

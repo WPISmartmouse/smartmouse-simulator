@@ -30,7 +30,7 @@ else()
            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/common/include>
            $<INSTALL_INTERFACE:sim>
            $<INSTALL_INTERFACE:common/include>)
-  target_link_libraries(hal core cereal::cereal Eigen3::Eigen fmt::fmt)
+  target_link_libraries(hal core fmt::fmt)
 
   foreach(ARDUINO_LIB ${ARDUINO_LIBS})
     set(LIB_DIR sim/${ARDUINO_LIB})

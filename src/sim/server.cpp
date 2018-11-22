@@ -44,9 +44,9 @@ double ComputeSensorDistToWall(AbstractMaze const &maze, SensorDescription const
   unsigned int const max_c = std::min(SIZE, col + max_cells_to_check);
   for (unsigned int r = min_r; r < max_r; r++) {
     for (unsigned int c = min_c; c < max_c; c++) {
-      for (auto d = Direction::First; d < Direction::Last; d++) {
-        if (maze.is_wall({r, c}, d)) {
-          auto const wall = WallToCoordinates(r, c, d);
+      for (auto const d : wise_enum::range<Direction>) {
+        if (maze.is_wall({r, c}, d.value)) {
+          auto const wall = WallToCoordinates(r, c, d.value);
           std::array<Line2d, 4> lines{
               Line2d{wall.c1, wall.r1, wall.c2, wall.r1},
               Line2d{wall.c2, wall.r1, wall.c2, wall.r2},

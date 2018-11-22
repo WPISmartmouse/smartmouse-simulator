@@ -110,10 +110,6 @@ Node AbstractMaze::get_node(RowCol const row_col) const {
 }
 
 Node AbstractMaze::get_node_in_direction(RowCol const row_col, Direction const dir) const {
-  if (dir == Direction::Last) {
-    throw std::invalid_argument("Invalid direction Last");
-  }
-
   auto const[valid, new_row_col] = step(row_col, dir);
   if (!valid) {
     throw std::invalid_argument(
@@ -124,10 +120,6 @@ Node AbstractMaze::get_node_in_direction(RowCol const row_col, Direction const d
 }
 
 bool AbstractMaze::is_perimeter(RowCol const row_col, Direction dir) const {
-  if (dir == Direction::Last) {
-    throw std::invalid_argument("Invalid direction Last");
-  }
-
   if (row_col.row == 0 and dir == Direction::N) {
     return true;
   } else if (row_col.row == SIZE - 1 and dir == Direction::S) {
@@ -141,10 +133,6 @@ bool AbstractMaze::is_perimeter(RowCol const row_col, Direction dir) const {
 }
 
 bool AbstractMaze::is_wall(RowCol const row_col, Direction const dir) const {
-  if (dir == Direction::Last) {
-    throw std::invalid_argument("Invalid direction Last");
-  }
-
   auto const is_wall = nodes[row_col.row][row_col.col].walls[static_cast<int>(dir)];
   switch (is_wall) {
     case WallEnum::Wall:
@@ -167,10 +155,6 @@ void AbstractMaze::reset() {
 }
 
 void AbstractMaze::add_wall(RowCol const row_col, Direction const dir) {
-  if (dir == Direction::Last) {
-    throw std::invalid_argument("Invalid direction Last");
-  }
-
   if (out_of_bounds(row_col)) {
     throw std::invalid_argument(fmt::format("add_wall: row {} or col {} is out of bounds", row_col.row, row_col.col));
   }
@@ -189,10 +173,6 @@ void AbstractMaze::add_wall(RowCol const row_col, Direction const dir) {
 void AbstractMaze::remove_wall(RowCol const row_col, Direction const dir) {
   if (out_of_bounds(row_col)) {
     throw std::invalid_argument(fmt::format("cannot remove wall out of bounds: {}, {}", row_col.row, row_col.col));
-  }
-
-  if (dir == Direction::Last) {
-    throw std::invalid_argument("Invalid direction Direction::Last");
   }
 
   {
@@ -217,10 +197,6 @@ void AbstractMaze::remove_wall(RowCol const row_col, Direction const dir) {
 }
 
 void AbstractMaze::remove_wall_if_exists(RowCol const row_col, ssim::Direction const dir) {
-  if (dir == Direction::Last) {
-    throw std::invalid_argument("Invalid direction Last");
-  }
-
   {
     if (is_perimeter(row_col, dir)) {
       throw std::invalid_argument(
@@ -246,9 +222,9 @@ void AbstractMaze::remove_wall_if_exists(RowCol const row_col, ssim::Direction c
 void AbstractMaze::remove_all_walls() {
   for (unsigned int row = 0; row < SIZE; row++) {
     for (unsigned int col = 0; col < SIZE; col++) {
-      for (Direction d = Direction::First; d != Direction::Last; d++) {
-        if (!is_perimeter({row, col}, d)) {
-          nodes[row][col].walls[static_cast<int>(d)] = WallEnum::NoWall;
+      for (auto const d : wise_enum::range<Direction>) {
+        if (!is_perimeter({row, col}, d.value)) {
+          nodes[row][col].walls[static_cast<int>(d.value)] = WallEnum::NoWall;
         }
       }
     }
@@ -258,9 +234,9 @@ void AbstractMaze::remove_all_walls() {
 void AbstractMaze::add_all_walls() {
   for (unsigned int row = 0; row < SIZE; row++) {
     for (unsigned int col = 0; col < SIZE; col++) {
-      for (Direction d = Direction::First; d != Direction::Last; d++) {
-        if (!is_perimeter({row, col}, d)) {
-          nodes[row][col].walls[static_cast<int>(d)] = WallEnum::Wall;
+      for (auto const d : wise_enum::range<Direction>) {
+        if (!is_perimeter({row, col}, d.value)) {
+          nodes[row][col].walls[static_cast<int>(d.value)] = WallEnum::Wall;
         }
       }
     }
@@ -290,9 +266,9 @@ AbstractMaze::assign_weights_to_neighbors(RowCol const start, RowCol const goal,
     n.weight = weight;
 
     // recursive call to explore each neighbors
-    for (Direction d = Direction::First; d != Direction::Last; d++) {
-      auto const[valid, new_row_col] = step(start, d);
-      auto const wall = is_wall(start, d);
+    for (auto const d : wise_enum::range<Direction>) {
+      auto const[valid, new_row_col] = step(start, d.value);
+      auto const wall = is_wall(start, d.value);
       if (valid and not wall) {
         assign_weights_to_neighbors(new_row_col, goal, weight + 1, goal_found);
       }
@@ -337,17 +313,16 @@ bool AbstractMaze::flood_fill(Route *const path, RowCol const start, RowCol cons
     Direction min_dir = Direction::N;
 
     //find the neighbor with the lowest weight and go there,  that is the fastest route
-    Direction d;
     bool deadend = true;
-    for (d = Direction::First; d < Direction::Last; d++) {
+    for (auto const d : wise_enum::range<Direction>) {
       RowCol const current_rc = n.GetRowCol();
-      auto const[valid, new_row_col] = step(current_rc, d);
-      auto const wall = is_wall(current_rc, d);
+      auto const[valid, new_row_col] = step(current_rc, d.value);
+      auto const wall = is_wall(current_rc, d.value);
       if (valid and not wall) {
         auto next_n = get_node(new_row_col);
         if (next_n.weight < min_node.weight) {
           min_node = next_n;
-          min_dir = opposite_direction(d);
+          min_dir = opposite_direction(d.value);
           deadend = false;
         }
       }
@@ -485,12 +460,7 @@ void insert_motion_primitive_front(Route *route, MotionPrimitive const prim) {
   }
 }
 
-Route AbstractMaze::truncate_route(RowCol const row_col, Direction const dir,
-                                   Route const route) const {
-  if (dir == Direction::Last) {
-    throw std::invalid_argument("Invalid direction Last");
-  }
-
+Route AbstractMaze::truncate_route(RowCol const row_col, Route const route) const {
   Route trunc;
   bool done = false;
   RowCol current_rc = row_col;
@@ -517,13 +487,13 @@ Route AbstractMaze::truncate_route(RowCol const row_col, Direction const dir,
 }
 
 void AbstractMaze::update(SensorReading const sr) {
-  for (Direction d = Direction::First; d < Direction::Last; d++) {
+  for (auto const d : wise_enum::range<Direction>) {
     //if a wall exists in that direction, add a wall
     //if no wall exists in that direction remove it
-    if (sr.isWall(d)) {
-      add_wall({sr.row, sr.col}, d);
+    if (sr.isWall(d.value)) {
+      add_wall({sr.row, sr.col}, d.value);
     } else {
-      remove_wall_if_exists({sr.row, sr.col}, d);
+      remove_wall_if_exists({sr.row, sr.col}, d.value);
     }
   }
 }

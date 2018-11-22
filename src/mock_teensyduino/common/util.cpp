@@ -84,8 +84,8 @@ void print_neighbor_maze(const AbstractMaze &maze) {
   unsigned int i, j;
   for (i = 0; i < SIZE; i++) {
     for (j = 0; j < SIZE; j++) {
-      for (Direction d = Direction::First; d < Direction::Last; d++) {
-        bool wall = maze.is_wall({i, j}, d);
+      for (auto const d : wise_enum::range<Direction>) {
+        bool wall = maze.is_wall({i, j}, d.value);
         print("%i", wall);
       }
       print(" ");

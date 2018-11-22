@@ -49,7 +49,5 @@ TEST(MouseTest, wall_test) {
   EXPECT_TRUE(m.isWallInDirection(ssim::Direction::S));
   EXPECT_TRUE(m.isWallInDirection(ssim::Direction::N));
   EXPECT_FALSE(m.isWallInDirection(ssim::Direction::E));
-
-  EXPECT_THROW(m.isWallInDirection(ssim::Direction::Last), std::invalid_argument);
 }
 

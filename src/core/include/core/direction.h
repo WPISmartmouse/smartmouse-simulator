@@ -1,15 +1,10 @@
 #pragma once
 
+#include <wise_enum/wise_enum.h>
+
 namespace ssim {
 
-enum class Direction {
-  N, //0
-  E, //1
-  S, //2
-  W, //3
-  Last, //4
-  First = N, //0
-};
+WISE_ENUM(Direction, N, E, S, W);
 
 /** \brief returns the left of the given direction */
 Direction left_of_dir(Direction d);
