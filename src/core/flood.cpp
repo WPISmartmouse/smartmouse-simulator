@@ -1,4 +1,5 @@
 #include <exception>
+#include <iostream>
 
 #include <core/flood.h>
 
@@ -67,7 +68,7 @@ Route Flood::solve() {
     auto const step = planNextStep();
     insert_motion_primitive_back(&route, step);
     mouse->internalTurnToFace(step.d);
-    for (auto i = 0; i < step.n; ++i) {
+    for (MazeIndex i{0}; i < step.n; ++i) {
       mouse->internalForward();
     }
   }

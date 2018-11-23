@@ -28,6 +28,24 @@ class MazeIndex {
     return static_cast<double>(value);
   }
 
+  constexpr bool CanDecrement() const {
+    return value > 0;
+  }
+
+  constexpr bool CanIncrement() const {
+    return value < SIZE - 1;
+  }
+
+  MazeIndex & operator+=(MazeIndex const & other) {
+    *this = *this + other;
+    return *this;
+  }
+
+  MazeIndex & operator-=(MazeIndex const & other) {
+    *this = *this - other;
+    return *this;
+  }
+
   MazeIndex operator-(int unsigned const other_value) const {
     if (value < other_value) {
       throw std::invalid_argument(fmt::format("Illegal subtraction {} - {}", value, other_value));
@@ -73,8 +91,8 @@ class MazeIndex {
   }
 
   MazeIndex &operator--() {
-    if (value == 1) {
-      throw std::invalid_argument("illegal prefix decrement from MazeIndex of value 1");
+    if (value == 0) {
+      throw std::invalid_argument("illegal prefix decrement from MazeIndex of value 0");
     }
     --value;
     return *this;
@@ -88,21 +106,23 @@ class MazeIndex {
     return *this;
   }
 
-  MazeIndex const operator--(int) const {
+  MazeIndex const operator--(int) {
     MazeIndex temp{value};
-    if (value == 1) {
-      throw std::invalid_argument("illegal postfix decrement from MazeIndex of value 1");
+    if (value == 0) {
+      throw std::invalid_argument("illegal postfix decrement from MazeIndex of value 0");
     }
     temp.value--;
+    value--;
     return temp;
   }
 
-  MazeIndex const operator++(int) const {
+  MazeIndex const operator++(int) {
     MazeIndex temp{value};
-    if (value == SIZE) {
+    if (value == SIZE - 1) {
       throw std::invalid_argument(fmt::format("illegal postfix increment from MazeIndex of value {}", SIZE));
     }
     temp.value++;
+    value++;
     return temp;
   }
 

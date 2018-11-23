@@ -30,6 +30,7 @@ Direction left_of_dir(Direction dir) {
     case Direction::W:
       return Direction::S;
   }
+  return Direction::N;
 }
 
 Direction right_of_dir(Direction dir) {
@@ -43,6 +44,7 @@ Direction right_of_dir(Direction dir) {
     case Direction::W:
       return Direction::N;
   }
+  return Direction::N;
 }
 
 Direction int_to_dir(int i) {

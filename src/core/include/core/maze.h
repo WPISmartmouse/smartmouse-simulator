@@ -27,12 +27,12 @@ void for_each_cell_and_dir(std::function<void(MazeIndex, MazeIndex, Direction)> 
 void for_each_cell(std::function<void(MazeIndex, MazeIndex)> f);
 
 struct MotionPrimitive {
-  uint8_t n = 0;
-  Direction d = Direction::N;
+  MazeIndex n{0};
+  Direction d{Direction::N};
 
-  std::string to_string() {
+  std::string to_string() const {
     std::stringstream ss;
-    ss << (int) n << dir_to_char(d);
+    ss << n.value << dir_to_char(d);
     return ss.str();
   }
 };

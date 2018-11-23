@@ -13,21 +13,43 @@
 namespace ssim {
 
 void for_each_cell_and_dir(std::function<void(MazeIndex, MazeIndex, Direction)> f) {
-  MazeIndex row, col;
-  for (; row <= IDX_MAX; row++) {
-    for (; col <= IDX_MAX; col++) {
+  MazeIndex row{0u};
+  while (true) {
+    MazeIndex col{0u};
+    while (true) {
       for (auto const d : wise_enum::range<Direction>) {
         f(row, col, d.value);
       }
+      if (col.CanIncrement()) {
+        col++;
+      } else {
+        break;
+      }
+    }
+    if (row.CanIncrement()) {
+      row++;
+    } else {
+      break;
     }
   }
 }
 
 void for_each_cell(std::function<void(MazeIndex, MazeIndex)> f) {
-  MazeIndex row, col;
-  for (; row <= IDX_MAX; row++) {
-    for (; col <= IDX_MAX; col++) {
+  MazeIndex row{0u};
+  while (true) {
+    MazeIndex col{0u};
+    while (true) {
       f(row, col);
+      if (col.CanIncrement()) {
+        col++;
+      } else {
+        break;
+      }
+    }
+    if (row.CanIncrement()) {
+      row++;
+    } else {
+      break;
     }
   }
 }
@@ -39,7 +61,6 @@ AbstractMaze::AbstractMaze() {
   for_each_cell([&](MazeIndex row, MazeIndex col) {
     auto &n = this->get_mutable_node({row, col});
     n = RowCol{row, col};
-
   });
 
   for (unsigned int i = 0; i < SIZE; i++) {
@@ -155,12 +176,10 @@ bool AbstractMaze::is_wall(RowCol const row_col, Direction const dir) const {
 }
 
 void AbstractMaze::reset() {
-  unsigned int i, j;
-  for (i = 0; i < SIZE; i++) {
-    for (j = 0; j < SIZE; j++) {
-      nodes[i][j].Reset();
-    }
-  }
+  for_each_cell([&](MazeIndex row, MazeIndex col) {
+    auto &n = this->get_mutable_node({row, col});
+    n.Reset();
+  });
 }
 
 void AbstractMaze::add_wall(RowCol const row_col, Direction const dir) {
@@ -173,7 +192,7 @@ void AbstractMaze::add_wall(RowCol const row_col, Direction const dir) {
   auto const[valid, new_row_col] = step(row_col, dir);
   if (valid and !is_perimeter(new_row_col, opposite_direction(dir))) {
     auto &new_n = get_mutable_node(new_row_col);
-    new_n.walls[static_cast<int>(opposite_direction(dir))] = WallEnum::PerimeterWall;
+    new_n.walls[static_cast<int>(opposite_direction(dir))] = WallEnum::Wall;
   }
 }
 
@@ -226,15 +245,12 @@ void AbstractMaze::remove_wall_if_exists(RowCol const row_col, ssim::Direction c
 }
 
 void AbstractMaze::remove_all_walls() {
-  for (unsigned int row = 0; row < SIZE; row++) {
-    for (unsigned int col = 0; col < SIZE; col++) {
-      for (auto const d : wise_enum::range<Direction>) {
-        if (!is_perimeter({row, col}, d.value)) {
-          nodes[row][col].walls[static_cast<int>(d.value)] = WallEnum::NoWall;
-        }
-      }
+  for_each_cell_and_dir([&](MazeIndex row, MazeIndex col, Direction d) {
+    auto &n = this->get_mutable_node({row, col});
+    if (!is_perimeter({row, col}, d)) {
+      n.walls[static_cast<int>(d)] = WallEnum::NoWall;
     }
-  }
+  });
 }
 
 void AbstractMaze::add_all_walls() {
@@ -341,7 +357,7 @@ bool AbstractMaze::flood_fill(Route *const path, RowCol const start, RowCol cons
 
     n = min_node;
 
-    insert_motion_primitive_front(path, {1, min_dir});
+    insert_motion_primitive_front(path, MotionPrimitive{MazeIndex{1}, min_dir});
   }
 
   return solvable;
@@ -440,7 +456,7 @@ std::string route_to_string(Route const &route) {
   }
 
   for (MotionPrimitive prim : route) {
-    ss << (int) prim.n << dir_to_char(prim.d);
+    ss << prim.n.value << dir_to_char(prim.d);
   }
 
   return ss.str();
@@ -448,7 +464,7 @@ std::string route_to_string(Route const &route) {
 
 unsigned int expanded_route_length(Route const &route) {
   return std::accumulate(route.begin(), route.end(), 0u,
-                         [](unsigned int accum, const MotionPrimitive &prim) { return accum + prim.n; });
+                         [](unsigned int accum, const MotionPrimitive &prim) { return accum + prim.n.value; });
 }
 
 void insert_motion_primitive_back(Route *route, MotionPrimitive const prim) {
@@ -472,7 +488,7 @@ Route AbstractMaze::truncate_route(RowCol const row_col, Route const route) cons
   bool done = false;
   RowCol current_rc = row_col;
   for (MotionPrimitive prim : route) {
-    for (unsigned int i = 0; i < prim.n; i++) {
+    for (MazeIndex i{0u}; i < prim.n; i++) {
       // check if this move is valid
       auto[valid, new_row_col] = step(current_rc, prim.d);
       auto const wall = is_wall(current_rc, prim.d);
@@ -484,7 +500,7 @@ Route AbstractMaze::truncate_route(RowCol const row_col, Route const route) cons
       // make the move
       current_rc = new_row_col;
 
-      insert_motion_primitive_back(&trunc, {1, prim.d});
+      insert_motion_primitive_back(&trunc, MotionPrimitive{MazeIndex{1}, prim.d});
     }
     if (done) {
       break;
